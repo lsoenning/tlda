@@ -58,15 +58,15 @@ disp_R <- function(subfreq,
 
   if (verbose) {
     if (type == "absolute") {
-      message("Scores represent absolute range, i.e. the number of corpus parts in which the item")
-      message("  appears at least once.")
+      message("\nScores represent absolute range, i.e. the number of corpus parts containing")
+      message("  at least one occurrence of the item.")
     } else if (type == "relative") {
-      message("Scores represent relative range, i.e. the proportion of corpus parts in which the")
-      message("  item appears at least once.")
+      message("\nScores represent relative range, i.e. the proportion of corpus parts")
+      message("  containing at least one occurrence of the item.")
       message("The size of the corpus parts is not taken into account.\n")
     } else if (type == "relative_withsize") {
-      message("Scores represent relative range, i.e. the proportion of corpus parts in which the")
-      message("  item appears at least once.")
+      message("\nScores represent relative range, i.e. the proportion of corpus parts")
+      message("  containing at least one occurrence of the item.")
       message("Size of corpus parts is taken into account, see:")
       message("  Gries (2022: 179-180) [https://doi.org/10.1075/jsls.21029.gri]")
       message("  Gries (2024: 27-28) [https://doi.org/10.1075/scl.115]")

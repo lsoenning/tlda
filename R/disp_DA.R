@@ -81,7 +81,7 @@ disp_DA <- function(subfreq,
   k <- length(partsize)
 
   if (formula == "basic") {
-    dist_r <- as.matrix(dist(r_i, method = "manhattan"))
+    dist_r <- as.matrix(stats::dist(r_i, method = "manhattan"))
     DA <- 1 - (mean(dist_r[lower.tri(dist_r)]) / (2 / k))
   } else if (formula == "shortcut") {
     DA <- (2 * sum(sort(r_i, decreasing = TRUE) * 1:k) - 1) / (k - 1)

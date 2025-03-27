@@ -112,7 +112,7 @@ disp <- function(subfreq,
   r_i <- R_i / sum(R_i)
   k <- length(T_i)
 
-  dist_r <- as.matrix(dist(r_i, method = "manhattan"))
+  dist_r <- as.matrix(stats::dist(r_i, method = "manhattan"))
 
   Rrel <- sum(T_i != 0) / length(T_i)
 
@@ -140,11 +140,11 @@ disp <- function(subfreq,
 
   if (verbose) {
     if (directionality == "gries") {
-      message("Scores follow scaling used by Gries (2008):")
+      message("\nScores follow scaling used by Gries (2008):")
       message("  0 = maximally even/dispersed/balanced distribution (optimum)")
       message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)\n")
     } else {
-      message("Scores follow conventional scaling:")
+      message("\nScores follow conventional scaling:")
       message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
       message("  1 = maximally even/dispersed/balanced distribution (optimum)\n")
     }
