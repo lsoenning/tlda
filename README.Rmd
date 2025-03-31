@@ -51,13 +51,13 @@ The function prints information about the directionality of scaling and details 
 
 As an example, we will use data from Lyne's (1985) classic study and consider the distribution of the French lemma ALLEMAND across the ten (nearly) equal-sized parts ('Tenths') of his corpus of French business correspondence. The part sizes are taken from Figure 1 (p. 85) and the subfrequencies from Appendix I (p. 299). The following dispersion measures are calculated (returned in chronological order):
 
-- $R_{rel}$ relative range (Keniston 1920)
-- $D$ (Juilland & Chang-Rodriguez 1964)
-- $D_2$ (Carroll 1970)
-- $S$ (Rosengren 1971)
-- $D_P$ (Gries 2008; modification: Egbert et al. 2020)
-- $D_A$ (Burch et al. 2017)
-- $D_{KL}$ (Gries 2020, 2021)
+- *R~rel~* relative range (Keniston 1920)
+- *D* (Juilland & Chang-Rodriguez 1964)
+- *D~2~* (Carroll 1970)
+- *S* (Rosengren 1971)
+- *D~P~* (Gries 2008; modification: Egbert et al. 2020)
+- *D~A~* (Burch et al. 2017)
+- *D~KL~* (Gries 2020, 2021)
 
 ```{r}
 library(tlda)
@@ -86,14 +86,14 @@ Critically, the functions offered by the current package for calculating dispers
 
 For three dispersion measures, separate functions offer more options and finer control:
 
-- `disp_R()` for $Range$
+- `disp_R()` for *Range*
 - `disp_DP()` for Gries's *deviation of proportions*
-- `disp_DA()` for $D_A$
+- `disp_DA()` for *D~A~*
 
 
 ### Calculate *Range*: `disp_R()`
 
-For $Range$, three choice are available: (i) relative range (`relative`), i.e. the *proportion* of corpus parts containing at least one occurrence of the item (default); (ii) absolute range (`absolute`), i.e. the *number* of corpus parts containing at least one occurrence of the item; and (iii) relative range with size (`relative_withsize`), the proportional version that takes into account the size of the corpus parts (see Gries 2022: 179-180; Gries 2024: 27-28). The following code returns absolute range:
+For *Range*, three choice are available: (i) relative range (`relative`), i.e. the *proportion* of corpus parts containing at least one occurrence of the item (default); (ii) absolute range (`absolute`), i.e. the *number* of corpus parts containing at least one occurrence of the item; and (iii) relative range with size (`relative_withsize`), the proportional version that takes into account the size of the corpus parts (see Gries 2022: 179-180; Gries 2024: 27-28). The following code returns absolute range:
 
 ```{r}
 disp_R(
@@ -119,7 +119,7 @@ disp_DP(
 
 ### Calculate *D~A~*: `disp_DA()`
 
-For $D_A$, three formulas are available, The `basic` version is direct implementation of the actual formula for this measure, which is computationally expensive if the number of corpus parts is large. Wilcox (1973: 343) gives a `shortcut` version, which is much quicker (see this [blog post](https://lsoenning.github.io/posts/2023-12-11_computation_DA/)). Finally, `shortcut_mod` is a slightly adapted form of the shortcut (experimental), which ensures that scores do not exceed 1 (conventional scaling). The following code uses Wilcox's (1973) shortcut version:
+For *D~A~*, three formulas are available, The `basic` version is direct implementation of the actual formula for this measure, which is computationally expensive if the number of corpus parts is large. Wilcox (1973: 343) gives a `shortcut` version, which is much quicker (see this [blog post](https://lsoenning.github.io/posts/2023-12-11_computation_DA/)). Finally, `shortcut_mod` is a slightly adapted form of the shortcut (experimental), which ensures that scores do not exceed 1 (conventional scaling). The following code uses Wilcox's (1973) shortcut version:
 
 ```{r}
 disp_DA(
@@ -159,7 +159,7 @@ ice_gb_DA <- apply(
     }
   )
 
-ice_gb_DA
+round(ice_gb_DA, 2)
 ```
 
 We can also calculate multiple DMs based on this term-document matrix:

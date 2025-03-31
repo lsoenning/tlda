@@ -49,13 +49,13 @@ correspondence. The part sizes are taken from Figure 1 (p. 85) and the
 subfrequencies from Appendix I (p. 299). The following dispersion
 measures are calculated (returned in chronological order):
 
-- $R_{rel}$ relative range (Keniston 1920)
-- $D$ (Juilland & Chang-Rodriguez 1964)
-- $D_2$ (Carroll 1970)
-- $S$ (Rosengren 1971)
-- $D_P$ (Gries 2008; modification: Egbert et al. 2020)
-- $D_A$ (Burch et al. 2017)
-- $D_{KL}$ (Gries 2020, 2021)
+- *R<sub>rel</sub>* relative range (Keniston 1920)
+- *D* (Juilland & Chang-Rodriguez 1964)
+- *D<sub>2</sub>* (Carroll 1970)
+- *S* (Rosengren 1971)
+- *D<sub>P</sub>* (Gries 2008; modification: Egbert et al. 2020)
+- *D<sub>A</sub>* (Burch et al. 2017)
+- *D<sub>KL</sub>* (Gries 2020, 2021)
 
 ``` r
 library(tlda)
@@ -108,13 +108,13 @@ scaling implemented in the original formula; the default is
 For three dispersion measures, separate functions offer more options and
 finer control:
 
-- `disp_R()` for $Range$
+- `disp_R()` for *Range*
 - `disp_DP()` for Gries’s *deviation of proportions*
-- `disp_DA()` for $D_A$
+- `disp_DA()` for *D<sub>A</sub>*
 
 ### Calculate *Range*: `disp_R()`
 
-For $Range$, three choice are available: (i) relative range
+For *Range*, three choice are available: (i) relative range
 (`relative`), i.e. the *proportion* of corpus parts containing at least
 one occurrence of the item (default); (ii) absolute range (`absolute`),
 i.e. the *number* of corpus parts containing at least one occurrence of
@@ -165,11 +165,11 @@ disp_DP(
 
 ### Calculate *D<sub>A</sub>*: `disp_DA()`
 
-For $D_A$, three formulas are available, The `basic` version is direct
-implementation of the actual formula for this measure, which is
-computationally expensive if the number of corpus parts is large. Wilcox
-(1973: 343) gives a `shortcut` version, which is much quicker (see this
-[blog
+For *D<sub>A</sub>*, three formulas are available, The `basic` version
+is direct implementation of the actual formula for this measure, which
+is computationally expensive if the number of corpus parts is large.
+Wilcox (1973: 343) gives a `shortcut` version, which is much quicker
+(see this [blog
 post](https://lsoenning.github.io/posts/2023-12-11_computation_DA/)).
 Finally, `shortcut_mod` is a slightly adapted form of the shortcut
 (experimental), which ensures that scores do not exceed 1 (conventional
@@ -236,67 +236,67 @@ ice_gb_DA <- apply(
     }
   )
 
-ice_gb_DA
+round(ice_gb_DA, 2)
 #>             a          able      actually         after       against 
-#>  8.392881e-01  3.086468e-01  3.175772e-01  4.511646e-01  2.462393e-01 
+#>          0.84          0.31          0.32          0.45          0.25 
 #>            ah           aha           all         among            an 
-#>  9.934739e-02  5.906302e-03  6.355568e-01  1.488153e-01  6.722690e-01 
+#>          0.10          0.01          0.64          0.15          0.67 
 #>           and       another       anybody            at           aye 
-#>  8.320418e-01  4.377132e-01  9.145857e-02  7.134063e-01            NA 
+#>          0.83          0.44          0.09          0.71            NA 
 #>            be        became          been         began           bet 
-#>  6.901388e-01  1.263320e-01  5.984371e-01  6.275881e-02  3.408557e-02 
+#>          0.69          0.13          0.60          0.06          0.03 
 #>       between         bloke          both      bringing       brought 
-#>  3.903324e-01  8.611473e-03  3.635567e-01  7.335666e-02  2.186905e-01 
+#>          0.39          0.01          0.36          0.07          0.22 
 #>           but       charles       claimed           cor          corp 
-#>  7.002995e-01  5.569095e-03  5.286834e-02  2.102363e-02            NA 
+#>          0.70          0.01          0.05          0.02            NA 
 #>           cos            da           day       decided           did 
-#>  1.062891e-01  3.880833e-03  3.101525e-01  1.261960e-01  3.668100e-01 
+#>          0.11          0.00          0.31          0.13          0.37 
 #>            do           doo        during          each      economic 
-#>  4.921526e-01  4.440892e-16  2.321392e-01  2.454198e-01  7.431622e-02 
+#>          0.49          0.00          0.23          0.25          0.07 
 #>            eh        eighty       england            er           etc 
-#>  2.724204e-02  2.824865e-02  9.318095e-02 -6.661338e-16  5.535372e-02 
+#>          0.03          0.03          0.09          0.00          0.06 
 #>     everybody          fall           fig           for         forty 
-#>  1.334489e-01  1.002484e-01  3.915090e-03  7.126037e-01  7.238021e-02 
+#>          0.13          0.10          0.00          0.71          0.07 
 #>         found          from          full           get    government 
-#>  2.741960e-01  6.512802e-01  2.026449e-01  4.037115e-01  1.308854e-01 
+#>          0.27          0.65          0.20          0.40          0.13 
 #>            ha           had           has          have        having 
-#>  4.887302e-02  4.434847e-01  5.258346e-01  6.939355e-01  3.414425e-01 
+#>          0.05          0.44          0.53          0.69          0.34 
 #>          held         hello       himself            hm       however 
-#>  1.401282e-01  3.816580e-02  1.610771e-01  7.694600e-03  2.632277e-01 
+#>          0.14          0.04          0.16          0.01          0.26 
 #>       hundred             i           ibm            if     important 
-#>  2.769039e-02  4.350081e-01 -6.661338e-16  5.587437e-01  2.949953e-01 
+#>          0.03          0.44          0.00          0.56          0.29 
 #>            in          inc.     including international          into 
-#>  7.849002e-01 -4.440892e-16  1.915460e-01  7.198392e-02  5.498629e-01 
+#>          0.78          0.00          0.19          0.07          0.55 
 #>            it          just          know         large         later 
-#>  6.350027e-01  4.369285e-01  3.442027e-01  2.411894e-01  2.511499e-01 
+#>          0.64          0.44          0.34          0.24          0.25 
 #>        latter           let          life           ltd          made 
-#>  6.002562e-02  2.539521e-01  2.045846e-01            NA  4.128559e-01 
+#>          0.06          0.25          0.20            NA          0.41 
 #>           may       methods           mhm         minus            mm 
-#>  3.609846e-01  4.579526e-02  3.790916e-02  4.523950e-03  8.860373e-02 
+#>          0.36          0.05          0.04          0.00          0.09 
 #>          most            mr           mum           new      nineteen 
-#>  4.359599e-01  2.484219e-02  4.927036e-02  3.077848e-01  4.667564e-02 
+#>          0.44          0.02          0.05          0.31          0.05 
 #>        ninety        nodded        nought            oh          okay 
-#>  3.269520e-02  8.454867e-03  2.771623e-03  1.673124e-01  3.547629e-03 
+#>          0.03          0.01          0.00          0.17          0.00 
 #>            on           ooh           out         pence       percent 
-#>  7.575983e-01  3.457081e-02  5.447255e-01  4.792404e-03  1.098191e-03 
+#>          0.76          0.03          0.54          0.00          0.00 
 #>     political      presence      provides           put        really 
-#>  1.166187e-01  7.763672e-02  7.234145e-02  3.682033e-01  3.402708e-01 
+#>          0.12          0.08          0.07          0.37          0.34 
 #>        reckon           say        seemed     seriously         sixty 
-#>  1.953090e-02  4.115116e-01  8.275159e-02  7.097227e-02  5.057136e-02 
+#>          0.02          0.41          0.08          0.07          0.05 
 #>        smiled            so        social      somebody        system 
-#>  1.128904e-02  5.116839e-01  8.314279e-02  1.326531e-01  1.062700e-01 
+#>          0.01          0.51          0.08          0.13          0.11 
 #>          take       talking          than           the          they 
-#>  4.434643e-01  1.937919e-01  4.775120e-01  7.832780e-01  5.635706e-01 
+#>          0.44          0.19          0.48          0.78          0.56 
 #>         thing         think      thirteen        though          thus 
-#>  3.111069e-01  3.679458e-01  2.809657e-02  3.242343e-01  8.719010e-02 
+#>          0.31          0.37          0.03          0.32          0.09 
 #>          time            tt            tv        twenty           ugh 
-#>  5.705749e-01            NA  1.121687e-02  1.335638e-01  2.971263e-03 
+#>          0.57            NA          0.01          0.13          0.00 
 #>           uhm            uk         under            us           usa 
-#>  2.468018e-01  2.189610e-02  3.129299e-01  3.602128e-01  1.440807e-02 
+#>          0.25          0.02          0.31          0.36          0.01 
 #>         wants           was            we           who          with 
-#>  1.036718e-01  5.371081e-01  4.478776e-01  5.311113e-01  7.498902e-01 
+#>          0.10          0.54          0.45          0.53          0.75 
 #>         world          yeah           yes           you          your 
-#>  2.096905e-01  1.457302e-01  1.980841e-01  4.163793e-01  2.743941e-01
+#>          0.21          0.15          0.20          0.42          0.27
 ```
 
 We can also calculate multiple DMs based on this term-document matrix:
