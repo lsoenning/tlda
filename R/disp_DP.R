@@ -9,6 +9,7 @@
 #' @param formula Character string indicating which formula to use for the calculation of DP. See details below. Possible values are \code{'egbert_etal_2020'} (default), \code{'gries_2008'}, \code{'lijffit_gries_2012'}
 #' @param directionality Character string indicating the directionality of scaling. See details below. Possible values are \code{'conventional'} (default), \code{'gries'}
 #' @param verbose Logical. Whether additional information on scaling and formulas should be printed, default is TRUE
+#' @param print_score Logical. Whether the dispersion score should be printed to the console, default is TRUE
 #'
 #' @author Lukas Soenning
 #' 
@@ -69,7 +70,8 @@ disp_DP <- function(subfreq,
                     partsize,
                     formula = "egbert_etal_2020",
                     directionality = "conventional",
-                    verbose = TRUE) {
+                    verbose = TRUE,
+                    print_score = TRUE) {
   w_i <- partsize / sum(partsize)
   t_i <- subfreq / sum(subfreq)
 
@@ -85,8 +87,8 @@ disp_DP <- function(subfreq,
 
   names(DP) <- c("DP")
 
-  print(DP)
-
+  if (print_score == TRUE) print(DP)
+  
   if (verbose) {
     if (directionality == "gries") {
       message("\nScores follow scaling used by Gries (2008):")

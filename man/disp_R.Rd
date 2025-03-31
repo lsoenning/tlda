@@ -4,7 +4,13 @@
 \alias{disp_R}
 \title{Calculate the dispersion measure 'range'}
 \usage{
-disp_R(subfreq, partsize, type = "relative", verbose = TRUE)
+disp_R(
+  subfreq,
+  partsize,
+  type = "relative",
+  verbose = TRUE,
+  print_score = TRUE
+)
 }
 \arguments{
 \item{subfreq}{A numeric vector of subfrequencies, i.e. the number of occurrences of the item in each corpus part}
@@ -14,6 +20,8 @@ disp_R(subfreq, partsize, type = "relative", verbose = TRUE)
 \item{type}{Character string indicating which type of range to calculate. See details below. Possible values are \code{'relative'} (default), \code{'absolute'}, \code{'relative_withsize'}}
 
 \item{verbose}{Logical. Whether additional information should be printed, default is TRUE}
+
+\item{print_score}{Logical. Whether the dispersion score should be printed to the console, default is TRUE}
 }
 \value{
 Returns a numeric value, the dispersion score.

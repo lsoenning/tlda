@@ -4,7 +4,13 @@
 \alias{disp}
 \title{Calculate parts-based dispersion measures}
 \usage{
-disp(subfreq, partsize, directionality = "conventional", verbose = TRUE)
+disp(
+  subfreq,
+  partsize,
+  directionality = "conventional",
+  verbose = TRUE,
+  print_score = TRUE
+)
 }
 \arguments{
 \item{subfreq}{A numeric vector of subfrequencies, i.e. the number of occurrences of the item in each corpus part}
@@ -14,6 +20,8 @@ disp(subfreq, partsize, directionality = "conventional", verbose = TRUE)
 \item{directionality}{Character string indicating the directionality of scaling. See details below. Possible values are \code{'conventional'} (default), \code{'gries'}}
 
 \item{verbose}{Logical. Whether additional information on scaling and formulas should be printed, default is TRUE}
+
+\item{print_score}{Logical. Whether the dispersion score should be printed to the console, default is TRUE}
 }
 \value{
 Returns a numeric vector with seven dispersion scores, one for each measure (in the order listed above).

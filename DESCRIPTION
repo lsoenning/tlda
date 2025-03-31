@@ -4,7 +4,9 @@ Version: 0.0.0.9000
 Authors@R: 
     person("Lukas", "Soenning", , "lukas.soenning@uni-bamberg.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2705-395X"))
-Description: This package includes a number of utility functions and resources for language data analysis.
+Description: Support functions and datasets to facilitate the analysis of
+    linguistic data. Currently, the focus is on the calculation of corpus-based 
+    dispersion measures.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -12,3 +14,6 @@ RoxygenNote: 7.3.2
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+LazyData: true

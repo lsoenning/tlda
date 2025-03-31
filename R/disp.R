@@ -7,6 +7,7 @@
 #' @param partsize A numeric vector with the size of the corpus parts
 #' @param directionality Character string indicating the directionality of scaling. See details below. Possible values are \code{'conventional'} (default), \code{'gries'}
 #' @param verbose Logical. Whether additional information on scaling and formulas should be printed, default is TRUE
+#' @param print_score Logical. Whether the dispersion score should be printed to the console, default is TRUE
 #'
 #' @author Lukas Soenning
 #' 
@@ -103,7 +104,8 @@
 disp <- function(subfreq,
                  partsize,
                  directionality = "conventional",
-                 verbose = TRUE) {
+                 verbose = TRUE,
+                 print_score = TRUE) {
   W_i <- partsize
   w_i <- W_i / sum(W_i)
   T_i <- subfreq
@@ -136,7 +138,7 @@ disp <- function(subfreq,
 
   names(output) <- c("Rrel", "D", "D2", "S", "DP", "DA", "DKL")
 
-  print(output)
+  if (print_score == TRUE) print(output)
 
   if (verbose) {
     if (directionality == "gries") {

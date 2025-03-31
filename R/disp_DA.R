@@ -8,6 +8,7 @@
 #' @param formula Character string indicating which formula to use for the calculation of DA. See details below. Possible values are \code{'basic'} (default), \code{'shortcut'}
 #' @param directionality Character string indicating the directionality of scaling. See details below. Possible values are \code{'conventional'} (default), \code{'gries'}
 #' @param verbose Logical. Whether additional information on scaling and formulas should be printed, default is TRUE
+#' @param print_score Logical. Whether the dispersion score should be printed to the console, default is TRUE
 #' 
 #' @author Lukas Soenning
 #' 
@@ -75,7 +76,8 @@ disp_DA <- function(subfreq,
                     partsize,
                     formula = "basic",
                     directionality = "conventional",
-                    verbose = TRUE) {
+                    verbose = TRUE,
+                    print_score = TRUE) {
   R_i <- subfreq / partsize
   r_i <- R_i / sum(R_i)
   k <- length(partsize)
@@ -93,8 +95,8 @@ disp_DA <- function(subfreq,
 
   names(DA) <- c("DA")
 
-  print(DA)
-
+  if (print_score == TRUE) print(DA)
+  
   if (verbose) {
     if (directionality == "gries") {
       message("\nScores follow scaling used by Gries (2008):")

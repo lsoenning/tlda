@@ -7,6 +7,7 @@
 #' @param partsize A numeric vector with the size of the corpus parts
 #' @param type Character string indicating which type of range to calculate. See details below. Possible values are \code{'relative'} (default), \code{'absolute'}, \code{'relative_withsize'}
 #' @param verbose Logical. Whether additional information should be printed, default is TRUE
+#' @param print_score Logical. Whether the dispersion score should be printed to the console, default is TRUE
 #'
 #' @author Lukas Soenning
 #'
@@ -40,7 +41,8 @@
 disp_R <- function(subfreq,
                    partsize,
                    type = "relative",
-                   verbose = TRUE) {
+                   verbose = TRUE,
+                   print_score = TRUE) {
   w_i <- partsize / sum(partsize)
 
   if (type == "absolute") {
@@ -54,8 +56,8 @@ disp_R <- function(subfreq,
     names(R) <- c("R_rel_withsize")
   }
 
-  print(R)
-
+  if (print_score == TRUE) print(R)
+  
   if (verbose) {
     if (type == "absolute") {
       message("\nScores represent absolute range, i.e. the number of corpus parts containing")
