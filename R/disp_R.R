@@ -44,6 +44,9 @@
 disp_R <- function(subfreq,
                    partsize,
                    type = "relative",
+                   freq_adjust = FALSE,
+                   freq_adjust_method = "pervasive",
+                   digits = NULL,
                    verbose = TRUE,
                    print_score = TRUE) {
   
@@ -64,10 +67,8 @@ disp_R <- function(subfreq,
     
   } else {
     
-    DP_score <- calculate_DP(subfreq, partsize)
-    output <- DP_score
-    
-    if (directionality == "gries") DP_score <- 1 - DP_score
+    R_score <- calculate_R(subfreq, partsize)
+    output <- R_score
     
     if (freq_adjust == TRUE){
       
@@ -79,16 +80,11 @@ disp_R <- function(subfreq,
         subfreq, 
         partsize)
       
-      DP_min <- calculate_DP(subfreq_min_disp, partsize)
-      DP_max <- calculate_DP(subfreq_max_disp, partsize)
-      
-      if (directionality == "gries") {
-        DP_min <- 1 - DP_min
-        DP_max <- 1 - DP_max
-      } 
+      R_min <- calculate_R(subfreq_min_disp, partsize)
+      R_max <- calculate_R(subfreq_max_disp, partsize)
       
       # frequency-adjusted version
-      output <- (DP_score - DP_min) / (DP_max - DP_min)
+      output <- (R_score - R_min) / (R_max - R_min)
       
     }
   }
@@ -103,6 +99,8 @@ disp_R <- function(subfreq,
     if (type == "relative_withsize") names(output) <- "Rrel_withsize"
     }
 
+  if (!is.null(digits)) output <- round(output, digits)
+  
   if (print_score == TRUE) print(output)
   
   if (verbose) {
@@ -111,8 +109,8 @@ disp_R <- function(subfreq,
       message("  transformation (see Gries 2024: 196-208)")
     }
     if (type == "absolute") {
-      message("\nScores represent absolute range, i.e. the number of corpus parts containing")
-      message("  at least one occurrence of the item.")
+      message("\nScores represent absolute range, i.e. the number of corpus parts")
+      message("  containing at least one occurrence of the item.")
     } else if (type == "relative") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
       message("  containing at least one occurrence of the item.")
@@ -120,9 +118,8 @@ disp_R <- function(subfreq,
     } else if (type == "relative_withsize") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
       message("  containing at least one occurrence of the item.")
-      message("Size of corpus parts is taken into account, see:")
-      message("  Gries (2022: 179-180) [https://doi.org/10.1075/jsls.21029.gri]")
-      message("  Gries (2024: 27-28) [https://doi.org/10.1075/scl.115]")
+      message("Size of corpus parts is taken into account, see Gries (2022: 179-180),")
+      message("  Gries (2024: 27-28)")
     }
   }
   invisible(output)
@@ -179,6 +176,7 @@ disp_R_tdm <- function(tdm,
                    type = "relative",
                    freq_adjust = FALSE,
                    freq_adjust_method = "pervasive",
+                   digits = NULL,
                    verbose = TRUE,
                    print_score = TRUE) {
   
@@ -264,6 +262,8 @@ disp_R_tdm <- function(tdm,
   
   output <- t(output)
 
+  if (!is.null(digits)) output <- round(output, digits)
+  
   if (print_score == TRUE) print(output)
   
   if (verbose) {
@@ -272,8 +272,8 @@ disp_R_tdm <- function(tdm,
       message("  transformation (see Gries 2024: 196-208)")
     }
     if (type == "absolute") {
-      message("\nScores represent absolute range, i.e. the number of corpus parts containing")
-      message("  at least one occurrence of the item.")
+      message("\nScores represent absolute range, i.e. the number of corpus parts")
+      message("  containing at least one occurrence of the item.")
     } else if (type == "relative") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
       message("  containing at least one occurrence of the item.")
@@ -281,9 +281,8 @@ disp_R_tdm <- function(tdm,
     } else if (type == "relative_withsize") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
       message("  containing at least one occurrence of the item.")
-      message("Size of corpus parts is taken into account, see:")
-      message("  Gries (2022: 179-180) [https://doi.org/10.1075/jsls.21029.gri]")
-      message("  Gries (2024: 27-28) [https://doi.org/10.1075/scl.115]")
+      message("Size of corpus parts is taken into account, see Gries (2022: 179-180),")
+      message("  Gries (2024: 27-28)")
     }
   }
   invisible(output)

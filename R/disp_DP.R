@@ -74,6 +74,7 @@ disp_DP <- function(subfreq,
                     formula = "egbert_etal_2020",
                     freq_adjust = FALSE,
                     freq_adjust_method = "pervasive",
+                    digits = NULL,
                     verbose = TRUE,
                     print_score = TRUE) {
   
@@ -129,6 +130,8 @@ disp_DP <- function(subfreq,
     names(output) <- "DP"
   }
   
+  if (!is.null(digits)) output <- round(output, digits)
+
   if (print_score == TRUE) print(output)
   
   if (verbose) {
@@ -236,6 +239,7 @@ disp_DP_tdm <- function(tdm,
                         formula = "egbert_etal_2020",
                         freq_adjust = FALSE,
                         freq_adjust_method = "pervasive",
+                        digits = NULL,
                         verbose = TRUE,
                         print_score = TRUE) {
   
@@ -320,8 +324,10 @@ disp_DP_tdm <- function(tdm,
   }
   
   output <- t(output)
-
-    if (print_score == TRUE) print(output)
+  
+  if (!is.null(digits)) output <- round(output, digits)
+  
+  if (print_score == TRUE) print(output)
   
   if (verbose) {
     if (freq_adjust == TRUE){

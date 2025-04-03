@@ -80,6 +80,7 @@ disp_DA <- function(subfreq,
                     directionality = "conventional",
                     freq_adjust = FALSE,
                     freq_adjust_method = "pervasive_even",
+                    digits = NULL,
                     verbose = TRUE,
                     print_score = TRUE) {
   
@@ -137,6 +138,8 @@ disp_DA <- function(subfreq,
     names(output) <- "DA"
   }
 
+  if (!is.null(digits)) output <- round(output, digits)
+  
   if (print_score == TRUE) print(output)
   
   if (verbose) {
@@ -254,6 +257,7 @@ disp_DA_tdm <- function(tdm,
                     procedure = "basic",
                     freq_adjust = FALSE,
                     freq_adjust_method = "pervasive_even",
+                    digits = NULL,
                     verbose = TRUE,
                     print_score = TRUE) {
   
@@ -338,8 +342,10 @@ disp_DA_tdm <- function(tdm,
   }
   
   output <- t(output)
-
-    if (print_score == TRUE) print(output)
+  
+  if (!is.null(digits)) output <- round(output, digits)
+  
+  if (print_score == TRUE) print(output)
   
   if (verbose) {
     if (freq_adjust == TRUE){

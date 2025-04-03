@@ -21,7 +21,7 @@ different parts-based dispersion measures, including their
 frequency-adjusted version. Subfrequencies and part sizes can be
 supplied in two forms, either as vectors or as a term-document matrix.
 For some measures, different formulas are found in the literature, and
-the user can choose among these. The following indices are implemented:
+the user can choose among them. The following indices are implemented:
 
 - *Range* (Keniston 1920)
 - *D* (Juilland & Chang-Rodriguez 1964)
@@ -33,7 +33,7 @@ the user can choose among these. The following indices are implemented:
 
 ## Usage
 
-The function `disp()` calculating seven dispersion measures based on two
+The function `disp()` calculates seven dispersion measures based on two
 vectors:
 
 - `subfreq` a set of subfrequencies, i.e. the number of occurrences of
@@ -113,7 +113,7 @@ A number of example data sets are shipped with the `tlda` package,
 including `biber150_ice_gb`, a term-document matrix recording the
 text-level subfrequencies for Biber et al.’s (2016) 150 lexical items in
 ICE-GB. Importantly, the first row gives the number of word tokens in
-the text file. This is an excerpt of the matrix:
+the text file. This is an excerpt from the matrix:
 
 ``` r
 biber150_ice_gb[1:5, 1:5]
@@ -136,37 +136,27 @@ following:
 - `row_partsize` Character string indicating which row in the TDM
   contains the size of the corpus parts.
 
-The following calculates dispersion score for the first ten items in the
-term-document matrix:
+The following calculates dispersion scores for the first ten items in
+the term-document matrix (rounded to two decimal places).
 
 ``` r
 disp_tdm(
     tdm = biber150_ice_gb[1:11,], 
     row_partsize = "first_row",
+    digits = 2,
     print_score = TRUE,
     verbose = FALSE)
-#>           Rrel         D        D2           S          DP          DA
-#> a        1.000 0.9870710 0.9933147 0.979212413 0.888365693 0.839288095
-#> able     0.454 0.9335737 0.8439188 0.418157031 0.455174970 0.308646817
-#> actually 0.578 0.9347875 0.8582008 0.481715623 0.463542822 0.317577246
-#> after    0.708 0.9523801 0.9098015 0.637161938 0.590496159 0.451164597
-#> against  0.384 0.9190571 0.8085548 0.344950569 0.384476586 0.246239297
-#> ah       0.170 0.8597923 0.6663541 0.144339551 0.166632009 0.099347394
-#> aha      0.008 0.5013281 0.2230140 0.007645153 0.007646451 0.005906302
-#> all      0.970 0.9705118 0.9646528 0.876345852 0.736685461 0.635556781
-#> among    0.206 0.8932566 0.7232523 0.196528249 0.209653551 0.148815290
-#> an       0.984 0.9730939 0.9717710 0.906244754 0.763723695 0.672268981
-#>                DKL
-#> a        0.9439996
-#> able     0.4176334
-#> actually 0.4367701
-#> after    0.5535184
-#> against  0.3686444
-#> ah       0.2485908
-#> aha      0.1245100
-#> all      0.7593061
-#> among    0.2894787
-#> an       0.7990869
+#>          Rrel    D   D2    S   DP   DA  DKL
+#> a        1.00 0.99 0.99 0.98 0.89 0.84 0.94
+#> able     0.45 0.93 0.84 0.42 0.46 0.31 0.42
+#> actually 0.58 0.93 0.86 0.48 0.46 0.32 0.44
+#> after    0.71 0.95 0.91 0.64 0.59 0.45 0.55
+#> against  0.38 0.92 0.81 0.34 0.38 0.25 0.37
+#> ah       0.17 0.86 0.67 0.14 0.17 0.10 0.25
+#> aha      0.01 0.50 0.22 0.01 0.01 0.01 0.12
+#> all      0.97 0.97 0.96 0.88 0.74 0.64 0.76
+#> among    0.21 0.89 0.72 0.20 0.21 0.15 0.29
+#> an       0.98 0.97 0.97 0.91 0.76 0.67 0.80
 ```
 
 ## Installation

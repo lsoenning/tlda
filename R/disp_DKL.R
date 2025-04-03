@@ -69,6 +69,7 @@ disp_DKL <- function(subfreq,
                     standardization = "o2p",
                     freq_adjust = FALSE,
                     freq_adjust_method = "pervasive",
+                    digits = NULL,
                     verbose = TRUE,
                     print_score = TRUE) {
   
@@ -126,6 +127,8 @@ disp_DKL <- function(subfreq,
     names(output) <- "DKL"
   }
   
+  if (!is.null(digits)) output <- round(output, digits)
+
   if (print_score == TRUE) print(output)
   
   if (verbose) {
@@ -230,6 +233,7 @@ disp_DKL_tdm <- function(tdm,
                      standardization = "o2p",
                      freq_adjust = FALSE,
                      freq_adjust_method = "pervasive",
+                     digits = NULL,
                      verbose = TRUE,
                      print_score = TRUE) {
   
@@ -315,6 +319,8 @@ disp_DKL_tdm <- function(tdm,
   
   output <- t(output)
 
+  if (!is.null(digits)) output <- round(output, digits)
+  
   if (print_score == TRUE) print(output)
   
   if (verbose) {

@@ -8,6 +8,7 @@
 #' @param directionality Character string indicating the directionality of scaling. See details below. Possible values are \code{'conventional'} (default) and \code{'gries'}
 #' @param freq_adjust Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}
 #' @param freq_adjust_method Character string indicating which method to used for devising a 'maximally dispersed' distribution of the item, which is necessary for frequency adjustment. See details below. Possible values are \code{'pervasive'} (default) and \code{'pervasive_even'}
+#' @param digits Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)
 #' @param verbose Logical. Whether additional information (directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}
 #' @param print_score Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}
 #'
@@ -118,6 +119,7 @@ disp <- function(subfreq,
                  directionality = "conventional",
                  freq_adjust = FALSE,
                  freq_adjust_method = "pervasive",
+                 digits = NULL,
                  verbose = TRUE,
                  print_score = TRUE) {
   
@@ -195,6 +197,8 @@ disp <- function(subfreq,
   }
   
   if (directionality == "gries") output <- 1 - output
+  
+  if (!is.null(digits)) output <- round(output, digits)
   
   if (print_score == TRUE) print(output)
   
@@ -336,6 +340,7 @@ disp_tdm <- function(tdm,
                      directionality = "conventional",
                      freq_adjust = FALSE,
                      freq_adjust_method = "pervasive",
+                     digits = NULL,
                      verbose = TRUE,
                      print_score = TRUE) {
   
@@ -416,6 +421,8 @@ disp_tdm <- function(tdm,
   
   if (directionality == "gries") output <- 1 - output
   
+  if (!is.null(digits)) output <- round(output, digits)
+
   output <- t(output)
   
   if (print_score == TRUE) print(output)

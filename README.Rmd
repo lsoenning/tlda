@@ -23,7 +23,7 @@ This package includes a number of utility functions and resources for language d
 - the *subfrequencies*, i.e. the number of times the item is found in each corpus part
 - the *size of the corpus parts* (number of word tokens)
 
-The package includes functions that allow you to calculate seven different parts-based dispersion measures, including their frequency-adjusted version. Subfrequencies and part sizes can be supplied in two forms, either as vectors or as a term-document matrix. For some measures, different formulas are found in the literature, and the user can choose among these. The following indices are implemented:
+The package includes functions that allow you to calculate seven different parts-based dispersion measures, including their frequency-adjusted version. Subfrequencies and part sizes can be supplied in two forms, either as vectors or as a term-document matrix. For some measures, different formulas are found in the literature, and the user can choose among them. The following indices are implemented:
 
 - *Range* (Keniston 1920)
 - *D* (Juilland & Chang-Rodriguez 1964)
@@ -37,7 +37,7 @@ The package includes functions that allow you to calculate seven different parts
 
 ## Usage
 
-The function `disp()` calculating seven dispersion measures based on two vectors:
+The function `disp()` calculates seven dispersion measures based on two vectors:
 
 - `subfreq` a set of subfrequencies, i.e. the number of occurrences of the item in each corpus part
 - `partsize` a vector with the size of the corpus parts
@@ -79,7 +79,7 @@ To calculate dispersion for multiple items, it makes sense to provide the data i
 - each row represents an item
 - each column represents a corpus part.
 
-A number of example data sets are shipped with the `tlda` package, including `biber150_ice_gb`, a term-document matrix recording the text-level subfrequencies for Biber et al.'s (2016) 150 lexical items in ICE-GB. Importantly, the first row gives the number of word tokens in the text file. This is an excerpt of the matrix:
+A number of example data sets are shipped with the `tlda` package, including `biber150_ice_gb`, a term-document matrix recording the text-level subfrequencies for Biber et al.'s (2016) 150 lexical items in ICE-GB. Importantly, the first row gives the number of word tokens in the text file. This is an excerpt from the matrix:
 
 ```{r}
 biber150_ice_gb[1:5, 1:5]
@@ -90,12 +90,13 @@ The function `disp_tdm()` calculates seven dispersion measures for each item in 
 - `tdm` A term-document matrix, where rows represent items and columns corpus parts; it must also contain a row giving the size of the corpus parts (first or last row in the TDM)
 - `row_partsize` Character string indicating which row in the TDM contains the size of the corpus parts.
 
-The following calculates dispersion score for the first ten items in the term-document matrix:
+The following calculates dispersion scores for the first ten items in the term-document matrix (rounded to two decimal places).
 
 ```{r}
 disp_tdm(
     tdm = biber150_ice_gb[1:11,], 
     row_partsize = "first_row",
+    digits = 2,
     print_score = TRUE,
     verbose = FALSE)
 ```
