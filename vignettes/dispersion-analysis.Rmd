@@ -1,0 +1,425 @@
+---
+title: "Dispersion analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Dispersion analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tlda)
+library(ggplot2)
+```
+
+### Overview
+
+The `tlda` package offers various functions for corpus-linguistic dispersion analysis. The dispersion measures that are implemented are parts-based, which means that they assess the distribution of an item across corpus parts. For any type of dispersion analysis carried out with the `tlda` package, you therefore need to supply two pieces of information:
+
+- the *subfrequencies*, i.e. the number of occurrences of the item in each corpus part
+- the *size of the corpus parts*
+
+You can provide this data in two forms, and the choice between them mainly depends on whether you want to measure the dispersion of a *single* item only or for *multiple* items simultaneously. 
+
+- Single item: *vector form*. You can provide the subfrequencies and part sizes as two separate vectors.
+- Multiple items: *term-document matrix*. This is a summary table that includes subfrequencies for multiple items, where rows represent items, and columns represent corpus parts. (explained in more detail below)
+
+Accordingly, there are two versions of each function: The function `disp()`, for instance, calculates dispersion measures for data provided in vector form. The `_tdm` suffix in a function name indicates the version that works with a term-document matrix. The function `disp_tdm()` therefore offers the same functionality as `disp()`, the only difference being that it works with data provided in matrix format.
+
+
+### Term-document matrix (TDM)
+
+When analyzing the dispersion of multiple (and possibly all) items in a corpus, it is convenient (and efficient) to use what is referred to as a term-document matrix (TDM). This is a tabular arrangement that lists the subfrequencies for multiple items. The following is an excerpt from a TDM for ICE-GB, where items represent word forms It shows a selection of 10 items and 8 corpus parts (i.e. text files):
+
+```{r echo=FALSE}
+set.seed(8)
+tdm_excerpt <- biber150_ice_gb[sample(2:151, size = 10), sample(1:500, 8)]
+tdm_excerpt
+```
+
+Importantly, the rows in a TDM represent items and the columns represent corpus parts. A 'proper' TDM includes all words occurring in the corpus. In that case, we can retrieve the size of the corpus parts by summing the subfrequencies in each column. This can be done in R with the function `addmargins()`, which appends the column sums as a new row at the end of the table (the argument `margins = 1` tells it to sum over columns).
+
+```{r eval=FALSE}
+addmargins(tdm, margin = 1)
+```
+
+There are many settings, however, where we work with 'improper' TDMs, where the rows only represent a selection of items in a corpus. This is the case if we focus on certain lexical items of interest, or if we are dealing with phraseological or syntactic structures. In such a case, the size of corpus parts cannot be recovered from the TDM; instead, it needs to be supplied as a separate row. The `tldr` package includes a number of TDMs that hold distributional information for a selection of 150 lexical items (a list compiled by Biber et al. 2016 for the evaluation of dispersion measures). In these TDMs, the first row (`word_count`) records the part sizes (i.e. the number of word tokens). The TDM begins like this:
+
+```{r}
+biber150_ice_gb[1:10, 1:8]
+```
+
+The part sizes can alternatively be given in the last row of the table. In general, you need to tell the function where to find them.
+
+
+### Dispersion scores: Directionality of scaling
+
+Parts-based dispersion scores range between 0 and 1, and the conventional scaling assigns higher scores to items that are more dispersed, i.e. that show a wider spread or more even/balanced distribution across corpus parts. Unfortunately, some more recent dispersion measures have the reverse scaling, which can cause confusion. For this reason, the functions in the `tlda` package explicitly control the directionality of scaling and treat it separately from the original formula. The default setting uses conventional scaling, where higher values reflect higher dispersion.
+
+
+### Overview of functions
+
+The functions `disp()` and `disp_tdm()` calculate seven dispersion measures:
+
+- *R~rel~*  (relative range)
+- *D*  (Juilland's *D*)
+- *D~2~*  (Carroll's *D~2~*)
+- *S*  (Rosengren's *S*)
+- *D~P~*  (Gries's *deviation of proportions*)
+- *D~A~*  (Burch et al. 2017)
+- *D~KL~*  (based on the Kullback-Leibler divergence)
+
+However, these functions do not provide finer control over the way in which a specific dispersion measure is calculated. This limitation concerns indices for which multiple formulas exist in the literature:
+
+- *Range*: Different versions exist (absolute range, relative range, relative range with size)
+- *D~P~*: Different formulas in found in the literature
+- *D~A~*: There is a basic and a computationally more efficient (approximate) procedure
+- *D~KL~*: Various methods exist for standardizing the Kullback-Leibler divergence to the unit interval [0,1]
+
+By default, `disp()` and `disp_tdm()` print information that tells you which version of these measure it uses. This printout also reminds you of the directionality of scaling that has been applied. The following code returns dispersion scores for the item *a* in ICE-GB: 
+
+```{r}
+disp(
+  subfreq = biber150_ice_gb[2,], # row 2 in the TDM represents "a"
+  partsize = biber150_ice_gb[1,] # row 1 in the TDM contains the part sizes
+)
+```
+
+While `disp()` and `disp_tdm()` use sensible default settings, you may want to have more control over the way in which these four dispersion measures are calculated. You can then turn to the following functions:
+
+- `disp_R()` / `disp_R_tdm()`: This function allows you to use different versions of *range*: 
+  - absolute range (the number of corpus parts containing the item)
+  - relative range (the proporiton of corpus parts containing the item)
+  - relative range with size (which takes into account the size of the corpus parts)
+- `disp_DP()` / `disp_DP_tdm()`: Here you can choose between different formulas that have been suggested for Gries's *deviation of proportions*:
+  - original version in Gries (2008)
+  - modification described in Lijffijt & Gries (2012)
+  - modification described in Egbert et al. (2020)
+- `disp_DA()` / `disp_DA_tdm()`: You can select the computational procedure:
+  - basic, which implements the formula
+  - shortcut, which is quicker and yields a close approximation to the basic version
+- `disp_DKL()` / `disp_DKL_tdm()`: Allows for the choice between different methods for standardizing KLD scores (see Gries 2024: 90)
+
+
+### Frequency adjustment
+
+The `tlda` package also allows you to adjust dispersion scores for the frequency of the item. This addresses an important concern raised by Gries (2022, 2024), namely that all parts-based dispersion measures provide a score that in fact blends information on dispersion and frequency. He therefore proposed a method for 'partialing out' frequency, i.e. to remove its unwanted effect on the dispersion score we obtain.
+
+To address this issue, Gries (2022; 2024) suggests that the dispersion score for a specific item should be re-expressed based on its dispersion potential in the corpus at hand. The dispersion potential refers to the lowest and highest possible score it can obtain given its overall corpus frequency as well as the number (and size) of the corpus parts. It is then expressed relative to these endpoints, where the dispersion pessimum is set to 0, and the dispersion optimum to 1 (using conventional scaling). The frequency-adjusted dispersion score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. In Gres (2024), this is referred to as the *min-max transformation*.
+
+This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. The construction of the minimally dispersed distribution is relatively straightforward. Occurrences are allocated to the smallest corpus part(s). We start by filling in the smallest one. If the total number of occurrences of the item is greater than the size of the smallest corpus part, we continue with the second smallest part and so on. 
+
+Finding the maximally dispersed distribution, which produces the highest possible level of dispersion, is not as straightforward, and this should probably be considered an open methodological question. The method used by Gries (2022, 2024) is computationally very expensive - it actually calculates a dispersion score for every possible distribution and then selects the one that maximizes the score returned *by this particular measure*. This approach is therefore tied to a specific dispersion measure. 
+
+The `tlda` package uses a different approach to finding the maximally dispersed distribution. This hypothetical distribution of subfrequencies is defined independently of the specific measure(s) applied. Instead, it operates based on the distributional features of *pervasiveness* and/or *evenness*. This is to say that it constructs a distribution based on what we may consider, conceptually, as "highly dispersed". It should be noted that this functionality is EXPERIMENTAL and not yet fully developed. But the idea is the following:
+
+- Foreground *pervasiveness*: This creates a distribution with the widest possible spread of the item across corpus parts. It first orders the corpus parts by size, in decreasing order. Then one occurrence of the item is assigned to each part, starting with the largest part, and continuing to(wards) the smallest part. The allocation of occurrences to parts therefore largely disregards the size of the parts (apart from ordering them in the first place). If the number of occurrences of the item exceeds the number of corpus parts, we start afresh with the largest corpus part. If the smallest corpus part(s) cannot hold any further occurrences (i.e. if they are "full"), the allocation returns to the largest corpus part.
+
+- Foreground *evenness*: This approach pays more attention to the size of the corpus parts and distributes the occurrences of an item across these, in proportion to their size. The same idea underpins Gries's *deviation of proportions*. Thus, if part A accounts for 20% of the words in the corpus, it should also contain roughly 20% of the occurrences of the item. The distribution of subfrequencies is then proportional to that of the part sizes, and may be said to be balanced or even.
+
+- Weighted combination: These two distributional features may be combined, and they may be given different weights. The `tlda` package currently implements a combined approach, which is EXPERIMENTAL. It strives for a balance between pervasiveness and evenness. This means that the allocation of occurrences also takes into account the size of the corpus parts. During the allocation process, an occurrence may therefore not be assigned to the next-smaller corpus part if a larger part makes an extra occurrence of the item more likely due to its length. At the moment, no weighting scheme has been devised, which is why this method is currently EXPERIMENTAL. 
+
+
+### Calculating dispersion for a single item
+
+We illustrate the use of the `tlda` package by focussing on the distribution of the item *actually* in the Spoken BNC2014. The "corpus parts" are the 668 speakers. We start by extracting the distributional information for *actually* from the built-in TDM `biber150_spokenBNC2014`.
+
+```{r}
+speaker_word_count <- biber150_spokenBNC2014["word_count",]
+subfreq_actually <- biber150_spokenBNC2014["actually",]
+```
+
+
+#### General function `disp()`
+
+We start with the umbrella function `disp()`:
+
+```{r}
+disp(
+  subfreq = subfreq_actually,
+  partsize = speaker_word_count
+)
+```
+
+We can change to the reverse scaling by supplying `directionality = "gries"`. Note how the information given in the printout changes accordingly.
+
+```{r}
+disp(
+  subfreq = subfreq_actually,
+  partsize = speaker_word_count,
+  directionality = "gries"
+)
+```
+
+Frequency-adjusted scores can be requested by supplying `freq_adjust = TRUE`. By default, the method `pervasive` is used, which gives priority to pervasiveness when building a maximally dispersed reference distribution (see above).
+
+```{r}
+disp(
+  subfreq = subfreq_actually,
+  partsize = speaker_word_count,
+  freq_adjust = TRUE
+)
+```
+
+#### Functions for specific dispersion measures
+
+If you require more flexibility, you can use one of the functions for specific dispersion measures. 
+
+
+For *Range*, the function `disp_R()` offers three choices: 
+
+- relative range (`relative`), i.e. the *proportion* of corpus parts containing at least one occurrence of the item (default)
+- absolute range (`absolute`), i.e. the *number* of corpus parts containing at least one occurrence of the item
+- relative range with size (`relative_withsize`), the proportional version that takes into account the size of the corpus parts (see Gries 2022: 179-180; Gries 2024: 27-28). 
+
+The following code returns relative range with size:
+
+```{r}
+disp_R(
+  subfreq = subfreq_actually,
+  partsize = speaker_word_count,
+  type = "relative_withsize"
+)
+```
+
+
+For Gries's *deviation of proportions*, the function `disp_DP()` allows you to choose from three different formulas that are found in the literature. The following code uses the original formula in Gries (2008), but with `conventional` (!) scaling (see information in print-out):
+
+```{r}
+disp_DP(
+  subfreq = subfreq_actually,
+  partsize = speaker_word_count,
+  formula = "gries_2008"
+)
+```
+
+We can also compare the scores produced by the three formulas. We now suppress the printing of the score (`print_score = FALSE`) and the background information (`verbose = FALSE`):
+
+```{r}
+compare_DPs <- rbind(
+  disp_DP(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          formula = "gries_2008",
+          verbose = FALSE, print_score = FALSE),
+  disp_DP(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          formula = "lijffijt_gries_2012",
+          verbose = FALSE, print_score = FALSE),
+  disp_DP(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          formula = "egbert_etal_2020",
+          verbose = FALSE, print_score = FALSE
+  ))
+
+rownames(compare_DPs) <- c(
+  "Gries (2008)",
+  "Lijffijt & Gries (2012)",
+  "Egbert et al. (2020)"
+)
+compare_DPs
+```
+
+For *D~A~*, three computational procedures are available, The `basic` version is a direct implementation of the actual formula for this measure, which is computationally expensive if the number of corpus parts is large. Wilcox (1973: 343) gives a `shortcut` version, which is much quicker (see this [blog post](https://lsoenning.github.io/posts/2023-12-11_computation_DA/)). Finally, `shortcut_mod` is a slightly adapted form of the shortcut (EXPERIMENTAL), which ensures that scores do not exceed 1 (conventional scaling). The following code uses Wilcox's (1973) quicker approximate procedure:
+
+```{r}
+disp_DA(
+  subfreq = subfreq_actually,
+  partsize = speaker_word_count,
+  procedure = "shortcut"
+  )
+```
+
+Again, we can compare the scores produced by the different computational procedures, again suppressing the printing of the score and background information:
+
+```{r}
+compare_DAs <- rbind(
+  disp_DA(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          procedure = "basic",
+          verbose = FALSE, print_score = FALSE),
+  disp_DA(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          procedure = "shortcut",
+          verbose = FALSE, print_score = FALSE),
+  disp_DA(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          procedure = "shortcut_mod",
+          verbose = FALSE, print_score = FALSE
+  ))
+
+rownames(compare_DAs) <- c(
+  "Basic procedure",
+  "Shortcut",
+  "Shortcut (modified)"
+)
+compare_DAs
+```
+
+
+For *D~KL~*, we may opt for a specific standardization method, which refers to the transformation that maps the Kullback-Leibler divergence to the unit interval [0,1]. The method used in Gries (2021: 20) can be implemented using `standardization = "base_e"`:
+
+```{r}
+disp_DKL(
+  subfreq = subfreq_actually,
+  partsize = speaker_word_count,
+  standardization = "base_e"
+)
+```
+
+We compare the output of different standardization methods:
+
+```{r}
+compare_DKLs <- rbind(
+  disp_DKL(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          standardization = "o2p",
+          verbose = FALSE, print_score = FALSE),
+  disp_DKL(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          standardization = "base_e",
+          verbose = FALSE, print_score = FALSE),
+  disp_DKL(subfreq = subfreq_actually,
+          partsize = speaker_word_count,
+          standardization = "base_2",
+          verbose = FALSE, print_score = FALSE
+  ))
+
+rownames(compare_DKLs) <- c(
+  "Odds-to-probability",
+  "Base e",
+  "Base 2"
+)
+compare_DKLs
+```
+
+
+### Calculating dispersion for a term-document matrix
+
+All of the operations can be applied to a term-document matrix (TDM) using the `_tdm`-suffixed variants of the functions used above. In these functions, the arguments `subfreq` and `partsize` are replaced by the two following:
+
+- `tdm` A term-document matrix, where rows represent items and columns corpus parts; it must also contain a row giving the size of the corpus parts (first or last row in the TDM)
+- `row_partsize` Character string indicating which row in the TDM contains the size of the corpus parts.
+
+In the TDMs that ship with the `tlda` package, it is the first row that contains the part sizes. You can obtain dispersion scores for all 150 items in the TDM for ICE-GB (`biber150_ice_gb`) as follows. Since the function `disp_tdm()` returns seven indices, the output is a matrix, which we store as a new object `DM_ice_gb`.
+
+```{r}
+DM_ice_gb <- disp_tdm(
+    tdm = biber150_ice_gb, 
+    row_partsize = "first_row",
+    print_score = FALSE,
+    verbose = FALSE)
+```
+
+We convert the matrix to a data frame, since this makes it easier to work with the results here.
+
+```{r}
+DM_ice_gb <- data.frame(DM_ice_gb)
+```
+
+We then only print the first ten items, and round scores to two decimal places:
+
+```{r}
+round(DM_ice_gb[1:10,], 2)
+```
+
+We can now inspect the distribution of scores for these 150 items visually. For instance, we may be interested in the distribution of the *D~P~* scores for the 150 items.
+
+```{r fig.width=3, fig.height=2, warning=FALSE, message=FALSE}
+ggplot(DM_ice_gb,
+       aes(x = DP)) +
+  geom_histogram()
+```
+
+The same plot for Juilland's *D* demonstrates its sensitivity to the number of corpus parts: Most scores are bunched up near 1, since we are calculating dispersion across 500 corpus parts (i.e. text files).
+
+```{r fig.width=3, fig.height=2, warning=FALSE, message=FALSE}
+ggplot(DM_ice_gb,
+       aes(x = D)) +
+  geom_histogram()
+```
+
+The same is true, although less dramatically, for Carroll's *D~2~*:
+
+```{r fig.width=3, fig.height=2, warning=FALSE, message=FALSE}
+ggplot(DM_ice_gb,
+       aes(x = D2)) +
+  geom_histogram()
+```
+
+To inspect the correlation between the scores produced by different measures, we can draw a scatterplot matrix:
+
+```{r fig.width=5, fig.height=5}
+pairs(DM_ice_gb, gap = 0, cex = .5, cex.labels = .9)
+```
+
+To inspect the association of dispersion scores with frequency, we add a new column to the data frame. To obtain the corpus frequency for the 150 items, we add up their subfrequencies by summing across the rows in the TDM `biber150_ice_gb`, excluding row 1 (!), which contains the sizes of the corpus parts.
+
+```{r}
+DM_ice_gb$frequency <- rowSums(biber150_ice_gb[-1,])
+```
+
+Now we can look at the association between dispersion scores and the (logged) corpus frequency of these 150 items. The following scatterplot looks at *D~P~*:
+
+```{r fig.width=3, fig.height=2.5, warning=FALSE, message=FALSE}
+ggplot(DM_ice_gb,
+       aes(x = frequency,
+           y = DP)) +
+  geom_point() +
+  scale_x_log10() +
+  ylim(0,1)
+```
+
+We can express this association using Spearman's rank correlation coefficient:
+
+```{r}
+cor(
+  DM_ice_gb$DP, 
+  log(DM_ice_gb$frequency), 
+  method = "spearman",
+  use = "complete.obs")
+```
+Let us now adjust scores for frequency by repeating the above steps but supplying `freq_adjust = TRUE` to the `disp_tdm()` function. Note that this takes a bit longer to run.
+
+```{r}
+DM_ice_gb_nofreq <- disp_tdm(
+    tdm = biber150_ice_gb, 
+    row_partsize = "first_row",
+    freq_adjust = TRUE,
+    print_score = FALSE,
+    verbose = FALSE)
+
+DM_ice_gb_nofreq <- data.frame(DM_ice_gb_nofreq)
+
+DM_ice_gb_nofreq$frequency <- rowSums(biber150_ice_gb[-1,])
+```
+
+The association with frequency is now attenuated:
+
+```{r fig.width=3, fig.height=2.5, warning=FALSE, message=FALSE}
+ggplot(DM_ice_gb_nofreq,
+       aes(x = frequency,
+           y = DP)) +
+  geom_point() +
+  scale_x_log10() +
+  ylim(0,1)
+```
+
+```{r}
+cor(
+  DM_ice_gb_nofreq$DP, 
+  log(DM_ice_gb_nofreq$frequency), 
+  method = "spearman",
+  use = "complete.obs")
+```
+
+
+
+
+

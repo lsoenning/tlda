@@ -18,26 +18,26 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-This package includes a number of utility functions and resources for language data analysis, with a focus on corpus-linguistic research tasks.
+This package includes a number of utility functions and resources for language data analysis. At the moment, the focus is on corpus-linguistic **dispersion analysis** (see Gries 2021; Sönning 2025), which quantifies how widely and/or evenly and item is distributed across corpus parts. This kind of analysis requires two variables:
+
+- the *subfrequencies*, i.e. the number of times the item is found in each corpus part
+- the *size of the corpus parts* (number of word tokens)
+
+The package includes functions that allow you to calculate seven different parts-based dispersion measures, including their frequency-adjusted version. Subfrequencies and part sizes can be supplied in two forms, either as vectors or as a term-document matrix. For some measures, different formulas are found in the literature, and the user can choose among these. The following indices are implemented:
+
+- *Range* (Keniston 1920)
+- *D* (Juilland & Chang-Rodriguez 1964)
+- *D~2~* (Carroll 1970)
+- *S* (Rosengren 1971)
+- *D~P~* (Gries 2008; modification: Egbert et al. 2020)
+- *D~A~* (Burch et al. 2017)
+- *D~KL~* (Gries 2020, 2021)
 
 
-## Installation
 
-You can install the development version of tlda from [GitHub](https://github.com/) with:
+## Usage
 
-``` r
-# install.packages("pak")
-pak::pak("lsoenning/tlda")
-```
-
-## Calculate dispersion measures
-
-A number of functions in the package can be used to calculate parts-based dispersion measures.
-
-
-### Calculate multiple dispersion measures: `disp()`
-
-The following example demonstrates the use of the function `disp()` for calculating various dispersion measures based on two vectors:
+The function `disp()` calculating seven dispersion measures based on two vectors:
 
 - `subfreq` a set of subfrequencies, i.e. the number of occurrences of the item in each corpus part
 - `partsize` a vector with the size of the corpus parts
@@ -49,15 +49,7 @@ The argument `directionality` controls the scaling of the scores:
 
 The function prints information about the directionality of scaling and details about the formula used.
 
-As an example, we will use data from Lyne's (1985) classic study and consider the distribution of the French lemma ALLEMAND across the ten (nearly) equal-sized parts ('Tenths') of his corpus of French business correspondence. The part sizes are taken from Figure 1 (p. 85) and the subfrequencies from Appendix I (p. 299). The following dispersion measures are calculated (returned in chronological order):
-
-- *R~rel~* relative range (Keniston 1920)
-- *D* (Juilland & Chang-Rodriguez 1964)
-- *D~2~* (Carroll 1970)
-- *S* (Rosengren 1971)
-- *D~P~* (Gries 2008; modification: Egbert et al. 2020)
-- *D~A~* (Burch et al. 2017)
-- *D~KL~* (Gries 2020, 2021)
+As an example, we will use data from Lyne's (1985) classic study and consider the distribution of the French lemma ALLEMAND across the ten (nearly) equal-sized parts ('Tenths') of his corpus of French business correspondence. The part sizes are taken from Figure 1 (p. 85) and the subfrequencies from Appendix I (p. 299).
 
 ```{r}
 library(tlda)
@@ -82,149 +74,42 @@ disp(
 )
 ```
 
-Critically, the functions offered by the current package for calculating dispersion **keep apart the formula and the directionality of scaling**. This means that the `directionality` argument always overrides the scaling implemented in the original formula; the default is `conventional`.
+To calculate dispersion for multiple items, it makes sense to provide the data in the form of a term-document matrix. In this tabular arrangement,
 
-For three dispersion measures, separate functions offer more options and finer control:
+- each row represents an item
+- each column represents a corpus part.
 
-- `disp_R()` for *Range*
-- `disp_DP()` for Gries's *deviation of proportions*
-- `disp_DA()` for *D~A~*
-
-
-### Calculate *Range*: `disp_R()`
-
-For *Range*, three choice are available: (i) relative range (`relative`), i.e. the *proportion* of corpus parts containing at least one occurrence of the item (default); (ii) absolute range (`absolute`), i.e. the *number* of corpus parts containing at least one occurrence of the item; and (iii) relative range with size (`relative_withsize`), the proportional version that takes into account the size of the corpus parts (see Gries 2022: 179-180; Gries 2024: 27-28). The following code returns absolute range:
-
-```{r}
-disp_R(
-  subfreq = x,
-  partsize = y,
-  type = "absolute"
-)
-```
-
-### Calculate the *deviation of proportions*: `disp_DP()`
-
-For Gries's *deviation of proportions*, the function `disp_DP()` allows the user to choose from three different formulas that are found in the literature. The following code uses the original formula in Gries (2008), but with `conventional` scaling:
-
-```{r}
-disp_DP(
-  subfreq = x,
-  partsize = y,
-  formula = "gries_2008",
-  directionality = "conventional"
-)
-```
-
-
-### Calculate *D~A~*: `disp_DA()`
-
-For *D~A~*, three formulas are available, The `basic` version is direct implementation of the actual formula for this measure, which is computationally expensive if the number of corpus parts is large. Wilcox (1973: 343) gives a `shortcut` version, which is much quicker (see this [blog post](https://lsoenning.github.io/posts/2023-12-11_computation_DA/)). Finally, `shortcut_mod` is a slightly adapted form of the shortcut (experimental), which ensures that scores do not exceed 1 (conventional scaling). The following code uses Wilcox's (1973) shortcut version:
-
-```{r}
-disp_DA(
-  subfreq = x,
-  partsize = y,
-  formula = "shortcut",
-  directionality = "conventional"
-)
-```
-
-### Apply measures to a term-document matrix
-
-To calculate dispersion for multiple items, it makes sense to represent their distribution in a term-document matrix. This is a cross table, where:
-
-- each row represents an item ("terms") and
-- each column represents a corpus part ("document").
-
-The `tlda` package includes a number of example datasets that are stored in this way: `biber150_ice_gb` contains text-level subfrequencies for Biber et al.'s (2016) 150 items in ICE-GB. This is an excerpt of the matrix:
-
-- Importantly, the first row gives the number of word tokens in the text file
+A number of example data sets are shipped with the `tlda` package, including `biber150_ice_gb`, a term-document matrix recording the text-level subfrequencies for Biber et al.'s (2016) 150 lexical items in ICE-GB. Importantly, the first row gives the number of word tokens in the text file. This is an excerpt of the matrix:
 
 ```{r}
 biber150_ice_gb[1:5, 1:5]
 ```
 
-To apply a single measure (*D~A~*, say) to the term-document matrix, we need the `apply()` function:
+The function `disp_tdm()` calculates seven dispersion measures for each item in the matrix. The output is therefore also a matrix. In this function, the arguments `subfreq` and `partsize` are replaced by the two following:
+
+- `tdm` A term-document matrix, where rows represent items and columns corpus parts; it must also contain a row giving the size of the corpus parts (first or last row in the TDM)
+- `row_partsize` Character string indicating which row in the TDM contains the size of the corpus parts.
+
+The following calculates dispersion score for the first ten items in the term-document matrix:
 
 ```{r}
-ice_gb_DA <- apply(
-  biber150_ice_gb[-1,],
-  1, 
-  function(x) {
-    disp_DA(subfreq = x,
-            partsize = biber150_ice_gb[1,],
-            verbose = FALSE,
-            print_score = FALSE)
-    }
-  )
-
-round(ice_gb_DA, 2)
-```
-
-We can also calculate multiple DMs based on this term-document matrix:
-
-```{r}
-ice_gb_DMs <- 
-  apply(
-    biber150_ice_gb[-1,],
-    1, 
-    function(x) {
-      disp(subfreq = x,
-           partsize = biber150_ice_gb[1,],
-           verbose = FALSE,
-           print_score = FALSE)
-      }
-    )
-```
-
-This returns a matrix, with dispersion measures in rws and items in columns. We transpose the results for better readability:
-
-```{r}
-ice_gb_DMs <- t(ice_gb_DMs)
-```
-
-And here are the DMs for the first 10 items, in alphabetical order:
-
-```{r}
-ice_gb_DMs[1:10, ]
-```
-
-We can now inspect the association between the different measures graphically:
-
-```{r}
-#| fig-width: 8
-#| fig-height: 8
-
-pairs(ice_gb_DMs, gap = 0)
-```
-
-To look at the association with frequency, we convert the matrix into a data frame and then add frequency information:
-
-```{r}
-ice_gb_DMs <- data.frame(ice_gb_DMs)
-ice_gb_DMs$frequency <- rowSums(biber150_ice_gb[-1,])
-str(ice_gb_DMs)
-```
-
-Now we can inspect the association between DMs and frequency visually:
-
-```{r}
-#| fig-width: 4
-#| fig-height: 3
-
-library(ggplot2)
-
-ggplot(
-  ice_gb_DMs, 
-  aes(x = frequency, 
-      y = DP)) +
-  geom_point() +
-  scale_x_log10()
+disp_tdm(
+    tdm = biber150_ice_gb[1:11,], 
+    row_partsize = "first_row",
+    print_score = TRUE,
+    verbose = FALSE)
 ```
 
 
 
+## Installation
+
+You can install the development version of `tlda` from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("lsoenning/tlda")
+```
 
 ## References
 
