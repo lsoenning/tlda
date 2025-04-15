@@ -6,37 +6,37 @@
 \usage{
 disp_DA_tdm(
   tdm,
-  row_partsize = "first_row",
+  row_partsize,
   directionality = "conventional",
   procedure = "basic",
   freq_adjust = FALSE,
-  freq_adjust_method = "pervasive_even",
+  freq_adjust_method = "even",
   digits = NULL,
   verbose = TRUE,
   print_score = TRUE
 )
 }
 \arguments{
-\item{tdm}{A term-document matrix, where rows represent items and columns corpus parts; must also contain a row giving the size of the corpus parts (first or last row in the term-document matrix)}
+\item{tdm}{A term-document matrix, where rows represent items and columns represent corpus parts; must also contain a row giving the size of the corpus parts (first or last row in the term-document matrix)}
 
-\item{row_partsize}{Character string indicating which row in the term-document matrix contains the size of the corpus parts. Possible values are \code{'first_row'}, \code{'last_row'} (default)}
+\item{row_partsize}{Character string indicating which row in the term-document matrix contains the size of the corpus parts. Possible values are \code{"first"} (default) and \code{"last"}}
 
-\item{directionality}{Character string indicating the directionality of scaling. See details below. Possible values are \code{'conventional'} (default) and \code{'gries'}}
+\item{directionality}{Character string indicating the directionality of scaling. See details below. Possible values are \code{"conventional"} (default) and \code{"gries"}}
 
-\item{procedure}{Character string indicating which procedure to use for the calculation of \eqn{D_{A}}. See details below. Possible values are \code{'basic'} (default), \code{'shortcut'}}
+\item{procedure}{Character string indicating which procedure to use for the calculation of \eqn{D_{A}}. See details below. Possible values are \code{'basic'} (default), \code{'shortcut'}.}
 
 \item{freq_adjust}{Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}}
 
-\item{freq_adjust_method}{Character string indicating which method to used for devising a 'maximally dispersed' distribution of the item, which is necessary for frequency adjustment. See details below. Possible values are \code{'pervasive'} (default) and \code{'pervasive_even'}}
+\item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 
-\item{verbose}{Logical. Whether additional information (directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
+\item{verbose}{Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
 
 \item{print_score}{Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}}
 }
 \value{
-A numeric vector
+A numeric vector the same length as the number of items in the term-document matrix
 }
 \description{
 This function calculates the dispersion measure \eqn{D_{A}}. It offers two different computational procedures, the basic version as well as a computational shortcut. It also allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also provides the option of calculating frequency-adjusted dispersion scores.
@@ -44,23 +44,23 @@ This function calculates the dispersion measure \eqn{D_{A}}. It offers two diffe
 \details{
 This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{A}}. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 \itemize{
-\item Directionality: \eqn{D_{A}} ranges from 0 to 1. The \code{conventional} scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; this is implemented by the value \code{gries}.
+\item Directionality: \eqn{D_{A}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use \code{directionality = 'gries'} to choose this option.
 \item Procedure: Irrespective of the directionality of scaling, two computational procedures for \eqn{D_{A}} exist (see below for details). Both appear in Wilcox (1973), where the measure is referred to as "MDA". The basic version (represented by the value \code{basic}) carries out the full set of computations required by the composition of the formula. As the number of corpus parts grows, this can become computationally very expensive. Wilcox (1973) also gives a "computational" procedure, which is a shortcut that is much quicker and closely approximates the scores produced by the basic formula. This version is represented by the value \code{shortcut}.
-\item Frequency adjustment: Dispersion scores can be adjusted for frequency using a variant of the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for a specific item considers its dispersion potential, the lowest and highest possible score it can obtain given its overall corpus frequency as well as the number and size of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion pessimum is set to 0, and the dispersion optimum to 1 (expressed in terms of conventional scaling). The frequency-adjusted dispersion score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. In particular, different strategies exist for finding a distribution that yields the dispersion maximum. The method used by Gries (2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions independently of the dispersion measures used and therefore only proved approximations to the upper bound yielded by Gries's method.
+\item Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (\code{pervasive}) or evenness (\code{even}). You can choose between these with the argument \code{freq_adjust_method}; the default is \code{even}. For details and explanations, see \code{vignette("frequency-adjustment")}.
 \itemize{
-\item To obtain the lowest possible level of dispersion, the occurrences are allocated to the smallest corpus parts. The function starts by filling in the smallest part. If the total number of occurrences of the items is greater than the size of this part, it then continues with the second smallest corpus part and so on. This approach is very similar to that used in Gries (2024).
-\item To obtain the highest possible level of dispersion, two methods are available, and these can be set with the argument \code{freq_adjust_method}. The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
+\item To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (\code{pervasiveness}), or they are assigned to the smallest corpus part(s) (\code{even}).
+\item To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (\code{pervasive}), or they are allocated to corpus parts in proportion to their size (\code{even}). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
 }
 }
 
 In the formulas given below, the following notation is used:
 \itemize{
-\item \eqn{k} the number of corpus parts
-\item \eqn{R_i} the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
-\item \eqn{r_i} a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
+\item \eqn{k}   the number of corpus parts
+\item \eqn{R_i}   the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
+\item \eqn{r_i}   a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
 }
 
-The value \code{basic} implements the basic computational procedure (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98). The basic version can be applied to absolute frequencies and normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents \code{conventional} scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument \code{directionality}.
+The value \code{basic} implements the basic computational procedure (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98). The basic version can be applied to absolute frequencies and normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents conventional scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument \code{directionality}.
 
   \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}} (Egbert et al. 2020: 98)
 
@@ -77,15 +77,12 @@ The value \code{shortcut_mod} adds a minor modification to the computational sho
   \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1} \times \frac{k}{k - 1}}
 }
 \examples{
-\dontrun{
-# not run
 disp_DA_tdm(
-  tdm = biber150_spokenBNC2014[1:20,]
-  row_partsize = "first_row",
+  tdm = biber150_spokenBNC2014[1:20,],
+  row_partsize = "first",
   procedure = "basic",
   directionality = "conventional",
   freq_adjust = FALSE)
-}
 
 }
 \references{
@@ -93,6 +90,12 @@ disp_DA_tdm(
 \item Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189–216. \url{https://doi.org/10.1558/jrds.33066}
 \item Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
 \item Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89–115. \url{https://doi.org/10.1075/ijcl.18010.egb}
+}
+
+Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+
+Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+\itemize{
 \item Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
 \item Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
 \item Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.

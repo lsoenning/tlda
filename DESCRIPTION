@@ -1,12 +1,18 @@
 Package: tlda
 Title: Tools for Language Data Analysis
 Version: 0.0.0.9000
-Authors@R: 
-    person("Lukas", "Soenning", , "lukas.soenning@uni-bamberg.de", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-2705-395X"))
-Description: Support functions and datasets to facilitate the analysis of
-    linguistic data. Currently, the focus is on the calculation of corpus-based 
-    dispersion measures.
+Authors@R: c(
+    person("Lukas", "Soenning", 
+      email = "lukas.soenning@uni-bamberg.de", 
+      role = c("aut", "cre", "cph"),
+      comment = c(ORCID = "0000-0002-2705-395X")),
+    person("German Research Foundation, DFG", 
+      role = "fnd",
+      comment = c("Grant number 548274092")))
+Description: Support functions and datasets to facilitate the analysis of linguistic
+    data. Currently, the focus is on the calculation of corpus-based dispersion
+    measures. These can be computed based on individual count variables or a
+    term-document matrix, with the option to obtain frequency-adjusted scores.  
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -22,3 +28,17 @@ LazyData: true
 URL: https://github.com/lsoenning/tlda
 BugReports: https://github.com/lsoenning/tlda/issues
 VignetteBuilder: knitr
+Collate: 
+    'biber150_ice_gb.R'
+    'biber150_spokenBNC1994.R'
+    'biber150_spokenBNC2014.R'
+    'brown_metadata.R'
+    'disp.R'
+    'disp_DA.R'
+    'disp_DKL.R'
+    'disp_DP.R'
+    'disp_R.R'
+    'dispersion_min_max_functions.R'
+    'ice_metadata.R'
+    'spokenBNC1994_metadata.R'
+    'spokenBNC2014_metadata.R'

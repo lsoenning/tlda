@@ -1,16 +1,16 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# tlda
+# tlda : Tools for language data analysis
 
 <!-- badges: start -->
 <!-- badges: end -->
 
 This package includes a number of utility functions and resources for
-language data analysis. At the moment, the focus is on corpus-linguistic
-**dispersion analysis** (see Gries 2021; Sönning 2025), which quantifies
-how widely and/or evenly and item is distributed across corpus parts.
-This kind of analysis requires two variables:
+analyzing linguistic data. At the moment, the focus is on
+corpus-linguistic **dispersion analysis** (see Gries 2020; Sönning
+2025), which quantifies how widely and/or evenly and item is distributed
+across corpus parts. This kind of analysis requires two variables:
 
 - the *subfrequencies*, i.e. the number of times the item is found in
   each corpus part
@@ -112,8 +112,8 @@ arrangement,
 A number of example data sets are shipped with the `tlda` package,
 including `biber150_ice_gb`, a term-document matrix recording the
 text-level subfrequencies for Biber et al.’s (2016) 150 lexical items in
-ICE-GB. Importantly, the first row gives the number of word tokens in
-the text file. This is an excerpt from the matrix:
+ICE-GB (Nelson et al. 2002). Importantly, the first row gives the number
+of word tokens in the text file. This is an excerpt from the matrix:
 
 ``` r
 biber150_ice_gb[1:5, 1:5]
@@ -142,7 +142,7 @@ the term-document matrix (rounded to two decimal places).
 ``` r
 disp_tdm(
     tdm = biber150_ice_gb[1:11,], 
-    row_partsize = "first_row",
+    row_partsize = "first",
     digits = 2,
     print_score = TRUE,
     verbose = FALSE)
@@ -171,35 +171,65 @@ pak::pak("lsoenning/tlda")
 
 ## References
 
+Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the
+(non)utility of Juilland’s *D* to measure lexical dispersion in large
+corpora. *International Journal of Corpus Linguistics* 21(4). 439–464.
+doi: [10.1075/ijcl.21.4.01bib](https://doi.org/10.1075/ijcl.21.4.01bib)
+
 Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and
-interpreting lexical dispersion in corpus linguistics. 3(2). 189–216.
+interpreting lexical dispersion in corpus linguistics. *Journal of
+Research Design and Statistics in Linguistics and Communication Science*
+3(2). 189–216. doi:
+[10.1558/jrds.33066](https://doi.org/10.1558/jrds.33066)
 
 Carroll, John B. 1970. An alternative to Juilland’s usage coefficient
 for lexical frequencies and a proposal for a standard frequency index.
-3(2). 61–65.
+*Computer Studies in the Humanities and Verbal Behaviour* 3(2). 61–65.
+doi:
+[10.1002/j.2333-8504.1970.tb00778.x](https://doi.org/10.1002/j.2333-8504.1970.tb00778.x)
 
 Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and
-corpus design. 25(1). 89–115.
+corpus design. *International Journal of Corpus Linguistics* 25(1).
+89–115. doi:
+[10.1075/ijcl.18010.egb](https://doi.org/10.1075/ijcl.18010.egb)
 
 Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora.
-13(4). 403–437.
+*International Journal of Corpus Linguistics* 13(4). 403–437. doi:
+[10.1075/ijcl.13.4.02gri](https://doi.org/10.1075/ijcl.13.4.02gri)
 
 Gries, Stefan Th. 2020. Analyzing dispersion. In Magali Paquot & Stefan
-Th. Gries (eds.), , 99–118. New York: Springer.
+Th. Gries (eds.), *A practical handbook of corpus linguistics*, 99–118.
+New York: Springer. doi:
+[10.1007/978-3-030-46216-1_5](https://doi.org/10.1007/978-3-030-46216-1_5)
 
 Gries, Stefan Th. 2021. A new approach to (key) keywords analysis: Using
-frequency, and now also dispersion. 9(2). 1−33.
+frequency, and now also dispersion. *Research in Corpus Linguistics*
+9(2). 1−33. doi:
+[10.32714/ricl.09.02.02](https://doi.org/10.32714/ricl.09.02.02)
 
-Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. The Hague: Mouton
-de Gruyter.
+Juilland, Alphonse G. & Eugenio Chang-Rodriguez. 1964. *Frequency
+dictionary of Spanish words.* The Hague: Mouton de Gruyter. doi:
+[10.1515/9783112415467](https://doi.org/10.1515/9783112415467)
 
-Keniston, Hayward. 1920. Common words in Spanish. 3(2). 85–96.
+Keniston, Hayward. 1920. Common words in Spanish. *Hispania* 3(2).
+85–96. doi: [10.2307/331305](https://doi.org/10.2307/331305)
 
 Lijffijt, Jefrey & Stefan Th. Gries. 2012. Correction to Stefan Th.
-Gries’ ‘Dispersions and adjusted frequencies in corpora’. 17(1).
-147–149.
+Gries’ ‘Dispersions and adjusted frequencies in corpora’. *International
+Journal of Corpus Linguistics* 17(1). 147–149. doi:
+[10.1075/ijcl.17.1.08lij](https://doi.org/10.1075/ijcl.17.1.08lij)
 
-Lyne, Anthony A. 1985. . Paris: Slatkine-Champion.
+Lyne, Anthony A. 1985. *The vocabulary of French business
+correspondence*. Paris: Slatkine-Champion.
+
+Nelson, Gerald, Sean Wallis & Bas Aarts. 2002. *Exploring Natural
+Language: Working with the British Component of the International Corpus
+of English*. Amsterdam: John Benjamins. doi:
+[10.1075/veaw.g29](https://doi.org/10.1075/veaw.g29)
 
 Rosengren, Inger. 1971. The quantitative concept of language and its
-relation to the structure of frequency dictionaries.  1. 103–127.
+relation to the structure of frequency dictionaries. *Etudes de
+linguistique appliquee (Nouvelle Serie)* 1. 103–127.
+
+Sönning, Lukas. 2025. Advancing our understanding of dispersion measures
+in corpus research. *Corpora*.

@@ -10,10 +10,11 @@ disp_DKL(
   directionality = "conventional",
   standardization = "o2p",
   freq_adjust = FALSE,
-  freq_adjust_method = "pervasive",
+  freq_adjust_method = "even",
   digits = NULL,
   verbose = TRUE,
-  print_score = TRUE
+  print_score = TRUE,
+  suppress_warning = FALSE
 )
 }
 \arguments{
@@ -21,75 +22,78 @@ disp_DKL(
 
 \item{partsize}{A numeric vector with the size of the corpus parts}
 
-\item{directionality}{Character string indicating the directionality of scaling. See details below. Possible values are \code{'conventional'} (default) and \code{'gries'}}
+\item{directionality}{Character string indicating the directionality of scaling. See details below. Possible values are \code{"conventional"} (default) and \code{"gries"}}
 
-\item{standardization}{Character string indicating which standardization strategy to use. See details below. Possible values are \code{'o2p'} (default), \code{'base_e'}, and \code{'base_2'}}
+\item{standardization}{Character string indicating which standardization method to use. See details below. Possible values are \code{"o2p"} (default), \code{"base_e"}, and \code{"base_2"}.}
 
 \item{freq_adjust}{Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}}
 
-\item{freq_adjust_method}{Character string indicating which method to used for devising a 'maximally dispersed' distribution of the item, which is necessary for frequency adjustment. See details below. Possible values are \code{'pervasive'} (default) and \code{'pervasive_even'}}
+\item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 
-\item{verbose}{Logical. Whether additional information (directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
+\item{verbose}{Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
 
 \item{print_score}{Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}}
+
+\item{suppress_warning}{Logical. Whether warning messages should be suppressed; default is \code{FALSE}}
 }
 \value{
 A numeric value
 }
 \description{
-This function calculates the dispersion measure \eqn{D_{KL}}, which is based on the Kullback-Leibler divergence (Gries 2020, 2021, 2024). It offers three different options for standardization to the unit interval [0,1] (see Gries 2024: 90-92) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
+This function calculates the dispersion measure \eqn{D_{KL}}, which is based on the Kullback-Leibler divergence (Gries 2020, 2021, 2024). It offers three options for standardization to the unit interval [0,1] (see Gries 2024: 90-92) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 }
 \details{
 The function calculates the dispersion measure \eqn{D_{KL}} based on a set of subfrequencies (number of occurrences of the item in each corpus part) and a matching set of part sizes (the size of the corpus parts, i.e. number of word tokens).
 \itemize{
-\item Directionality: \eqn{D_{KL}} ranges from 0 to 1. The \code{conventional} scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; this is implemented by the value \code{gries}.
-\item Standardization: Irrespective of the directionality of scaling, three ways of standardizing the Kullback-Leibler divergence to the unit interval [0;1] are mentioned in Gries (2024: 90-92). The choice between these transformations can have an appreciable effect on the standardized dispersion score. In Gries (2020: 103-104), the Kullback-Leibler divergence is not standardized. In Gries (2021: 20), the transformation \code{'base_e'} is used (see (1) below), and in Gries (2024), the default strategy is \code{'o2p'}, the odds-to-probability transformation (see (3) below).
-\item Frequency adjustment: Dispersion scores can be adjusted for frequency using a variant of the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for a specific item considers its dispersion potential, the lowest and highest possible score it can obtain given its overall corpus frequency as well as the number and size of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion pessimum is set to 0, and the dispersion optimum to 1 (expressed in terms of conventional scaling). The frequency-adjusted dispersion score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. In particular, different strategies exist for finding a distribution that yields the dispersion maximum. The method used by Gries (2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions independently of the dispersion measures used and therefore only proved approximations to the upper bound yielded by Gries's method.
+\item Directionality: \eqn{D_{KL}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use \code{directionality = "gries"} to choose this option.
+\item Standardization: Irrespective of the directionality of scaling, three ways of standardizing the Kullback-Leibler divergence to the unit interval [0;1] are mentioned in Gries (2024: 90-92). The choice between these transformations can have an appreciable effect on the standardized dispersion score. In Gries (2020: 103-104), the Kullback-Leibler divergence is not standardized. In Gries (2021: 20), the transformation \code{"base_e"} is used (see (1) below), and in Gries (2024), the default strategy is \code{"o2p"}, the odds-to-probability transformation (see (3) below).
+\item Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (\code{"pervasive"}) or evenness (\code{"even"}). You can choose between these with the argument \code{freq_adjust_method}; the default is \code{even}. For details and explanations, see \code{vignette("frequency-adjustment")}.
 \itemize{
-\item To obtain the lowest possible level of dispersion, the occurrences are allocated to the smallest corpus parts. The function starts by filling in the smallest part. If the total number of occurrences of the items is greater than the size of this part, it then continues with the second smallest corpus part and so on. This approach is very similar to that used in Gries (2024).
-\item To obtain the highest possible level of dispersion, two methods are available, and these can be set with the argument \code{freq_adjust_method}. The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
+\item To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (\code{"pervasive"}), or they are assigned to the smallest corpus part(s) (\code{"even"}).
+\item To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (\code{"pervasive"}), or they are allocated to corpus parts in proportion to their size (\code{"even"}). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()} and \code{vignette("frequency-adjustment")}.
 }
 }
 
 In the formulas given below, the following notation is used:
 \itemize{
-\item \eqn{t_i} a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
-\item \eqn{w_i} a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes)
+\item \eqn{t_i}   a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
+\item \eqn{w_i}   a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes)
 }
 
 The first step is to calculate the Kullback-Leibler divergence based on the proportional subfrequencies (\eqn{t_i}) and the size of the corpus parts (\eqn{w_i}):
 
   \eqn{KLD = \sum_i^k t_i \log_2{\frac{t_i}{w_i}}}   with \eqn{\log_2(0) = 0}
 
-This KLD score is then standardized (i.e. transformed) to the conventional unit interval [0,1]. Three options are discussed in Gries (2024: 90-92). The following formulas represents "gries scaling" (0 = even, 1 = uneven):
+This KLD score is then standardized (i.e. transformed) to the conventional unit interval [0,1]. Three options are discussed in Gries (2024: 90-92). The following formulas represents Gries scaling (0 = even, 1 = uneven):
 
-  (1)   \eqn{e^{-KLD}}   (Gries 2021: 20), represented by the value \code{'base_e'}
+  (1)   \eqn{e^{-KLD}}   (Gries 2021: 20), represented by the value \code{"base_e"}
 
-  (2)   \eqn{2^{-KLD}}   (Gries 2024: 90), represented by the value \code{'base_2'}
+  (2)   \eqn{2^{-KLD}}   (Gries 2024: 90), represented by the value" \code{"base_2"}
 
-  (3)   \eqn{\frac{KLD}{1+KLD}}   (Gries 2024: 90), represented by the value \code{'o2p'} (default)
+  (3)   \eqn{\frac{KLD}{1+KLD}}   (Gries 2024: 90), represented by the value \code{"o2p"} (default)
 }
 \examples{
-\dontrun{
-# not run
 disp_DKL(
   subfreq = c(0,0,1,2,5), 
   partsize = rep(1000, 5),
   standardization = "base_e",
   directionality = "conventional")
-}
 
 }
 \references{
-\itemize{
-\item Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
-\item Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
-\item Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins.
-\item Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
-\item Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.
-}
+Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
+
+Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
+
+Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+
+Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+
+Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
+
+Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.
 }
 \author{
 Lukas Soenning

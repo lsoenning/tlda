@@ -9,10 +9,11 @@ disp_R(
   partsize,
   type = "relative",
   freq_adjust = FALSE,
-  freq_adjust_method = "pervasive",
+  freq_adjust_method = "even",
   digits = NULL,
   verbose = TRUE,
-  print_score = TRUE
+  print_score = TRUE,
+  suppress_warning = FALSE
 )
 }
 \arguments{
@@ -20,17 +21,19 @@ disp_R(
 
 \item{partsize}{A numeric vector with the size of the corpus parts}
 
-\item{type}{Character string indicating which type of range to calculate. See details below. Possible values are \code{'relative'} (default), \code{'absolute'}, \code{'relative_withsize'}}
+\item{type}{Character string indicating which type of range to calculate. See details below. Possible values are \code{"relative"} (default), \code{"absolute"}, \code{"relative_withsize"}}
 
 \item{freq_adjust}{Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}}
 
-\item{freq_adjust_method}{Character string indicating which method to used for devising a 'maximally dispersed' distribution of the item, which is necessary for frequency adjustment. See details below. Possible values are \code{'pervasive'} (default) and \code{'pervasive_even'}}
+\item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 
-\item{verbose}{Logical. Whether additional information (directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
+\item{verbose}{Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
 
 \item{print_score}{Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}}
+
+\item{suppress_warning}{Logical. Whether warning messages should be suppressed; default is \code{FALSE}}
 }
 \value{
 A numeric value
@@ -44,29 +47,25 @@ The function calculates the dispersion measure 'range' based on a set of subfreq
 \item Absolute range: The number of corpus parts containing at least one occurrence of the item
 \item Relative range: The proportion of corpus parts containing at least one occurrence of the item; this version of 'range' follows the conventional scaling of dispersion measures (1 = widely dispersed)
 \item Relative range with size (see Gries 2022: 179-180; Gries 2024: 27-28): Relative range that takes into account the size of the corpus parts. Each corpus part contributes to this version of range in proportion to its size. Suppose there are 100 corpus parts, and part 1 is relatively short, accounting for 1/200 of the words in the whole corpus. If the item occurs in part 1, ordinary relative range increases by 1/100, since each part receives the same weight. Relative range with size, on the other hand, increases by 1/200, i.e. the relative size of the corpus part; this version of range weights corpus parts proportionate to their size.
-\item Frequency adjustment: Dispersion scores can be adjusted for frequency using a variant of the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for a specific item considers its dispersion potential, the lowest and highest possible score it can obtain given its overall corpus frequency as well as the number and size of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion pessimum is set to 0, and the dispersion optimum to 1 (expressed in terms of conventional scaling). The frequency-adjusted dispersion score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. In particular, different strategies exist for finding a distribution that yields the dispersion maximum. The method used by Gries (2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions independently of the dispersion measures used and therefore only proved approximations to the upper bound yielded by Gries's method.
+\item Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (\code{"pervasive"}) or evenness (\code{"even"}). You can choose between these with the argument \code{freq_adjust_method}; the default is \code{even}. For details and explanations, see \code{vignette("frequency-adjustment")}.
 \itemize{
-\item To obtain the lowest possible level of dispersion, the occurrences are allocated to the smallest corpus parts. The function starts by filling in the smallest part. If the total number of occurrences of the items is greater than the size of this part, it then continues with the second smallest corpus part and so on. This approach is very similar to that used in Gries (2024).
-\item To obtain the highest possible level of dispersion, two methods are available, and these can be set with the argument \code{freq_adjust_method}. The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
+\item To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (\code{"pervasive"}), or they are assigned to the smallest corpus part(s) (\code{"even"}).
+\item To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (\code{"pervasive"}), or they are allocated to corpus parts in proportion to their size (\code{"even"}). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
 }
 }
 }
 \examples{
-\dontrun{
-# not run
 disp_R(
   subfreq = c(0, 0, 1, 2, 5),
   partsize = rep(1000, 5),
   type = "relative",
   freq_adjust = FALSE)
-}
 
 }
 \references{
-\itemize{
-\item Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
-\item Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
-}
+Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+
+Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
 }
 \author{
 Lukas Soenning

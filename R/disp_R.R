@@ -4,7 +4,7 @@
 #' This function calculates the dispersion measure 'range'. It offers three different versions: 'absolute range' (the number of corpus parts containing at least one occurrence of the item), 'relative range' (the proportion of corpus parts containing at least one occurrence of the item), and 'relative range with size' (relative range that takes into account the size of the corpus parts). The function also offers the option of calculating frequency-adjusted dispersion scores.
 #'
 #' @inheritParams disp
-#' @param type Character string indicating which type of range to calculate. See details below. Possible values are \code{'relative'} (default), \code{'absolute'}, \code{'relative_withsize'}
+#' @param type Character string indicating which type of range to calculate. See details below. Possible values are `"relative"` (default), `"absolute"`, `"relative_withsize"`
 #'
 #' @author Lukas Soenning
 #'
@@ -14,60 +14,62 @@
 #' - Relative range: The proportion of corpus parts containing at least one occurrence of the item; this version of 'range' follows the conventional scaling of dispersion measures (1 = widely dispersed)
 #' - Relative range with size (see Gries 2022: 179-180; Gries 2024: 27-28): Relative range that takes into account the size of the corpus parts. Each corpus part contributes to this version of range in proportion to its size. Suppose there are 100 corpus parts, and part 1 is relatively short, accounting for 1/200 of the words in the whole corpus. If the item occurs in part 1, ordinary relative range increases by 1/100, since each part receives the same weight. Relative range with size, on the other hand, increases by 1/200, i.e. the relative size of the corpus part; this version of range weights corpus parts proportionate to their size.
 #'
-#' - Frequency adjustment: Dispersion scores can be adjusted for frequency using a variant of the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for a specific item considers its dispersion potential, the lowest and highest possible score it can obtain given its overall corpus frequency as well as the number and size of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion pessimum is set to 0, and the dispersion optimum to 1 (expressed in terms of conventional scaling). The frequency-adjusted dispersion score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. In particular, different strategies exist for finding a distribution that yields the dispersion maximum. The method used by Gries (2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions independently of the dispersion measures used and therefore only proved approximations to the upper bound yielded by Gries's method. 
+#' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`"pervasive"`) or evenness (`"even"`). You can choose between these with the argument `freq_adjust_method`; the default is `even`. For details and explanations, see `vignette("frequency-adjustment")`. 
 #' 
-#'    - To obtain the lowest possible level of dispersion, the occurrences are allocated to the smallest corpus parts. The function starts by filling in the smallest part. If the total number of occurrences of the items is greater than the size of this part, it then continues with the second smallest corpus part and so on. This approach is very similar to that used in Gries (2024).
-#'    - To obtain the highest possible level of dispersion, two methods are available, and these can be set with the argument \code{freq_adjust_method}. The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
+#'    - To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (`"pervasive"`), or they are assigned to the smallest corpus part(s) (`"even"`).
+#'    - To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (`"pervasive"`), or they are allocated to corpus parts in proportion to their size (`"even"`). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for `find_max_disp()`.
 #' 
 #' 
-#' @return A numeric value
+#' @returns A numeric value
 #'
 #' @references
 #' 
-#' - Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
 #'
-#' - Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
 #'
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # not run
 #' disp_R(
 #'   subfreq = c(0, 0, 1, 2, 5),
 #'   partsize = rep(1000, 5),
 #'   type = "relative",
 #'   freq_adjust = FALSE)
-#' }
 #'
 disp_R <- function(subfreq,
                    partsize,
                    type = "relative",
                    freq_adjust = FALSE,
-                   freq_adjust_method = "pervasive",
+                   freq_adjust_method = "even",
                    digits = NULL,
                    verbose = TRUE,
-                   print_score = TRUE) {
+                   print_score = TRUE,
+                   suppress_warning = FALSE) {
   
-  calculate_R <- function(subfreq, partsize){
+  if (length(subfreq) != length(partsize)){
+    stop("Lengths of the variables 'subfreq' and 'partsize' differ.")
+  }
+  
+  calculate_R <- function(subfreq, partsize, type){
     w_i <- partsize / sum(partsize)
     
     if (type == "absolute") {
       R <- sum(subfreq > 0)
-    } else if (type == "relative") {
-      R <- sum(subfreq > 0) / length(subfreq)
     } else if (type == "relative_withsize") {
       R <- sum(w_i[subfreq > 0])
+    } else {
+      R <- sum(subfreq > 0) / length(subfreq)
     }
   }
-    
+  
   if (sum(subfreq) == 0){
     output <- NA
     
   } else {
     
-    R_score <- calculate_R(subfreq, partsize)
+    R_score <- calculate_R(subfreq, partsize, type)
     output <- R_score
     
     if (freq_adjust == TRUE){
@@ -80,8 +82,8 @@ disp_R <- function(subfreq,
         subfreq, 
         partsize)
       
-      R_min <- calculate_R(subfreq_min_disp, partsize)
-      R_max <- calculate_R(subfreq_max_disp, partsize)
+      R_min <- calculate_R(subfreq_min_disp, partsize, type)
+      R_max <- calculate_R(subfreq_max_disp, partsize, type)
       
       # frequency-adjusted version
       output <- (R_score - R_min) / (R_max - R_min)
@@ -91,35 +93,39 @@ disp_R <- function(subfreq,
   
   if (freq_adjust == TRUE){
     if (type == "absolute") names(output) <- "Rabs_nofreq"
-    if (type == "relative") names(output) <- "Rrel_nofreq"
-    if (type == "relative_withsize") names(output) <- "Rrel_withsize_nofreq"
+    else if (type == "relative_withsize") names(output) <- "Rrel_withsize_nofreq"
+    else names(output) <- "Rrel_nofreq"
   } else {
     if (type == "absolute") names(output) <- "Rabs"
-    if (type == "relative") names(output) <- "Rrel"
-    if (type == "relative_withsize") names(output) <- "Rrel_withsize"
-    }
-
+    else if (type == "relative_withsize") names(output) <- "Rrel_withsize"
+    else names(output) <- "Rrel"
+  }
+  
   if (!is.null(digits)) output <- round(output, digits)
   
   if (print_score == TRUE) print(output)
   
-  if (verbose) {
-    if (freq_adjust == TRUE){
-      message("\nDispersion scores are adjusted for frequency using the min-max")
-      message("  transformation (see Gries 2024: 196-208)")
-    }
-    if (type == "absolute") {
-      message("\nScores represent absolute range, i.e. the number of corpus parts")
-      message("  containing at least one occurrence of the item.")
-    } else if (type == "relative") {
-      message("\nScores represent relative range, i.e. the proportion of corpus parts")
-      message("  containing at least one occurrence of the item.")
-      message("The size of the corpus parts is not taken into account.")
-    } else if (type == "relative_withsize") {
-      message("\nScores represent relative range, i.e. the proportion of corpus parts")
-      message("  containing at least one occurrence of the item.")
-      message("Size of corpus parts is taken into account, see Gries (2022: 179-180),")
-      message("  Gries (2024: 27-28)")
+  if (sum(subfreq) == 0 & suppress_warning == FALSE){
+    warning("All subfrequencies are 0; returning NA.")
+  } else {
+    if (verbose) {
+      if (freq_adjust == TRUE){
+        message("\nDispersion scores are adjusted for frequency using the min-max")
+        message("  transformation (see Gries 2024: 196-208)")
+      }
+      if (type == "absolute") {
+        message("\nScores represent absolute range, i.e. the number of corpus parts")
+        message("  containing at least one occurrence of the item.\n")
+      } else if (type == "relative_withsize") {
+        message("\nScores represent relative range, i.e. the proportion of corpus parts")
+        message("  containing at least one occurrence of the item. The size of the")
+        message("  corpus parts is taken into account, see Gries (2022: 179-180),")
+        message("  Gries (2024: 27-28)\n")
+      } else {
+        message("\nScores represent relative range, i.e. the proportion of corpus parts")
+        message("  containing at least one occurrence of the item. The size of the")
+        message("  corpus parts is not taken into account.\n")
+      } 
     }
   }
   invisible(output)
@@ -144,13 +150,13 @@ disp_R <- function(subfreq,
 #' - Relative range: The proportion of corpus parts containing at least one occurrence of the item; this version of 'range' follows the conventional scaling of dispersion measures (1 = widely dispersed)
 #' - Relative range with size (see Gries 2022: 179-180; Gries 2024: 27-28): Relative range that takes into account the size of the corpus parts. Each corpus part contributes to this version of range in proportion to its size. Suppose there are 100 corpus parts, and part 1 is relatively short, accounting for 1/200 of the words in the whole corpus. If the item occurs in part 1, ordinary relative range increases by 1/100, since each part receives the same weight. Relative range with size, on the other hand, increases by 1/200, i.e. the relative size of the corpus part; this version of range weights corpus parts proportionate to their size.
 #'
-#' - Frequency adjustment: Dispersion scores can be adjusted for frequency using a variant of the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for a specific item considers its dispersion potential, the lowest and highest possible score it can obtain given its overall corpus frequency as well as the number and size of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion pessimum is set to 0, and the dispersion optimum to 1 (expressed in terms of conventional scaling). The frequency-adjusted dispersion score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. In particular, different strategies exist for finding a distribution that yields the dispersion maximum. The method used by Gries (2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions independently of the dispersion measures used and therefore only proved approximations to the upper bound yielded by Gries's method. 
+#' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`"pervasive"`) or evenness (`"even"`). You can choose between these with the argument `freq_adjust_method`; the default is `"even"`. For details and explanations, see `vignette("frequency-adjustment")`. 
 #' 
-#'    - To obtain the lowest possible level of dispersion, the occurrences are allocated to the smallest corpus parts. The function starts by filling in the smallest part. If the total number of occurrences of the items is greater than the size of this part, it then continues with the second smallest corpus part and so on. This approach is very similar to that used in Gries (2024).
-#'    - To obtain the highest possible level of dispersion, two methods are available, and these can be set with the argument \code{freq_adjust_method}. The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
+#'    - To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (`"pervasive"`), or they are assigned to the smallest corpus part(s) (`"even"`).
+#'    - To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (`"pervasive"`), or they are allocated to corpus parts in proportion to their size (`"even"`). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for `find_max_disp()`.
 #' 
 #' 
-#' @return A numeric matrix
+#' @returns A numeric vector the same length as the number of items in the term-document matrix
 #'
 #' @references
 #' 
@@ -162,64 +168,97 @@ disp_R <- function(subfreq,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # not run
 #' disp_R_tdm(
-#'   tdm = biber150_spokenBNC2014[1:20,]
-#'   row_partsize = "first_row",
+#'   tdm = biber150_spokenBNC2014[1:20,],
+#'   row_partsize = "first",
 #'   type = "relative",
 #'   freq_adjust = FALSE)
-#' }
 #'
 disp_R_tdm <- function(tdm,
-                       row_partsize = "first_row",
-                   type = "relative",
-                   freq_adjust = FALSE,
-                   freq_adjust_method = "pervasive",
-                   digits = NULL,
-                   verbose = TRUE,
-                   print_score = TRUE) {
+                       row_partsize,
+                       type = "relative",
+                       freq_adjust = FALSE,
+                       freq_adjust_method = "even",
+                       digits = NULL,
+                       verbose = TRUE,
+                       print_score = TRUE) {
   
-  if (row_partsize == "first_row"){
+  if(missing(row_partsize)){
+    stop("Please indicate which row in the term-document matrix includes the part sizes.\n  Use argument 'row_partsize' to locate the correct row ('first' or 'last').")
+  }
+  
+  if ("data.frame" %in% class(tdm)){
+    if (inherits(unlist(tdm[,1]), "character") | inherits(unlist(tdm[,1]), "factor")){
+      tdm <- as.matrix(tdm[,-1])
+      rownames(tdm) <- tdm[,1]
+    } else {
+      row_names <- rownames(tdm)
+      tdm <- as.matrix(tdm)
+      rownames(tdm) <- row_names      
+    }
+  }
+  
+  if (row_partsize == "first"){
+    
+    if (!all(colSums(tdm[-1,]) < tdm[1,])){
+      stop("The row you indicated (first row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  first row. At the moment, (some) counts in the first row are too small.")
+    }
     
     R_score <- apply(
       tdm[-1,],
       1,
       function(x){
         disp_R(subfreq = x, 
-                partsize = tdm[1,],
-                verbose = FALSE,
-                print_score = FALSE)
+               partsize = tdm[1,],
+               type,
+               freq_adjust,
+               verbose = FALSE,
+               digits = NULL,
+               print_score = FALSE,
+               suppress_warning = TRUE)
       })
     
-  } else if (row_partsize == "last_row"){
+  } else if (row_partsize == "last"){
+    
+    if (!all(colSums(tdm[-nrow(tdm),]) < tdm[nrow(tdm),])){
+      stop("The row you indicated (last row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  last row. At the moment, (some) counts in the last row are too small.")
+    }
     
     R_score <- apply(
       tdm[-nrow(tdm),],
       1,
       function(x){
         disp_R(subfreq = x, 
-                partsize = tdm[nrow(tdm),],
-                verbose = FALSE,
-                print_score = FALSE)
+               partsize = tdm[nrow(tdm),],
+               type,
+               freq_adjust,
+               verbose = FALSE,
+               digits = NULL,
+               print_score = FALSE,
+               suppress_warning = TRUE)
       })
   }
   
   if (freq_adjust == TRUE){
     
-    min_disp_tdm <- find_min_disp_tdm(tdm)
-    max_disp_tdm <- find_max_disp_tdm(tdm)
+    min_disp_tdm <- find_min_disp_tdm(tdm, freq_adjust_method)
+    max_disp_tdm <- find_max_disp_tdm(tdm, freq_adjust_method)
     
-    if (row_partsize == "first_row"){
+    if (row_partsize == "first"){
       
       R_min <- apply(
         min_disp_tdm[-1,],
         1,
         function(x){
           disp_R(subfreq = x, 
-                  partsize = min_disp_tdm[1,],
-                  verbose = FALSE,
-                  print_score = FALSE)
+                 partsize = min_disp_tdm[1,],
+                 type,
+                 freq_adjust,
+                 freq_adjust_method,
+                 verbose = FALSE,
+                 digits = NULL,
+                 print_score = FALSE,
+                 suppress_warning = TRUE)
         })
       
       R_max <- apply(
@@ -227,31 +266,46 @@ disp_R_tdm <- function(tdm,
         1,
         function(x){
           disp_R(subfreq = x, 
-                  partsize = max_disp_tdm[1,],
-                  verbose = FALSE,
-                  print_score = FALSE)
+                 partsize = max_disp_tdm[1,],
+                 type,
+                 freq_adjust,
+                 freq_adjust_method,
+                 verbose = FALSE,
+                 digits = NULL,
+                 print_score = FALSE,
+                 suppress_warning = TRUE)
         })
       
-    } else if (row_partsize == "last_row"){
+    } else if (row_partsize == "last"){
       
       R_min <- apply(
         min_disp_tdm[-nrow(min_disp_tdm),],
         1,
         function(x){
           disp_R(subfreq = x, 
-                  partsize = min_disp_tdm[nrow(min_disp_tdm),],
-                  verbose = FALSE,
-                  print_score = FALSE)
+                 partsize = min_disp_tdm[nrow(min_disp_tdm),],
+                 type,
+                 freq_adjust,
+                 freq_adjust_method,
+                 verbose = FALSE,
+                 digits = NULL,
+                 print_score = FALSE,
+                 suppress_warning = TRUE)
         })
       
       R_max <- apply(
         max_disp_tdm[-nrow(max_disp_tdm),],
         1,
         function(x){
-          disp_R(sbfreq = x, 
-                  partsize = max_disp_tdm[nrow(max_disp_tdm),],
-                  verbose = FALSE,
-                  print_score = FALSE)
+          disp_R(subfreq = x, 
+                 partsize = max_disp_tdm[nrow(max_disp_tdm),],
+                 type,
+                 freq_adjust,
+                 freq_adjust_method,
+                 verbose = FALSE,
+                 digits = NULL,
+                 print_score = FALSE,
+                 suppress_warning = TRUE)
         })
     }
     output <- (R_score - R_min) / (R_max - R_min)
@@ -261,7 +315,7 @@ disp_R_tdm <- function(tdm,
   }
   
   output <- t(output)
-
+  
   if (!is.null(digits)) output <- round(output, digits)
   
   if (print_score == TRUE) print(output)
@@ -276,14 +330,27 @@ disp_R_tdm <- function(tdm,
       message("  containing at least one occurrence of the item.")
     } else if (type == "relative") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
-      message("  containing at least one occurrence of the item.")
-      message("The size of the corpus parts is not taken into account.")
+      message("  containing at least one occurrence of the item. The size of the")
+      message("  corpus parts is not taken into account.")
     } else if (type == "relative_withsize") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
-      message("  containing at least one occurrence of the item.")
-      message("Size of corpus parts is taken into account, see Gries (2022: 179-180),")
+      message("  containing at least one occurrence of the item. The size of the")
+      message("  corpus parts is taken into account, see Gries (2022: 179-180),")
       message("  Gries (2024: 27-28)")
     }
+  }
+  if (row_partsize == "first"){
+    if (sum(rowSums(tdm[-1,]) == 0) > 0){
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+    }  
+  }
+  if (row_partsize == "last"){
+    if (sum(rowSums(tdm[-nrow(tdm),]) == 0) > 0){
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+    } 
+  }
+  if (sum(rowSums(tdm) == 1) > 0 & freq_adjust == TRUE){
+    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score.")
   }
   invisible(output)
 }

@@ -1,0 +1,394 @@
+---
+title: "Frequency-adjusted dispersion scores"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Frequency-adjusted dispersion scores}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tlda)
+```
+
+
+### Frequency adjustment: Background
+
+A fundamental issue in dispersion analysis is the fact that all of the most commonly used parts-based dispersion measures respond not just to the dispersion of an item across corpus parts, but also to its corpus frequency (Gries 2022, 2024). It is important to note that this undesirable behavior of indices is not due to the natural association between frequency and dispersion. After all, more frequent items (e.g. function words) tend to have wider semantic generality and are therefore not tied to particular contexts of language use. Instead, the fact that a dispersion score blends information on dispersion and frequency results from the way these scores are calculated -- that is, they are in some sense due to a flaw in the formulas used.
+
+Gries (2022: 184-191; 2024: 196-208) proposed a strategy for 'partialing out' the frequency component from a dispersion score. The method is conceptually simple: Given an item's observed corpus frequency and the number (and size) of corpus parts, we determine the lowest and the highest level of dispersion this item could theoretically have achieved in this corpus. This is done by finding two hypothetical distributions of subfrequencies (i.e. occurrences of the item in each corpus part): the one that produces the lowest level of dispersion, and the one that produces the highest level of dispersion. The observed score is then re-expressed relative to these bounds, on a scale from 0 to 1. 
+
+The figure below illustrates this strategy. Suppose we calculate a dispersion score of .05 for an item. Then we determine the dispersion minimum (.01) and the dispersion maximum (.11). The observed score is just about halfway between .01 and .11. If we map .01 (minimum) to 0, and .11 (maximum) to 1, we can express the observed score relative to these limits. This gives us a frequency-adjusted dispersion score of .40. It tells us that the observed score is a little bit closer to the minimum than the maximum. This is referred to as a *min-max transformation*.
+
+```{r fig.height=1, fig.width=3.5, fig.align='center', echo=FALSE}
+par(mar = c(0, 0, 0, 0), xpd = TRUE)
+
+plot(c(1,2), c(1,1), xlim = c(-.2, 2.1), ylim = c(.7, 1.6), axes = FALSE, type = "n")
+arrows(x0 = 1, x1 = 2, y0 = 1, y1 = 1, code = 3, angle = 90, length = .05)
+points(x = 1.4, y = 1, pch = "|")
+text(x = 1, y = .8, label = "0", cex = .8)
+text(x = 2, y = .8, label = "1", cex = .8)
+text(x = 1.4, y = .8, label = ".40", cex = .8)
+text(x = 1, y = 1.2, label = ".01", col = "grey40", cex = .8)
+text(x = 2, y = 1.2, label = ".11", col = "grey40", cex = .8)
+text(x = 1.4, y = 1.2, label = ".05", col = "grey40", cex = .8)
+text(x = .7, y = 1.19, label = "Dispersion scores", adj = 1, col = "grey40", cex = .8)
+text(x = .7, y = .79, label = "Frequency adjustment", adj = 1, cex = .8)
+text(x = 1:2, y = 1.5, label = c("Min", "Max"), cex = .8)
+```
+
+### Finding the dispersion extremes for an item
+
+The min-max transformation requires two extreme distributions as reference points. The question, then, is how to find the subfrequencies that produce these hypothetical bounds. It seems that there are two broad approaches to this problem. 
+
+The first strategy is to build distributions that are maximally or minimally dispersed based on our linguistic understanding of this distributional feature. This means that we build extreme distributions based on the conceptual meaning of 'dispersion'. This method is not guaranteed to produce the lowest possible dispersion score for each dispersion measures. This is to say that there may be an alternative set of subfrequencies for one or several dispersion indices that yields an even lower dispersion score.  
+
+The second strategy is to find distributions that minimize the score returned by a particular dispersion measure. Dispersion extremes are then defined based on the output of a specific formula. This search for distributional extremes relies on a trial-and-error process, as many different candidate distributions must be considered. The disadvantage of this method is that it is computationally expensive; further, it will return different dispersion extremes for different dispersion measures. This may be considered unreasonable from a linguistic point of view.
+
+Gries's approach (2024) combines these two methods: The dispersion minimum is constructed conceptually, the dispersion maximum via a trial-and-error process. 
+
+The `tlda` package implements the first approach and builds extreme distributions based on the conceptual meaning of 'dispersion'. As auch, the term has two partly overlapping meanings: Dispersion can be understood as referring to the *pervasiveness* of an item, i.e. how widely it is spread across corpus parts. It can also be understood as denoting the *evenness* of an item's distribution, i.e. how evenly it is spread across corpus parts. As will be illustrated shortly, we can construct extreme distributions based on these two concepts, pervasiveness and evenness. This approach defines hypothetical extremes based on the construct of interest, and based on our linguistic understanding of what characterizes, in the context of a particular application, a 'dispersed' distribution. Further, the hypothetical sets of subfrequencies will be the same irrespective of the specific index we wish to use. 
+
+In the next two sections, we provide graphical illustrations of this conceptual approach. Following this, we will point out a number of issues that arise if corpus parts differ considerably in size. It will be seen that the conceptual approach as used by Gries (2024) as well as the `tlda` package then runs into problems, which have to do with how dispersion measures respond to subfrequenceis of 0.
+
+
+### Illustrative data
+
+We will illustrate the conceptual approach to finding dispersion extremes using an imaginary set of corpus data, which is visualized below. Our corpus includes 30 texts, which represent our corpus parts. These texts differ in length -- in the figure below, each square represents a word token. The longest text has 30 words, the shortest one 2 words. The filled squares denote occurrences of the item; overall, there are 61 occurrences, which means that the item has a corpus frequency of 61.
+
+```{r echo=FALSE}
+partsizes  <- c(
+  30, 28, 25, 22, 20, 17, 16, 15, 15, 15, 14, 14, 14, 13, 
+  13, 12, 12, 11, 11, 10, 10, 10, 9, 9, 8, 7, 5, 4, 3, 2)
+subfreqs <- c(
+  8, 3, 7, 2, 5, 3, 1, 4, 3, 0, 2, 0, 2, 4, 1, 0, 5, 1, 
+  0, 1, 2, 0, 3, 1, 2, 0, 1, 0, 0, 0)
+```
+
+
+```{r fig.width=3.1, fig.height=2.35, fig.align='center', echo=FALSE, fig.cap="Illustrative set of data."}
+plot_col <- matrix(
+  rep(rep("transparent", max(partsizes)), length(subfreqs)), 
+  nrow = max(partsizes), 
+  byrow = FALSE)
+
+for(i in 1:length(partsizes)) plot_col[1:partsizes[i], i] <- "black"
+
+plot_fill <- matrix(
+  rep(rep("transparent", max(partsizes)), length(subfreqs)), 
+  nrow = max(partsizes), 
+  byrow = FALSE)
+
+for(i in 1:length(partsizes)) plot_fill[(1:(subfreqs[i] + 1)) - 1, i] <- "grey40"
+
+
+par(mar = c(2, 0, 0, 0), xpd = TRUE)
+
+plot(rep(1:length(subfreqs), each = max(partsizes)),
+     rep(1:max(partsizes), length(subfreqs)),
+     col = plot_col, pch = 22, bg = plot_fill, axes = FALSE, 
+     xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
+
+text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+```
+
+Our task is now to reallocate these 61 occurrences across corpus parts in a way that produces a minimally dispersed and a maximally dispersed set of subfrequencies. The way we assign observations to corpus parts depends on which meaning of 'dispersion' we prefer for the task at hand: pervasiveness or evenness. We will illustrate how these distributional features influence the hypothetical extremes we design.  
+
+
+
+### Finding extremes based on pervasiveness
+
+If we foreground pervasiveness, our goal is to design a set of subfrequencies that occurs in (i) as few corpus parts as possible (dispersion minimum) and in (ii) as many corpus parts as possible (dispersion maximum).
+
+To find the dispersion minimum, we could reallocate all occurrences of the item to the largest corpus part(s), as this would assure that it is spread across the fewest possible number of corpus parts. This is illustrated in the following figure.
+
+```{r fig.width=3.1, fig.height=2.35, fig.align='center', echo=FALSE, fig.cap="A **minimally pervasive** distribution."}
+subfreq_min_disp <- find_min_disp(
+  subfreq = subfreqs,
+  partsize = partsizes,
+  freq_adjust_method = "pervasive")
+
+plot_fill_min <- matrix(
+  rep(rep("transparent", max(partsizes)), length(subfreq_min_disp)), 
+  nrow = max(partsizes), 
+  byrow = FALSE)
+
+for(i in 1:length(partsizes)) plot_fill_min[(1:(subfreq_min_disp[i] + 1)) - 1, i] <- "grey40"
+
+par(mar = c(2, 0, 0, 0), xpd = TRUE)
+
+plot(rep(1:length(subfreq_min_disp), each = max(partsizes)),
+     rep(1:max(partsizes), length(subfreq_min_disp)),
+     col = plot_col, pch = 22, bg = plot_fill_min, axes = FALSE, 
+     xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
+
+text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+```
+
+
+To create a distribution with the widest possible spread of the item across corpus parts, we first arrange corpus parts by size, in decreasing order. For our illustrative data, this has already been done. Then, one occurrence of the item is assigned to each part, starting with the largest part, and continuing to(wards) the smallest part. If the number of occurrences of the item exceeds the number of corpus parts, we start afresh with the largest corpus part. If the smallest corpus part(s) cannot hold any further occurrences (i.e. if they are "full"), the allocation returns to the largest corpus part. The result of this allocation process is illustrated in the figure below.
+
+
+```{r fig.width=3.1, fig.height=2.35, fig.align='center', echo=FALSE, fig.cap="A **maximally pervasive** distribution."}
+subfreq_max_disp <- find_max_disp(
+  subfreq = subfreqs,
+  partsize = partsizes,
+  freq_adjust_method = "pervasive")
+
+plot_fill_max <- matrix(
+  rep(rep("transparent", max(partsizes)), length(subfreq_max_disp)), 
+  nrow = max(partsizes), 
+  byrow = FALSE)
+
+for(i in 1:length(partsizes)) plot_fill_max[(1:(subfreq_max_disp[i] + 1)) - 1, i] <- "grey40"
+
+
+par(mar = c(2, 0, 0, 0), xpd = TRUE)
+
+plot(rep(1:length(subfreq_max_disp), each = max(partsizes)),
+     rep(1:max(partsizes), length(subfreqs)),
+     col = plot_col, pch = 22, bg = plot_fill_max, axes = FALSE, 
+     xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
+
+text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+```
+
+
+### Finding extremes based on evenness
+
+If we instead prefer to build extreme subfrequencies based on evenness, we first need to decide on how to define evenness. The idea used by Gries's (2008) *deviation of proportions* seems like a suitable approach: If an item is distributed evenly across corpus parts, it should be spread across these in proportion to their size. Thus, if part A accounts for 20% of the words in the corpus, it should also contain roughly 20% of the occurrences of the item. The distribution of subfrequencies is then proportional to that of the part sizes, and may be said to be balanced or even.
+
+In a maximally uneven (i.e. minimally dispersed) distribution, occurrences would be clustered in the smallest corpus part(s), where we least expect them. The following figure shows the set of maximally uneven subfrequencies. We start by filling in the smallest corpus part and then, if the number of occurrences exceeds the length of the smallest corpus part, we continue with the next-smallest and so on.
+
+
+```{r fig.width=3.1, fig.height=2.35, fig.align='center', echo=FALSE, fig.cap="A **minimally even** distribution."}
+subfreq_min_disp <- find_min_disp(
+  subfreq = subfreqs,
+  partsize = partsizes,
+  freq_adjust_method = "even")
+
+subfreq_min_disp[22] <- subfreq_min_disp[20]
+subfreq_min_disp[20] <- 0
+
+plot_fill_max <- matrix(
+  rep(rep("transparent", max(partsizes)), length(subfreqs)), 
+  nrow = max(partsizes), 
+  byrow = FALSE)
+
+for(i in 1:length(partsizes)) plot_fill_max[(1:(subfreq_min_disp[i] + 1)) - 1, i] <- "grey40"
+
+
+par(mar = c(2, 0, 0, 0), xpd = TRUE)
+
+plot(rep(1:length(subfreqs), each = max(partsizes)),
+     rep(1:max(partsizes), length(subfreqs)),
+     col = plot_col, pch = 22, bg = plot_fill_max, axes = FALSE, 
+     xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
+
+text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+```
+
+To construct a maximally even (i.e. maximally dispersed) distribution of subfrequencies, we assign occurrences to the corpus parts in proportion to their size. The figure below shows a set of evenly dispersed subfrequencies for our illustrative data.
+
+
+```{r fig.width=3.1, fig.height=2.35, fig.align='center', echo=FALSE, fig.cap="A **maximally even** distribution."}
+subfreq_max_disp <- find_max_disp(
+  subfreq = subfreqs,
+  partsize = partsizes,
+  freq_adjust_method = "even")
+
+plot_fill_max <- matrix(
+  rep(rep("transparent", max(partsizes)), length(subfreqs)), 
+  nrow = max(partsizes), 
+  byrow = FALSE)
+
+for(i in 1:length(partsizes)) plot_fill_max[(1:(subfreq_max_disp[i] + 1)) - 1, i] <- "grey40"
+
+
+par(mar = c(2, 0, 0, 0), xpd = TRUE)
+
+plot(rep(1:length(subfreqs), each = max(partsizes)),
+     rep(1:max(partsizes), length(subfreqs)),
+     col = plot_col, pch = 22, bg = plot_fill_max, axes = FALSE, 
+     xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
+
+text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+```
+
+### Issues
+
+One issue that cannot be ignored completely is the fact that the minimally dispersed distributions created by these methods are completely unrealistic. This is because in many situations they imagine corpus parts that consist of only one word type, repeated multiple (perhaps thousands of) times. A more realistic scheme may put an upper limit on the number of times an item can occur in a corpus part. For instance, its proportional share could be capped at a certain normalized frequency, perhaps at around 5% (the frequency of *the* in spoken and written English) or a slightly higher value. 
+
+Another issue arises when we are dealing with corpus parts of different length. The **minimally even** distribution, which starts by filling in the smallest corpus parts, may then yield a dispersion score that is higher (conventional scaling) than that based on the actual distribution of subfrequencies. This means that the conceptual minimum may not coincide with the minimum output of the formula for a specific measure. 
+
+Let us first use the built-in data sets to examine which dispersion measures are affected by this. The corpus parts in `biber150_ice_gb` are all around 2,000 words.
+
+
+```{r fig.width=3.5, fig.height=2.5, warning=FALSE, message=FALSE, out.width="35%"}
+par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
+
+hist(
+  biber150_ice_gb[1,],
+  main = NULL, 
+  xlab = "Size of corpus parts (texts)", 
+  xlim = c(0,4000), 
+  breaks = seq(0,4000, length=30), 
+  col = "grey60")
+```
+
+
+For the Spoken BNC1994, the word counts are distributed very unevenly across speakers; they range from 1 to 68,136:
+
+```{r fig.width=3.5, fig.height=2.5, warning=FALSE, message=FALSE, out.width="35%"}
+par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
+
+hist(
+  biber150_spokenBNC1994[1,],
+  main = NULL, 
+  xlab = "Size of corpus parts (texts)", 
+  breaks = seq(0,70000, length=30), 
+  col = "grey60")
+```
+
+And the same is true for the Spoken BNC2014, where they range from 19 to 359,322:
+
+```{r fig.width=3.5, fig.height=2.5, warning=FALSE, message=FALSE, out.width="35%"}
+par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
+
+hist(
+  biber150_spokenBNC2014[1,],
+  main = NULL, 
+  xlab = "Size of corpus parts (texts)", 
+  breaks = seq(0,400000, length=30), 
+  col = "grey60")
+```
+
+Let us now take a look at the range of dispersion scores we obtain if we apply the frequency adjustment to the three data sets. We start with the data from:
+
+ICE-GB, dispersion extremes based on evenness (no problems)
+
+```{r echo=FALSE}
+round(
+  apply(
+    disp_tdm(
+      biber150_ice_gb, 
+      row_partsize = "first",
+      freq_adjust = TRUE,
+      freq_adjust_method = "even",
+      print_score = FALSE,
+      verbose = FALSE,
+      suppress_warning = TRUE),
+    2,
+    range, na.rm = TRUE),
+  2)
+```
+
+ICE-GB, dispersion extremes based on pervasiveness  (no problems)
+
+```{r echo=FALSE}
+round(
+  apply(
+    disp_tdm(
+      biber150_ice_gb, 
+      row_partsize = "first",
+      freq_adjust = TRUE,
+      freq_adjust_method = "pervasive",
+      print_score = FALSE,
+      verbose = FALSE,
+      suppress_warning = TRUE),
+    2,
+    range, na.rm = TRUE),
+  2)
+```
+
+Spoken BNC1994, dispersion extremes based on evenness:
+
+```{r echo=FALSE}
+round(
+  apply(
+    disp_tdm(
+      biber150_spokenBNC1994, 
+      row_partsize = "first",
+      freq_adjust = TRUE,
+      freq_adjust_method = "even",
+      print_score = FALSE,
+      verbose = FALSE,
+      suppress_warning = TRUE),
+    2,
+    range, na.rm = TRUE),
+  2)
+```
+
+Spoken BNC1994, dispersion extremes based on pervasiveness:
+
+```{r echo=FALSE}
+round(
+  apply(
+    disp_tdm(
+      biber150_spokenBNC1994, 
+      row_partsize = "first",
+      freq_adjust = TRUE,
+      freq_adjust_method = "pervasive",
+      print_score = FALSE,
+      verbose = FALSE,
+      suppress_warning = TRUE),
+    2,
+    range, na.rm = TRUE),
+  2)
+```
+
+Spoken BNC2014, dispersion extremes based on evenness:
+
+```{r echo=FALSE}
+round(
+  apply(
+    disp_tdm(
+      biber150_spokenBNC2014, 
+      row_partsize = "first",
+      freq_adjust = TRUE,
+      freq_adjust_method = "even",
+      print_score = FALSE,
+      verbose = FALSE,
+      suppress_warning = TRUE),
+    2,
+    range, na.rm = TRUE),
+  2)
+```
+
+Spoken BNC2014, dispersion extremes based on pervasiveness:
+
+```{r echo=FALSE}
+round(
+  apply(
+    disp_tdm(
+      biber150_spokenBNC2014, 
+      row_partsize = "first",
+      freq_adjust = TRUE,
+      freq_adjust_method = "pervasive",
+      print_score = FALSE,
+      verbose = FALSE,
+      suppress_warning = TRUE),
+    2,
+    range, na.rm = TRUE),
+  2)
+```
+
+
+It is easy to see why absolute and relative range will be affected -- after all, they are pervasiveness measures. Thus, since we fill in corpus parts starting with the smallest one(s), the number of texts containing the item may very well exceed that in the actual corpus -- especially if the smallest parts are very small.
+
+It is less straightforward to recognize why *D*, *D~2~*, and *D~A~* are also affected by this issue. What these measures have in common, is that they rely on normalized subfrequencies. More work is required to understand why the method does not work for these indices.
+
+
+
+
+
+
+
+
