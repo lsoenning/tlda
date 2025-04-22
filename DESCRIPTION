@@ -6,13 +6,17 @@ Authors@R: c(
       email = "lukas.soenning@uni-bamberg.de", 
       role = c("aut", "cre", "cph"),
       comment = c(ORCID = "0000-0002-2705-395X")),
-    person("German Research Foundation, DFG", 
+    person("German Research Foundation (DFG)", 
       role = "fnd",
-      comment = c("Grant number 548274092")))
+      comment = c(ROR = "018mejw64", "Grant number 548274092")))
 Description: Support functions and datasets to facilitate the analysis of linguistic
-    data. Currently, the focus is on the calculation of corpus-based dispersion
-    measures. These can be computed based on individual count variables or a
-    term-document matrix, with the option to obtain frequency-adjusted scores.  
+    data. The current focus is on the calculation of corpus-linguistic dispersion
+    measures as described in Gries (2021) <doi:10.1007/978-3-030-46216-1_5> and 
+    Soenning (2025) <doi:10.3366/cor.2025.0326>. The most commonly used parts-based 
+    indices are implemented, including different formulas and modifications that are 
+    found in the literature, with the additional option to obtain frequency-adjusted 
+    scores. Dispersion scores can be computed based on individual count variables or 
+    a term-document matrix.  
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

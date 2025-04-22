@@ -14,5 +14,5 @@
 #'   \item{age_bin}{Age group, based on the BNC2014 scheme ("0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70+")}
 #' }
 #' @source 
-#' Crowdy, Steve. 1995. The BNC spoken corpus. In Geoffrey Leech, Greg Myers & Jenny Thomas (eds.), \emph{Spoken English on Computer: Transcription, Mark-Up and Annotation}, 224–234. Harlow: Longman.
+#' Crowdy, Steve. 1995. The BNC spoken corpus. In Geoffrey Leech, Greg Myers & Jenny Thomas (eds.), \emph{Spoken English on Computer: Transcription, Mark-Up and Annotation}, 224--234. Harlow: Longman.
 "spokenBNC1994_metadata"

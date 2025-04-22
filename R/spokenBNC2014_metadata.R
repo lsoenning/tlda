@@ -14,5 +14,5 @@
 #'   \item{age_bin}{Age group, based on the BNC2014 scheme ("0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70+")}
 #' }
 #' @source 
-#' Love, Robbie, Claire Dembry, Andrew Hardie, Vaclav Brezina & Tony McEnery. 2017. The Spoken BNC2014: Designing and building a spoken corpus of everyday conversations. \emph{International Journal of Corpus Linguistics}, 22(3), 319–344.
+#' Love, Robbie, Claire Dembry, Andrew Hardie, Vaclav Brezina & Tony McEnery. 2017. The Spoken BNC2014: Designing and building a spoken corpus of everyday conversations. \emph{International Journal of Corpus Linguistics}, 22(3), 319--344.
 "spokenBNC2014_metadata"

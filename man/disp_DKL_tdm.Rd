@@ -64,15 +64,15 @@ In the formulas given below, the following notation is used:
 
 The first step is to calculate the Kullback-Leibler divergence based on the proportional subfrequencies (\eqn{t_i}) and the size of the corpus parts (\eqn{w_i}):
 
-  \eqn{KLD = \sum_i^k t_i \log_2{\frac{t_i}{w_i}}}   with \eqn{\log_2(0) = 0}
+\eqn{KLD = \sum_i^k t_i \log_2{\frac{t_i}{w_i}}}    with \eqn{\log_2(0) = 0}
 
 This KLD score is then standardized (i.e. transformed) to the conventional unit interval [0,1]. Three options are discussed in Gries (2024: 90-92). The following formulas represents Gries scaling (0 = even, 1 = uneven):
 
-  (1)   \eqn{e^{-KLD}}   (Gries 2021: 20), represented by the value \code{'base_e'}
+(1) \eqn{e^{-KLD}} (Gries 2021: 20), represented by the value \code{'base_e'}
 
-  (2)   \eqn{2^{-KLD}}   (Gries 2024: 90), represented by the value \code{'base_2'}
+(2) \eqn{2^{-KLD}} (Gries 2024: 90), represented by the value \code{'base_2'}
 
-  (3)   \eqn{\frac{KLD}{1+KLD}}   (Gries 2024: 90), represented by the value \code{'o2p'} (default)
+(3) \eqn{\frac{KLD}{1+KLD}} (Gries 2024: 90), represented by the value \code{'o2p'} (default)
 }
 \examples{
 disp_DKL_tdm(
@@ -83,18 +83,17 @@ disp_DKL_tdm(
 
 }
 \references{
-\itemize{
-\item Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
-\item Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
-}
+Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61--65. \doi{doi:10.1002/j.2333-8504.1970.tb00778.x}
 
-Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403--437. \doi{doi:10.1075/ijcl.13.4.02gri}
 
-Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
-\itemize{
-\item Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
-\item Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.
-}
+Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171--205. \doi{doi:10.1075/jsls.21029.gri}
+
+Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \doi{doi:10.1075/scl.115}
+
+Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \doi{doi:10.1515/9783112415467}
+
+Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103--127.
 }
 \author{
 Lukas Soenning

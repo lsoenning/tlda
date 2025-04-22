@@ -22,42 +22,42 @@
 #' 
 #' In the formulas given below, the following notation is used:
 #' 
-#' - \eqn{k} &emsp; the number of corpus parts
-#' - \eqn{t_i} &emsp; a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
-#' - \eqn{w_i} &emsp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of thea part sizes) 
+#' - \eqn{k} the number of corpus parts
+#' - \eqn{t_i} a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
+#' - \eqn{w_i} a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of thea part sizes) 
 #' 
 #' The value `"gries_2008"` implements the original version proposed by Gries (2008: 415). Note that while the following formula represents Gries scaling (0 = even, 1 = uneven), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
-#' &emsp; \eqn{\frac{\sum_i^k |t_i - w_i|}{2}} (Gries 2008)
+#'    \eqn{\frac{\sum_i^k |t_i - w_i|}{2}} (Gries 2008)
 #' 
 #' The value `"lijffit_gries_2012"` implements the modified version described by Lijffit & Gries (2012). Again, the following formula represents Gries scaling (0 = even, 1 = uneven), but the directionality is handled separately in the current function. The notation \eqn{min\{w_i\}} refers to the \eqn{w_i} value of the smallest corpus part.
 #' 
-#' &emsp; \eqn{\frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i\}}} (Lijffijt & Gries 2012)
+#'    \eqn{\frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i\}}} (Lijffijt & Gries 2012)
 #'  
 #' The value `"egbert_etal_2020"` (default) selects the modification suggested by Egbert et al. (2020: 99). The following formula represents conventional scaling (0 = uneven, 1 = even). The notation \eqn{min\{w_i: t_i > 0\}} refers to the \eqn{w_i} value among those corpus parts that include at least one occurrence of the item.
 #' 
-#' &emsp; \eqn{1 - \frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i: t_i > 0\}}} (Egbert et al. 2020)
+#'    \eqn{1 - \frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i: t_i > 0\}}} (Egbert et al. 2020)
 #'    
 #'  
 #' @returns A numeric value
 #' 
 #' @references 
 #' 
-#' Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
+#' Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61--65. \doi{doi:10.1002/j.2333-8504.1970.tb00778.x}
 #' 
-#' Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89–115. \url{https://doi.org/10.1075/ijcl.18010.egb}
+#' Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89--115. \doi{doi:10.1075/ijcl.18010.egb}
 #' 
-#' Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
+#' Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403--437. \doi{doi:10.1075/ijcl.13.4.02gri}
 #' 
-#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171--205. \doi{doi:10.1075/jsls.21029.gri}
 #' 
-#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \doi{doi:10.1075/scl.115}
 #' 
-#' Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
+#' Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \doi{doi:10.1515/9783112415467}
 #' 
-#' Lijffijt, Jefrey & Stefan Th. Gries. 2012. Correction to Stefan Th. Gries’ ‘Dispersions and adjusted frequencies in corpora’. \emph{International Journal of Corpus Linguistics} 17(1). 147–149. \url{https://doi.org/10.1075/ijcl.17.1.08lij}
+#' Lijffijt, Jefrey & Stefan Th. Gries. 2012. Correction to Stefan Th. Gries’ ‘Dispersions and adjusted frequencies in corpora’. \emph{International Journal of Corpus Linguistics} 17(1). 147--149. \doi{doi:10.1075/ijcl.17.1.08lij}
 #' 
-#' Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.
+#' Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103--127.
 #' 
 #' @export
 #'
@@ -207,42 +207,42 @@ disp_DP <- function(subfreq,
 #' 
 #' In the formulas given below, the following notation is used:
 #' 
-#' - \eqn{k} &emsp; the number of corpus parts
-#' - \eqn{t_i} &emsp; a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
-#' - \eqn{w_i} &emsp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
+#' - \eqn{k}    the number of corpus parts
+#' - \eqn{t_i}    a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
+#' - \eqn{w_i}    a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
 #' 
 #' The value `"gries_2008"` implements the original version proposed by Gries (2008: 415). Note that while the following formula represents Gries scaling (0 = even, 1 = uneven), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
-#' &emsp; \eqn{\frac{\sum_i^k |t_i - w_i|}{2}} (Gries 2008)
+#'    \eqn{\frac{\sum_i^k |t_i - w_i|}{2}} (Gries 2008)
 #' 
 #' The value `"lijffit_gries_2012"` implements the modified version described by Lijffit & Gries (2012). Again, the following formula represents Gries scaling (0 = even, 1 = uneven), but the directionality is handled separately in the current function. The notation \eqn{min\{w_i\}} refers to the \eqn{w_i} value of the smallest corpus part.
 #' 
-#' &emsp; \eqn{\frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i\}}} (Lijffijt & Gries 2012)
+#'    \eqn{\frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i\}}} (Lijffijt & Gries 2012)
 #'  
 #' The value `"egbert_etal_2020"` (default) selects the modification suggested by Egbert et al. (2020: 99). The following formula represents conventional scaling (0 = uneven, 1 = even). The notation \eqn{min\{w_i: t_i > 0\}} refers to the \eqn{w_i} value among those corpus parts that include at least one occurrence of the item.
 #' 
-#' &emsp; \eqn{1 - \frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i: t_i > 0\}}} (Egbert et al. 2020)
+#'    \eqn{1 - \frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i: t_i > 0\}}} (Egbert et al. 2020)
 #'    
 #'  
 #' @returns A numeric vector the same length as the number of items in the term-document matrix
 #' 
 #' @references 
 #' 
-#' Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
+#' Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61--65. \doi{doi:10.1002/j.2333-8504.1970.tb00778.x}
 #' 
-#' Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89–115. \url{https://doi.org/10.1075/ijcl.18010.egb}
+#' Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89--115. \doi{doi:10.1075/ijcl.18010.egb}
 #' 
-#' Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
+#' Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403--437. \doi{doi:10.1075/ijcl.13.4.02gri}
 #' 
-#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171--205. \doi{doi:10.1075/jsls.21029.gri}
 #' 
-#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \doi{doi:10.1075/scl.115}
 #' 
-#' Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
+#' Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \doi{doi:10.1515/9783112415467}
 #' 
-#' Lijffijt, Jefrey & Stefan Th. Gries. 2012. Correction to Stefan Th. Gries’ ‘Dispersions and adjusted frequencies in corpora’. \emph{International Journal of Corpus Linguistics} 17(1). 147–149. \url{https://doi.org/10.1075/ijcl.17.1.08lij}
+#' Lijffijt, Jefrey & Stefan Th. Gries. 2012. Correction to Stefan Th. Gries’ ‘Dispersions and adjusted frequencies in corpora’. \emph{International Journal of Corpus Linguistics} 17(1). 147--149. \doi{doi:10.1075/ijcl.17.1.08lij}
 #' 
-#' Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.
+#' Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103--127.
 #' 
 #' @export
 #'
@@ -349,7 +349,6 @@ disp_DP_tdm <- function(tdm,
                   directionality,
                   formula,
                   freq_adjust = FALSE,
-                  #freq_adjust_method,
                   unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
@@ -366,7 +365,6 @@ disp_DP_tdm <- function(tdm,
                   directionality,
                   formula,
                   freq_adjust = FALSE,
-                  #freq_adjust_method,
                   unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
@@ -385,7 +383,6 @@ disp_DP_tdm <- function(tdm,
                   directionality,
                   formula,
                   freq_adjust = FALSE,
-                  #freq_adjust_method,
                   unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
@@ -402,7 +399,6 @@ disp_DP_tdm <- function(tdm,
                   directionality,
                   formula,
                   freq_adjust = FALSE,
-                  #freq_adjust_method,
                   unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,

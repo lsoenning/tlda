@@ -20,7 +20,7 @@ A data frame with 668 rows and 6 columns:
 }
 }
 \source{
-Love, Robbie, Claire Dembry, Andrew Hardie, Vaclav Brezina & Tony McEnery. 2017. The Spoken BNC2014: Designing and building a spoken corpus of everyday conversations. \emph{International Journal of Corpus Linguistics}, 22(3), 319–344.
+Love, Robbie, Claire Dembry, Andrew Hardie, Vaclav Brezina & Tony McEnery. 2017. The Spoken BNC2014: Designing and building a spoken corpus of everyday conversations. \emph{International Journal of Corpus Linguistics}, 22(3), 319--344.
 }
 \usage{
 spokenBNC2014_metadata

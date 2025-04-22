@@ -4,3 +4,4 @@
 ^README\.Rmd$
 ^data-raw$
 ^log_file.txt
+^cran-comments\.md$

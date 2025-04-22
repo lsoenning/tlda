@@ -22,25 +22,25 @@
 #'    
 #' In the formulas given below, the following notation is used:
 #' 
-#' - \eqn{k} &ensp; the number of corpus parts
-#' - \eqn{R_i} &ensp; the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
-#' - \eqn{r_i} &ensp; a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
+#' - \eqn{k} the number of corpus parts
+#' - \eqn{R_i} the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
+#' - \eqn{r_i} a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
 #' 
 #' The value `"basic"` implements the basic computational procedure (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98). The basic version can be applied to absolute frequencies and normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents conventional scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
-#' &emsp; \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}} (Egbert et al. 2020: 98)
+#'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}} (Egbert et al. 2020: 98)
 #' 
 #' The function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields the identical result; the \eqn{r_i} quantities are also the key to using the computational shortcut given in Wilcox (1973: 343). This is the basic formula for \eqn{D_{A}} using \eqn{r_i} instead of \eqn{R_i} values: 
 #' 
-#' &emsp; \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}} (Wilcox 1973: 343; see also Sönning 2022)
+#'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}} (Wilcox 1973: 343; see also Soenning 2022)
 #' 
 #' The value `"shortcut"` implements the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut version be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
 #' 
-#' &emsp; \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343)
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343)
 #'
 #' The value `"shortcut_mod"` adds a minor modification to the computational shortcut to ensure \eqn{D_{A}} does not exceed 1 (on the conventional dispersion scale):
 #' 
-#' &emsp; \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1} \times \frac{k - 1}{k}}
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1} \times \frac{k - 1}{k}}
 #' 
 #' 
 #' @returns A numeric value
@@ -48,25 +48,25 @@
 #' 
 #' @references 
 #' 
-#' Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189–216. \url{https://doi.org/10.1558/jrds.33066}
+#' Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189--216. \doi{doi:10.1558/jrds.33066}
 #' 
-#' Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
+#' Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61--65. \doi{doi:10.1002/j.2333-8504.1970.tb00778.x}
 #' 
-#' Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89–115. \url{https://doi.org/10.1075/ijcl.18010.egb}
+#' Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89--115. \doi{doi:10.1075/ijcl.18010.egb}
 #' 
-#' Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
+#' Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403--437. \doi{doi:10.1075/ijcl.13.4.02gri}
 #' 
-#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171--205. \doi{doi:10.1075/jsls.21029.gri}
 #' 
-#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \doi{doi:10.1075/scl.115}
 #'
-#' Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
+#' Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \doi{doi:10.1515/9783112415467}
 #' 
-#' Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.
+#' Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103--127.
 #' 
-#' Sönning, Lukas. 2022. Evaluation of text-level measures of lexical dispersion: Robustness and consistency. \emph{PsyArXiv preprint}. \url{https://psyarxiv.com/h9mvs_v1/}
+#' Soenning, Lukas. 2022. Evaluation of text-level measures of lexical dispersion: Robustness and consistency. \emph{PsyArXiv preprint}. \url{https://osf.io/preprints/psyarxiv/h9mvs/}
 #' 
-#' Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. The Western Political Quarterly 26 (2). 325–343. \url{https://doi.org/10.2307/446831}
+#' Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. The Western Political Quarterly 26 (2). 325--343. \doi{doi:10.2307/446831}
 #' 
 #' @export
 #'
@@ -223,48 +223,49 @@ disp_DA <- function(subfreq,
 #'    
 #' In the formulas given below, the following notation is used:
 #' 
-#' - \eqn{k} &ensp; the number of corpus parts
-#' - \eqn{R_i} &ensp; the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
-#' - \eqn{r_i} &ensp; a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
+#' - \eqn{k} the number of corpus parts
+#' - \eqn{R_i} the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
+#' - \eqn{r_i} a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
 #' 
 #' The value `basic` implements the basic computational procedure (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98). The basic version can be applied to absolute frequencies and normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents conventional scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
-#' &emsp; \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}} (Egbert et al. 2020: 98)
+#'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}} (Egbert et al. 2020: 98)
 #' 
 #' The function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields the identical result; the \eqn{r_i} quantities are also the key to using the computational shortcut given in Wilcox (1973: 343). This is the basic formula for \eqn{D_{A}} using \eqn{r_i} instead of \eqn{R_i} values: 
 #' 
-#' &emsp; \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}} (Wilcox 1973: 343; see also Sönning 2022)
+#'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}} (Wilcox 1973: 343; see also Soenning 2022)
 #' 
 #' The value `shortcut` implements the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut procedure be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
 #' 
-#' &emsp; \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343)
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343)
 #'
 #' The value `shortcut_mod` adds a minor modification to the computational shortcut to ensure \eqn{D_{A}} does not exceed 1 (on the conventional dispersion scale):
 #' 
-#' &emsp; \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1} \times \frac{k}{k - 1}}
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1} \times \frac{k}{k - 1}}
 #' 
 #' @returns A numeric vector the same length as the number of items in the term-document matrix
 #' 
 ##' @references 
 #' 
-#' - Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189–216. \url{https://doi.org/10.1558/jrds.33066}
+#' Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189--216. \doi{doi:10.1558/jrds.33066}
 #' 
-#' - Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61–65. \url{https://doi.org/10.1002/j.2333-8504.1970.tb00778.x}
+#' Carroll, John B. 1970. An alternative to Juilland’s usage coefficient for lexical frequencies and a proposal for a standard frequency index. \emph{Computer Studies in the Humanities and Verbal Behaviour} 3(2). 61--65. \doi{doi:10.1002/j.2333-8504.1970.tb00778.x}
 #' 
-#' - Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89–115. \url{https://doi.org/10.1075/ijcl.18010.egb}
+#' Egbert, Jesse, Brent Burch & Douglas Biber. 2020. Lexical dispersion and corpus design. \emph{International Journal of Corpus Linguistics} 25(1). 89--115. \doi{doi:10.1075/ijcl.18010.egb}
 #' 
-#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171--205. \doi{doi:10.1075/jsls.21029.gri}
 #' 
-#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \doi{doi:10.1075/scl.115}
 #' 
-#' - Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403–437. \url{https://doi.org/10.1075/ijcl.13.4.02gri}
+#' Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. \emph{International Journal of Corpus Linguistics} 13(4). 403--437. \doi{doi:10.1075/ijcl.13.4.02gri}
 #' 
-#' - Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \url{https://doi.org/10.1515/9783112415467}
+#' Juilland, Alphonse G. & Eugenio Chang-Rodríguez. 1964. \emph{Frequency dictionary of Spanish words.} The Hague: Mouton de Gruyter. \doi{doi:10.1515/9783112415467}
 #' 
-#' - Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103–127.
+#' Rosengren, Inger. 1971. The quantitative concept of language and its relation to the structure of frequency dictionaries. \emph{Études de linguistique appliquée (Nouvelle Série)} 1. 103--127.
 #' 
-#' - Sönning, Lukas. 2022. Evaluation of text-level measures of lexical dispersion: Robustness and consistency. \emph{PsyArXiv preprint}. \url{https://psyarxiv.com/h9mvs_v1/}
-#' - Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. The Western Political Quarterly 26 (2). 325–343. \url{https://doi.org/10.2307/446831}
+#' Soenning, Lukas. 2022. Evaluation of text-level measures of lexical dispersion: Robustness and consistency. \emph{PsyArXiv preprint}. \url{https://osf.io/preprints/psyarxiv/h9mvs/}
+#' 
+#' Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. The Western Political Quarterly 26 (2). 325--343. \doi{doi:10.2307/446831}
 #' 
 #' @export
 #'

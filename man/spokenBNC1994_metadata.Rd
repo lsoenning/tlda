@@ -20,7 +20,7 @@ A data frame with 1,017 rows and 7 columns:
 }
 }
 \source{
-Crowdy, Steve. 1995. The BNC spoken corpus. In Geoffrey Leech, Greg Myers & Jenny Thomas (eds.), \emph{Spoken English on Computer: Transcription, Mark-Up and Annotation}, 224–234. Harlow: Longman.
+Crowdy, Steve. 1995. The BNC spoken corpus. In Geoffrey Leech, Greg Myers & Jenny Thomas (eds.), \emph{Spoken English on Computer: Transcription, Mark-Up and Annotation}, 224--234. Harlow: Longman.
 }
 \usage{
 spokenBNC1994_metadata

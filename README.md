@@ -161,8 +161,14 @@ disp_tdm(
 
 ## Installation
 
-You can install the development version of `tlda` from
-[GitHub](https://github.com/) with:
+Install the latest `tlda` release from CRAN:
+
+``` r
+install.packages("tlda")
+```
+
+Or the development version of `tlda` from [GitHub](https://github.com/)
+with:
 
 ``` r
 # install.packages("pak")

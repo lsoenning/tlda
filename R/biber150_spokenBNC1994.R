@@ -18,10 +18,10 @@
 #'   \item{columns}{1,405 speakers, ordered by ID ("PS002","PS003", ... , "PS6SM", "PS6SN"))}
 #' }
 #' @source 
-#' Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s D to measure lexical dispersion in large corpora. \emph{International Journal of Corpus Linguistics} 21(4). 439–464. 
+#' Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s D to measure lexical dispersion in large corpora. \emph{International Journal of Corpus Linguistics} 21(4). 439--464. 
 #' 
-#' Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189–216. 
+#' Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189--216. 
 #' 
-#' Crowdy, Steve. 1995. The BNC spoken corpus. In Geoffrey Leech, Greg Myers & Jenny Thomas (eds.), \emph{Spoken English on Computer: Transcription, Mark-Up and Annotation}, 224–234. Harlow: Longman.
+#' Crowdy, Steve. 1995. The BNC spoken corpus. In Geoffrey Leech, Greg Myers & Jenny Thomas (eds.), \emph{Spoken English on Computer: Transcription, Mark-Up and Annotation}, 224--234. Harlow: Longman.
 #' 
 "biber150_spokenBNC1994"

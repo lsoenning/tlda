@@ -22,9 +22,9 @@ A data frame with 500 rows and 6 columns:
 \source{
 \url{https://www.ice-corpora.uzh.ch/en/design.html}
 
-Greenbaum, Sidney. 1996. Introducing ICE. In Sidney Greenbaum (ed.), \emph{Comparing English worldwide: The International Corpus of English}, 3–12. Oxford: Clarendon Press.
+Greenbaum, Sidney. 1996. Introducing ICE. In Sidney Greenbaum (ed.), \emph{Comparing English worldwide: The International Corpus of English}, 3--12. Oxford: Clarendon Press.
 
-Schützler, Ole. 2023. \emph{Concessive constructions in varieties of English}. Berlin: Language Science Press. \url{https://doi.org/10.5281/zenodo.8375010}
+Schützler, Ole. 2023. \emph{Concessive constructions in varieties of English}. Berlin: Language Science Press. \doi{doi:10.5281/zenodo.8375010}
 }
 \usage{
 ice_metadata

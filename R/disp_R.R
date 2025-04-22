@@ -25,9 +25,9 @@
 #'
 #' @references
 #' 
-#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171--205. \doi{doi:10.1075/jsls.21029.gri}
 #'
-#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \doi{doi:10.1075/scl.115}
 #'
 #'
 #' @export
@@ -178,9 +178,9 @@ disp_R <- function(subfreq,
 #'
 #' @references
 #' 
-#' - Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171–205. \url{https://doi.org/10.1075/jsls.21029.gri}
+#' Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? \emph{Journal of Second Language Studies} 5(2). 171--205. \doi{doi:10.1075/jsls.21029.gri}
 #'
-#' - Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \url{https://doi.org/10.1075/scl.115}
+#' Gries, Stefan Th. 2024. \emph{Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures}. Amsterdam: Benjamins. \doi{doi:10.1075/scl.115}
 #'
 #'
 #' @export
@@ -283,7 +283,6 @@ disp_R_tdm <- function(tdm,
                  partsize = min_disp_tdm[1,],
                  type,
                  freq_adjust = FALSE,
-                 #freq_adjust_method,
                  unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
@@ -299,7 +298,6 @@ disp_R_tdm <- function(tdm,
                  partsize = max_disp_tdm[1,],
                  type,
                  freq_adjust = FALSE,
-                 #freq_adjust_method,
                  unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
@@ -317,7 +315,6 @@ disp_R_tdm <- function(tdm,
                  partsize = min_disp_tdm[nrow(min_disp_tdm),],
                  type,
                  freq_adjust = FALSE,
-                 #freq_adjust_method,
                  unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
@@ -333,7 +330,6 @@ disp_R_tdm <- function(tdm,
                  partsize = max_disp_tdm[nrow(max_disp_tdm),],
                  type,
                  freq_adjust = FALSE,
-                 #freq_adjust_method,
                  unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
