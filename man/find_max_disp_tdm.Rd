@@ -4,7 +4,11 @@
 \alias{find_max_disp_tdm}
 \title{Find the maximally dispersed distribution of each item in a term-document matrix}
 \usage{
-find_max_disp_tdm(tdm, row_partsize, freq_adjust_method = "even")
+find_max_disp_tdm(
+  tdm,
+  row_partsize = "first",
+  freq_adjust_method = freq_adjust_method
+)
 }
 \arguments{
 \item{tdm}{A term-document matrix, where rows represent items and columns represent corpus parts; must also contain a row giving the size of the corpus parts (first or last row in the term-document matrix)}

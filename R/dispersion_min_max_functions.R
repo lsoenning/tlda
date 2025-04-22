@@ -64,7 +64,7 @@ find_min_disp <- function(
           }
         }
       }
-    } else {
+    } else if (freq_adjust_method == "even"){
       
       output <- rep(0, length(partsize))
       
@@ -154,8 +154,7 @@ find_max_disp <- function(
       }
       output <- colSums(aux_matrix)[original_order]
       
-    }
-    else {
+    } else if (freq_adjust_method == "even"){
       
       expected <- as.numeric(sorted_partsize_decreasing/sum(sorted_partsize_decreasing)*sum(subfreq))
       after_rounding <- round(expected)
@@ -217,8 +216,8 @@ find_max_disp <- function(
 #'
 find_min_disp_tdm <- function(
     tdm,
-    row_partsize,
-    freq_adjust_method = "even"){
+    row_partsize = "first",
+    freq_adjust_method = freq_adjust_method){
   
   if(missing(row_partsize)){
     stop("Please indicate which row in the term-document matrix includes the part sizes.\n  Use argument 'row_partsize' to locate the correct row ('first' or 'last').")
@@ -241,7 +240,7 @@ find_min_disp_tdm <- function(
       find_min_disp(
         subfreq = x, 
         partsize = tdm[nrow(tdm),], 
-        freq_adjust_method)
+        freq_adjust_method = freq_adjust_method)
     })      
     output <- rbind(t(output), "word_count" = tdm[nrow(tdm),])  
     
@@ -251,7 +250,7 @@ find_min_disp_tdm <- function(
       find_min_disp(
         subfreq = x, 
         partsize = tdm[1,], 
-        freq_adjust_method)
+        freq_adjust_method = freq_adjust_method)
     })
     output <- rbind("word_count" = tdm[1,], t(output))
   }
@@ -291,8 +290,8 @@ find_min_disp_tdm <- function(
 #'
 find_max_disp_tdm <- function(
     tdm,
-    row_partsize,
-    freq_adjust_method = "even"){
+    row_partsize = "first",
+    freq_adjust_method = freq_adjust_method){
   
   if(missing(row_partsize)){
     stop("Please indicate which row in the term-document matrix inludes the part sizes.\n  Use argument 'row_partsize' to locate the correct row ('first' or 'last').")
@@ -315,7 +314,7 @@ find_max_disp_tdm <- function(
       find_max_disp(
         subfreq = x, 
         partsize = tdm[nrow(tdm),], 
-        freq_adjust_method)
+        freq_adjust_method = freq_adjust_method)
     })      
     output <- rbind(t(output), "word_count" = tdm[nrow(tdm),], freq_adjust_method)    
     
@@ -325,7 +324,7 @@ find_max_disp_tdm <- function(
       find_max_disp(
         subfreq = x, 
         partsize = tdm[1,], 
-        freq_adjust_method)
+        freq_adjust_method = freq_adjust_method)
     })
     output <- rbind("word_count" = tdm[1,], t(output))
 

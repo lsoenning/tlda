@@ -38,6 +38,7 @@ Collate:
     'disp_DKL.R'
     'disp_DP.R'
     'disp_R.R'
+    'disp_S.R'
     'dispersion_min_max_functions.R'
     'ice_metadata.R'
     'spokenBNC1994_metadata.R'

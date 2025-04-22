@@ -24,7 +24,7 @@
 #' 
 #' - \eqn{k} &emsp; the number of corpus parts
 #' - \eqn{t_i} &emsp; a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
-#' - \eqn{w_i} &emsp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes) 
+#' - \eqn{w_i} &emsp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of thea part sizes) 
 #' 
 #' The value `"gries_2008"` implements the original version proposed by Gries (2008: 415). Note that while the following formula represents Gries scaling (0 = even, 1 = uneven), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
@@ -75,6 +75,7 @@ disp_DP <- function(subfreq,
                     formula = "egbert_etal_2020",
                     freq_adjust = TRUE,
                     freq_adjust_method = "even",
+                    unit_interval = TRUE,
                     digits = NULL,
                     verbose = TRUE,
                     print_score = TRUE,
@@ -105,8 +106,6 @@ disp_DP <- function(subfreq,
     DP_score <- calculate_DP(subfreq, partsize, formula)
     output <- DP_score
     
-    if (directionality == "gries") DP_score <- 1 - DP_score
-    
     if (freq_adjust == TRUE){
       
       subfreq_min_disp <- find_min_disp(
@@ -121,15 +120,18 @@ disp_DP <- function(subfreq,
       
       DP_min <- calculate_DP(subfreq_min_disp, partsize, formula)
       DP_max <- calculate_DP(subfreq_max_disp, partsize, formula)
-      
-      if (directionality == "gries") {
-        DP_min <- 1 - DP_min
-        DP_max <- 1 - DP_max
-      } 
-      
+
       output <- (DP_score - DP_min) / (DP_max - DP_min)
+      
+      item_exceeds_limits <- FALSE
+      if (unit_interval){
+        item_exceeds_limits <- sum(output < 0 | output > 1) > 0
+        output[output > 1] <- 1
+        output[output < 0] <- 0
+      }
     }
   }
+  if (directionality == "gries") output <- 1 - output
   
   if (freq_adjust == TRUE){
     names(output) <- "DP_nofreq"
@@ -138,7 +140,7 @@ disp_DP <- function(subfreq,
   }
   
   if (!is.null(digits)) output <- round(output, digits)
-
+  
   if (print_score != FALSE) print(output)
   
   if (sum(subfreq) == 0 & suppress_warning == FALSE){
@@ -146,8 +148,15 @@ disp_DP <- function(subfreq,
   } else {
     if (verbose) {
       if (freq_adjust == TRUE){
-        message("\nDispersion scores are adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208)")
+        message("\nThe dispersion score is adjusted for frequency using the min-max")
+        message("  transformation (see Gries 2024: 196-208); please note that the")
+        message("  method implemented here does not work well if corpus parts differ")
+        message("  considerably in size; see vignette('frequency-adjustment')")
+        
+        if (unit_interval & item_exceeds_limits){
+          message("\nThe frequency-adjusted score exceeds the limits of the unit")
+          message("  interval [0,1] and was replaced by 0 or 1")
+        }
       }
       if (directionality == "gries") {
         message("\nScores follow scaling used by Gries (2008):")
@@ -200,7 +209,7 @@ disp_DP <- function(subfreq,
 #' 
 #' - \eqn{k} &emsp; the number of corpus parts
 #' - \eqn{t_i} &emsp; a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
-#' - \eqn{w_i} &emsp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes) 
+#' - \eqn{w_i} &emsp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
 #' 
 #' The value `"gries_2008"` implements the original version proposed by Gries (2008: 415). Note that while the following formula represents Gries scaling (0 = even, 1 = uneven), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
@@ -246,14 +255,15 @@ disp_DP <- function(subfreq,
 #'   freq_adjust = FALSE)
 #' 
 disp_DP_tdm <- function(tdm,
-                        row_partsize,
+                        row_partsize = "first",
                         directionality = "conventional",
                         formula = "egbert_etal_2020",
                         freq_adjust = FALSE,
                         freq_adjust_method = "even",
+                        unit_interval = TRUE,
                         digits = NULL,
                         verbose = TRUE,
-                        print_score = TRUE) {
+                        print_scores = TRUE) {
   
   if(missing(row_partsize)){
     stop("Please indicate which row in the term-document matrix includes the part sizes.\n  Use argument 'row_partsize' to locate the correct row ('first' or 'last').")
@@ -272,7 +282,7 @@ disp_DP_tdm <- function(tdm,
   
   if (row_partsize == "first"){
     
-    if (!all(colSums(tdm[-1,]) < tdm[1,])){
+    if (!all(colSums(tdm[-1,]) <= tdm[1,])){
       stop("The row you indicated (first row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  first row. At the moment, (some) counts in the first row are too small.")
     }
     
@@ -284,8 +294,8 @@ disp_DP_tdm <- function(tdm,
                 partsize = tdm[1,],
                 directionality,
                 formula,
-                freq_adjust,
-                freq_adjust_method,
+                freq_adjust = FALSE,
+                unit_interval = FALSE,
                 digits = NULL,
                 verbose = FALSE,
                 print_score = FALSE,
@@ -294,7 +304,7 @@ disp_DP_tdm <- function(tdm,
     
   } else if (row_partsize == "last"){
     
-    if (!all(colSums(tdm[-nrow(tdm),]) < tdm[nrow(tdm),])){
+    if (!all(colSums(tdm[-nrow(tdm),]) <= tdm[nrow(tdm),])){
       stop("The row you indicated (last row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  last row. At the moment, (some) counts in the last row are too small.")
     }
     
@@ -306,8 +316,8 @@ disp_DP_tdm <- function(tdm,
                 partsize = tdm[nrow(tdm),],
                 directionality,
                 formula,
-                freq_adjust,
-                freq_adjust_method,
+                freq_adjust = FALSE,
+                unit_interval = FALSE,
                 digits = NULL,
                 verbose = FALSE,
                 print_score = FALSE,
@@ -317,8 +327,16 @@ disp_DP_tdm <- function(tdm,
   
   if (freq_adjust == TRUE){
     
-    min_disp_tdm <- find_min_disp_tdm(tdm, freq_adjust_method)
-    max_disp_tdm <- find_max_disp_tdm(tdm, freq_adjust_method)
+    min_disp_tdm <- find_min_disp_tdm(
+      tdm, 
+      freq_adjust_method = freq_adjust_method, 
+      row_partsize = row_partsize)
+    
+    max_disp_tdm <- find_max_disp_tdm(
+      tdm, 
+      freq_adjust_method = freq_adjust_method, 
+      row_partsize = row_partsize)
+    
     
     if (row_partsize == "first"){
       
@@ -330,8 +348,9 @@ disp_DP_tdm <- function(tdm,
                   partsize = min_disp_tdm[1,],
                   directionality,
                   formula,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -346,8 +365,9 @@ disp_DP_tdm <- function(tdm,
                   partsize = max_disp_tdm[1,],
                   directionality,
                   formula,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -364,8 +384,9 @@ disp_DP_tdm <- function(tdm,
                   partsize = min_disp_tdm[nrow(min_disp_tdm),],
                   directionality,
                   formula,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -380,8 +401,9 @@ disp_DP_tdm <- function(tdm,
                   partsize = max_disp_tdm[nrow(max_disp_tdm),],
                   directionality,
                   formula,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -389,6 +411,15 @@ disp_DP_tdm <- function(tdm,
         })
     }
     output <- (DP_score - DP_min) / (DP_max - DP_min)
+    
+    if (unit_interval){
+      
+      n_items_exceeding_limits <- sum(
+        output < 0 | output > 1, na.rm = TRUE) 
+      
+      output[output > 1] <- 1
+      output[output < 0] <- 0
+    }
     
   } else {
     output <- DP_score
@@ -398,21 +429,30 @@ disp_DP_tdm <- function(tdm,
   
   if (!is.null(digits)) output <- round(output, digits)
   
-  if (print_score != FALSE) print(output)
+  if (print_scores != FALSE) print(output)
   
   if (verbose) {
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
-      message("  transformation (see Gries 2024: 196-208)")
+      message("  transformation (see Gries 2024: 196-208); please note that the")
+      message("  method implemented here does not work well if corpus parts differ")
+      message("  considerably in size; see vignette('frequency-adjustment')")
+      
+      if (unit_interval){
+        message(paste0(
+          "\nFor ", n_items_exceeding_limits, " items, the frequency-adjusted score exceeds the limits of the"
+        ))
+        message("  unit interval [0,1]; these scores were replaced by 0 or 1")
+      }
     }
     if (directionality == "gries") {
       message("\nScores follow scaling used by Gries (2008):")
       message("  0 = maximally even/dispersed/balanced distribution (optimum)")
-      message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)\n")
+      message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
     } else {
       message("\nScores follow conventional scaling:")
       message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
-      message("  1 = maximally even/dispersed/balanced distribution (optimum)\n")
+      message("  1 = maximally even/dispersed/balanced distribution (optimum)")
     }
     
     if (formula == "gries_2008") {
@@ -425,16 +465,16 @@ disp_DP_tdm <- function(tdm,
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     }  
   }
   if (row_partsize == "last"){
     if (sum(rowSums(tdm[-nrow(tdm),]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     } 
   }
   if (sum(rowSums(tdm) == 1) > 0 & freq_adjust == TRUE){
-    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score.")
+    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score")
   }
   invisible(output)
 }

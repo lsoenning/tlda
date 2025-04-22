@@ -6,13 +6,14 @@
 \usage{
 disp_R_tdm(
   tdm,
-  row_partsize,
+  row_partsize = "first",
   type = "relative",
   freq_adjust = FALSE,
-  freq_adjust_method = "even",
+  freq_adjust_method = "pervasive",
+  unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
-  print_score = TRUE
+  print_scores = TRUE
 )
 }
 \arguments{
@@ -24,13 +25,15 @@ disp_R_tdm(
 
 \item{freq_adjust}{Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}}
 
-\item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
+\item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"pervasive"} (default) and \code{"even"}}
+
+\item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 
 \item{verbose}{Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
 
-\item{print_score}{Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}}
+\item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 }
 \value{
 A numeric vector the same length as the number of items in the term-document matrix

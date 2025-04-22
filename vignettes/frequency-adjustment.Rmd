@@ -54,9 +54,9 @@ The second strategy is to find distributions that minimize the score returned by
 
 Gries's approach (2024) combines these two methods: The dispersion minimum is constructed conceptually, the dispersion maximum via a trial-and-error process. 
 
-The `tlda` package implements the first approach and builds extreme distributions based on the conceptual meaning of 'dispersion'. As auch, the term has two partly overlapping meanings: Dispersion can be understood as referring to the *pervasiveness* of an item, i.e. how widely it is spread across corpus parts. It can also be understood as denoting the *evenness* of an item's distribution, i.e. how evenly it is spread across corpus parts. As will be illustrated shortly, we can construct extreme distributions based on these two concepts, pervasiveness and evenness. This approach defines hypothetical extremes based on the construct of interest, and based on our linguistic understanding of what characterizes, in the context of a particular application, a 'dispersed' distribution. Further, the hypothetical sets of subfrequencies will be the same irrespective of the specific index we wish to use. 
+The `tlda` package implements the first approach and builds extreme distributions based on the conceptual meaning of 'dispersion'. As auch, the term has two partly overlapping meanings: Dispersion can be understood as referring to the *pervasiveness* of an item, i.e. how widely it is spread across corpus parts. It can also be understood as denoting the *evenness* of an item's distribution, i.e. how evenly it is spread across corpus parts. As will be illustrated shortly, we can construct extreme distributions based on these two concepts, pervasiveness and evenness. This approach defines hypothetical extremes based on the construct of interest, and in terms of our linguistic understanding of what characterizes, in the context of a particular application, a 'dispersed' distribution. Further, the hypothetical sets of subfrequencies will be the same irrespective of the specific index we wish to use. 
 
-In the next two sections, we provide graphical illustrations of this conceptual approach. Following this, we will point out a number of issues that arise if corpus parts differ considerably in size. It will be seen that the conceptual approach as used by Gries (2024) as well as the `tlda` package then runs into problems, which have to do with how dispersion measures respond to subfrequenceis of 0.
+In the next two sections, we provide graphical illustrations of this conceptual approach. Following this, we will point out a number of issues that arise if corpus parts differ considerably in size. It will be seen that the conceptual approach, which is used in part by Gries (2024) and in full in the `tlda` package, then runs into problems: The dispersion scores based on a set of subfrequencies may be above or below the scores yielded by the conceptually defined extremes. By default, the `tlda` package constrains frequency-adjusted scores to the unit interval. The issue is thereby only sidestepped, however, not solved. Instead, a number of recommendations will be given, depending on the dispersion measure of interest.
 
 
 ### Illustrative data
@@ -222,168 +222,120 @@ plot(rep(1:length(subfreqs), each = max(partsizes)),
 text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
 ```
 
+
 ### Issues
 
-One issue that cannot be ignored completely is the fact that the minimally dispersed distributions created by these methods are completely unrealistic. This is because in many situations they imagine corpus parts that consist of only one word type, repeated multiple (perhaps thousands of) times. A more realistic scheme may put an upper limit on the number of times an item can occur in a corpus part. For instance, its proportional share could be capped at a certain normalized frequency, perhaps at around 5% (the frequency of *the* in spoken and written English) or a slightly higher value. 
+#### Linguistically implausible distributions
 
-Another issue arises when we are dealing with corpus parts of different length. The **minimally even** distribution, which starts by filling in the smallest corpus parts, may then yield a dispersion score that is higher (conventional scaling) than that based on the actual distribution of subfrequencies. This means that the conceptual minimum may not coincide with the minimum output of the formula for a specific measure. 
-
-Let us first use the built-in data sets to examine which dispersion measures are affected by this. The corpus parts in `biber150_ice_gb` are all around 2,000 words.
+One issue that cannot be ignored completely is the fact that the minimally dispersed distributions created by these methods are completely unrealistic. This is because in many situations they imagine corpus parts that consist of only one word type, repeated multiple (perhaps thousands of) times. A more realistic scheme may put an upper limit on the number of times an item can occur in a corpus part. For instance, its proportional share could be capped at a certain normalized frequency, perhaps at around 5% (the frequency of *the* in spoken and written English) or a higher value. 
 
 
-```{r fig.width=3.5, fig.height=2.5, warning=FALSE, message=FALSE, out.width="35%"}
-par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
+#### Dispersion scores may exceed minimum or maximum
 
-hist(
-  biber150_ice_gb[1,],
-  main = NULL, 
-  xlab = "Size of corpus parts (texts)", 
-  xlim = c(0,4000), 
-  breaks = seq(0,4000, length=30), 
-  col = "grey60")
-```
+Another issue arises when we are dealing with corpus parts of (very) different length. Distributions that would then be considered as minimally/maximally pervasive or minimally/maximally even may yield a dispersion score that is less extreme than that based on the actual distribution of subfrequencies. Whether a particular measure is affected by this depends on how the dispersion extremes were constructed, i.e. whether they were composed to minimize/maximize evenness or pervasiveness:
+
+- For *S*, *D~P~*, and *D~KL~*, which are evenness measures, dispersion extremes that are defined based on **evenness** work well.
+- For *Range*, which is a pervasiveness measure, dispersion extremes that are defined based on **pervasiveness** work well.
+- Frequency adjustment for *D*, *D~2~*, and *D~A~*, on the other hand, may yield dispersion scores outside the [0,1] interval for both methods, i.e. when dispersion extremes are defined based on evenness or pervasiveness. 
+
+This translated into the following preliminary recommendations:
+
+- If corpus parts are fairly similar in size, no problems should arise. It should also matter little whether frequency adjustment is based on pervasiveness or evenness extremes, as both schemes then produce very similar distributions.
+- If corpus parts vary considerably in size, meaning that there are some very long parts, and several very short ones, frequency adjustment should proceed with caution. Unfortunately, specific criteria cannot be given at the moment. In such situations, the safest strategy seems to be the following:
+  - Do not calculate frequency-adjusted scores for *D*, *D~2~*, and *D~A~*.
+  - For *S*, *D~P~*, and *D~KL~*, use `freq_adjust_method = "even"`.
+  - For *Range*, use `freq_adjust_method = "pervasive"`.
+
+For *S*, *D~P~*, *D~KL~*, and *Range*, these recommendations are implemented as defaults in the corresponding functions (i.e. `disp_S()`/`disp_S_tdm()`, `disp_DP()`/`disp_DP_tdm()`, `disp_DKL()`/`disp_DKL_tdm()`, `disp_R()`/`disp_R_tdm()`).
 
 
-For the Spoken BNC1994, the word counts are distributed very unevenly across speakers; they range from 1 to 68,136:
+While more work is required to understand how dispersion measures respond to different dispersion extremes, some observations may be made. Thus, it easy to see why *Range* will be affected if dispersion extremes are defined based on evenness: For a minimally even distribution, we fill in corpus parts starting with the smallest one(s). The number of parts containing the item may therefore exceed that in the actual corpus -- especially if the smallest parts are very small.
 
-```{r fig.width=3.5, fig.height=2.5, warning=FALSE, message=FALSE, out.width="35%"}
+The reason why *S*, *D~P~*, and *D~KL~* do not work well with maximally/minimally pervasive distributions could be due to the fact that the size of corpus parts is completely disregarded, which can lead to very disproportionate distributions of subfrequencies. Thus, if we allocate one occurrence to each corpus part, this may produce an exceptionally high normalized frequency for the shortest part, but a very low one for the longest part. 
+
+It is less straightforward to see why *D*, *D~2~*, and *D~A~* may perform poorly under both schemes. What these measures have in common, however, is that they rely on normalized subfrequencies. Since the allocation scheme fills in corpus parts until they are "full" (see issue 1 above), extremely high normalized frequencies may result. This is especially problematic if the smallest corpus parts are very small. 
+
+It seems that Biber et al.'s (2016) set of lexical items is particularly suitable for further investigation of these issues. Coupled with a set of corpus parts that differ dramatically in size, we can identify which measures and items are affected.
+
+The built-in data set `biber150_spokenBNC1994` considers individual speakers in the Spoken BNC1994 as corpus parts. The word counts are distributed very unevenly across speakers; they range from 1 to 68,136. The extremely skewed distribution of part sizes is apparent in the following histogram:
+
+```{r fig.width=4, fig.height=2.5, warning=FALSE, message=FALSE, out.width="30%"}
 par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
 
 hist(
   biber150_spokenBNC1994[1,],
   main = NULL, 
-  xlab = "Size of corpus parts (texts)", 
-  breaks = seq(0,70000, length=30), 
+  xlab = "Size of corpus parts (speakers)", 
+  breaks = seq(0, 70000, length=40), 
   col = "grey60")
 ```
 
-And the same is true for the Spoken BNC2014, where they range from 19 to 359,322:
+We start by calculating frequency-adjusted scores for the 150 items in this dataset. Note that we use `unit_interval = FALSE` to avoid forcing adjusted scores into the unit interval (i.e. replacing scores smaller than 0 with 0, and scores greater than 1 with 1).
 
-```{r fig.width=3.5, fig.height=2.5, warning=FALSE, message=FALSE, out.width="35%"}
-par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
+```{r}
+DM_even <- disp_tdm(
+  biber150_spokenBNC1994, 
+  row_partsize = "first",
+  freq_adjust = TRUE,
+  freq_adjust_method = "even",
+  unit_interval = FALSE,
+  print_score = FALSE,
+  verbose = FALSE,
+  suppress_warning = TRUE)
 
-hist(
-  biber150_spokenBNC2014[1,],
-  main = NULL, 
-  xlab = "Size of corpus parts (texts)", 
-  breaks = seq(0,400000, length=30), 
-  col = "grey60")
+DM_pervasive <- disp_tdm(
+  biber150_spokenBNC1994, 
+  row_partsize = "first",
+  freq_adjust = TRUE,
+  freq_adjust_method = "pervasive",
+  unit_interval = FALSE,
+  print_score = FALSE,
+  verbose = FALSE,
+  suppress_warning = TRUE)
 ```
 
-Let us now take a look at the range of dispersion scores we obtain if we apply the frequency adjustment to the three data sets. We start with the data from:
 
-ICE-GB, dispersion extremes based on evenness (no problems)
+We then examine, for each dispersion measure, the range of scores across the 150 items, starting with the adjusted scores based on `freq_adjust_method = "even"`:
 
-```{r echo=FALSE}
+```{r}
 round(
   apply(
-    disp_tdm(
-      biber150_ice_gb, 
-      row_partsize = "first",
-      freq_adjust = TRUE,
-      freq_adjust_method = "even",
-      print_score = FALSE,
-      verbose = FALSE,
-      suppress_warning = TRUE),
+    DM_even,
     2,
     range, na.rm = TRUE),
   2)
 ```
+Then we look at how many items are affected by this, for each measure:
 
-ICE-GB, dispersion extremes based on pervasiveness  (no problems)
+```{r}
+apply(
+  DM_even,
+  2,
+  function(x){
+    sum(x < 0 | x > 1, na.rm = TRUE)
+  })
+```
 
-```{r echo=FALSE}
+Next, we consider the range of scores for adjusted based on `freq_adjust_method = "pervasive"`:
+
+```{r}
 round(
   apply(
-    disp_tdm(
-      biber150_ice_gb, 
-      row_partsize = "first",
-      freq_adjust = TRUE,
-      freq_adjust_method = "pervasive",
-      print_score = FALSE,
-      verbose = FALSE,
-      suppress_warning = TRUE),
+    DM_pervasive,
     2,
     range, na.rm = TRUE),
   2)
 ```
+Number of items affected by this, for each measure:
 
-Spoken BNC1994, dispersion extremes based on evenness:
-
-```{r echo=FALSE}
-round(
-  apply(
-    disp_tdm(
-      biber150_spokenBNC1994, 
-      row_partsize = "first",
-      freq_adjust = TRUE,
-      freq_adjust_method = "even",
-      print_score = FALSE,
-      verbose = FALSE,
-      suppress_warning = TRUE),
-    2,
-    range, na.rm = TRUE),
-  2)
+```{r}
+apply(
+  DM_pervasive,
+  2,
+  function(x){
+    sum(x < 0 | x > 1, na.rm = TRUE)
+  })
 ```
-
-Spoken BNC1994, dispersion extremes based on pervasiveness:
-
-```{r echo=FALSE}
-round(
-  apply(
-    disp_tdm(
-      biber150_spokenBNC1994, 
-      row_partsize = "first",
-      freq_adjust = TRUE,
-      freq_adjust_method = "pervasive",
-      print_score = FALSE,
-      verbose = FALSE,
-      suppress_warning = TRUE),
-    2,
-    range, na.rm = TRUE),
-  2)
-```
-
-Spoken BNC2014, dispersion extremes based on evenness:
-
-```{r echo=FALSE}
-round(
-  apply(
-    disp_tdm(
-      biber150_spokenBNC2014, 
-      row_partsize = "first",
-      freq_adjust = TRUE,
-      freq_adjust_method = "even",
-      print_score = FALSE,
-      verbose = FALSE,
-      suppress_warning = TRUE),
-    2,
-    range, na.rm = TRUE),
-  2)
-```
-
-Spoken BNC2014, dispersion extremes based on pervasiveness:
-
-```{r echo=FALSE}
-round(
-  apply(
-    disp_tdm(
-      biber150_spokenBNC2014, 
-      row_partsize = "first",
-      freq_adjust = TRUE,
-      freq_adjust_method = "pervasive",
-      print_score = FALSE,
-      verbose = FALSE,
-      suppress_warning = TRUE),
-    2,
-    range, na.rm = TRUE),
-  2)
-```
-
-
-It is easy to see why absolute and relative range will be affected -- after all, they are pervasiveness measures. Thus, since we fill in corpus parts starting with the smallest one(s), the number of texts containing the item may very well exceed that in the actual corpus -- especially if the smallest parts are very small.
-
-It is less straightforward to recognize why *D*, *D~2~*, and *D~A~* are also affected by this issue. What these measures have in common, is that they rely on normalized subfrequencies. More work is required to understand why the method does not work for these indices.
 
 
 

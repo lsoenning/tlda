@@ -6,14 +6,15 @@
 \usage{
 disp_DP_tdm(
   tdm,
-  row_partsize,
+  row_partsize = "first",
   directionality = "conventional",
   formula = "egbert_etal_2020",
   freq_adjust = FALSE,
   freq_adjust_method = "even",
+  unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
-  print_score = TRUE
+  print_scores = TRUE
 )
 }
 \arguments{
@@ -29,11 +30,13 @@ disp_DP_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
+\item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
+
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 
 \item{verbose}{Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
 
-\item{print_score}{Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}}
+\item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 }
 \value{
 A numeric vector the same length as the number of items in the term-document matrix
@@ -57,7 +60,7 @@ In the formulas given below, the following notation is used:
 \itemize{
 \item \eqn{k}   the number of corpus parts
 \item \eqn{t_i}   a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
-\item \eqn{w_i}   a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes)
+\item \eqn{w_i}   a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes)
 }
 
 The value \code{"gries_2008"} implements the original version proposed by Gries (2008: 415). Note that while the following formula represents Gries scaling (0 = even, 1 = uneven), in the current function the directionality is controlled separately using the argument \code{directionality}.

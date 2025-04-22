@@ -9,7 +9,8 @@ disp_R(
   partsize,
   type = "relative",
   freq_adjust = FALSE,
-  freq_adjust_method = "even",
+  freq_adjust_method = "pervasive",
+  unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
   print_score = TRUE,
@@ -19,13 +20,15 @@ disp_R(
 \arguments{
 \item{subfreq}{A numeric vector of subfrequencies, i.e. the number of occurrences of the item in each corpus part}
 
-\item{partsize}{A numeric vector with the size of the corpus parts}
+\item{partsize}{A numeric vector specifying the size of the corpus parts}
 
 \item{type}{Character string indicating which type of range to calculate. See details below. Possible values are \code{"relative"} (default), \code{"absolute"}, \code{"relative_withsize"}}
 
 \item{freq_adjust}{Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}}
 
-\item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
+\item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"pervasive"} (default) and \code{"even"}}
+
+\item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 

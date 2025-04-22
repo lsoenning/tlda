@@ -107,6 +107,7 @@ While `disp()` and `disp_tdm()` use sensible default settings, you may want to h
   - basic, which implements the formula
   - shortcut, which is quicker and yields a close approximation to the basic version
 - `disp_DKL()` / `disp_DKL_tdm()`: Allows for the choice between different methods for standardizing KLD scores (see Gries 2024: 90)
+- `disp_S()` / `disp_S_tdm()`: For Rosengren's *S*, uses sensible defaults for frequency adjustment
 
 
 ### Frequency adjustment

@@ -10,9 +10,10 @@ disp_tdm(
   directionality = "conventional",
   freq_adjust = FALSE,
   freq_adjust_method = "even",
+  unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
-  print_score = TRUE,
+  print_scores = TRUE,
   suppress_warning = FALSE
 )
 }
@@ -27,11 +28,13 @@ disp_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
+\item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
+
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 
 \item{verbose}{Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
 
-\item{print_score}{Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}}
+\item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 
 \item{suppress_warning}{Logical. Whether warning messages should be suppressed; default is \code{FALSE}}
 }
@@ -69,9 +72,10 @@ In the formulas given below, the following notation is used:
 \item \eqn{T_i}   the absolute subfrequency in part \eqn{i}
 \item \eqn{t_i}   a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
 \item \eqn{W_i}   the absolute size of corpus part \eqn{i}
-\item \eqn{w_i}   a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes)
+\item \eqn{w_i}   a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes)
 \item \eqn{R_i}   the normalized subfrequency in part \eqn{i}, i.e. the subfrequency divided by the size of the corpus part
 \item \eqn{r_i}   a proportional quantity; the normalized subfrequency in part \eqn{i} divided by the sum of all normalized subfrequencies
+\item \eqn{N}   corpus frequency, i.e. the total number of occurrence of the item in the corpus
 }
 
 Note that the formulas cited below differ in their scaling, i.e. whether 1 reflects an even or an uneven distribution. In the current function, this behavior is overridden by the argument \code{directionality}. The specific scaling used in the formulas below is therefore irrelevant.

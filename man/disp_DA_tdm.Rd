@@ -6,14 +6,15 @@
 \usage{
 disp_DA_tdm(
   tdm,
-  row_partsize,
+  row_partsize = "first",
   directionality = "conventional",
   procedure = "basic",
   freq_adjust = FALSE,
   freq_adjust_method = "even",
+  unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
-  print_score = TRUE
+  print_scores = TRUE
 )
 }
 \arguments{
@@ -29,11 +30,13 @@ disp_DA_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
+\item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
+
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
 
 \item{verbose}{Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is \code{TRUE}}
 
-\item{print_score}{Logical. Whether the dispersion score should be printed to the console; default is \code{TRUE}}
+\item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 }
 \value{
 A numeric vector the same length as the number of items in the term-document matrix
@@ -48,7 +51,7 @@ This function takes as input a term-document matrix and returns, for each item (
 \item Procedure: Irrespective of the directionality of scaling, two computational procedures for \eqn{D_{A}} exist (see below for details). Both appear in Wilcox (1973), where the measure is referred to as "MDA". The basic version (represented by the value \code{basic}) carries out the full set of computations required by the composition of the formula. As the number of corpus parts grows, this can become computationally very expensive. Wilcox (1973) also gives a "computational" procedure, which is a shortcut that is much quicker and closely approximates the scores produced by the basic formula. This version is represented by the value \code{shortcut}.
 \item Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (\code{pervasive}) or evenness (\code{even}). You can choose between these with the argument \code{freq_adjust_method}; the default is \code{even}. For details and explanations, see \code{vignette("frequency-adjustment")}.
 \itemize{
-\item To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (\code{pervasiveness}), or they are assigned to the smallest corpus part(s) (\code{even}).
+\item To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (\code{pervasive}), or they are assigned to the smallest corpus part(s) (\code{even}).
 \item To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (\code{pervasive}), or they are allocated to corpus parts in proportion to their size (\code{even}). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for \code{find_max_disp()}.
 }
 }

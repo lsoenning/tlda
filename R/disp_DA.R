@@ -84,6 +84,7 @@ disp_DA <- function(subfreq,
                     directionality = "conventional",
                     freq_adjust = FALSE,
                     freq_adjust_method = "even",
+                    unit_interval = TRUE,
                     digits = NULL,
                     verbose = TRUE,
                     print_score = TRUE,
@@ -118,8 +119,6 @@ disp_DA <- function(subfreq,
     DA_score <- calculate_DA(subfreq, partsize, procedure)
     output <- DA_score
     
-    if (directionality == "gries") DA_score <- 1 - DA_score
-    
     if (freq_adjust == TRUE){
       
       subfreq_min_disp <- find_min_disp(
@@ -135,15 +134,17 @@ disp_DA <- function(subfreq,
       DA_min <- calculate_DA(subfreq_min_disp, partsize, procedure)
       DA_max <- calculate_DA(subfreq_max_disp, partsize, procedure)
       
-      if (directionality == "gries") {
-        DA_min <- 1 - DA_min
-        DA_max <- 1 - DA_max
-      } 
-      
-      # frequency-adjusted version
       output <- (DA_score - DA_min) / (DA_max - DA_min)
+      
+      item_exceeds_limits <- FALSE
+      if (unit_interval){
+        item_exceeds_limits <- sum(output < 0 | output > 1) > 0
+        output[output > 1] <- 1
+        output[output < 0] <- 0
+      }
     }
   }
+  if (directionality == "gries") output <- 1 - output
   
   if (freq_adjust == TRUE){
     names(output) <- "DA_nofreq"
@@ -160,8 +161,15 @@ disp_DA <- function(subfreq,
   } else {
     if (verbose) {
       if (freq_adjust == TRUE){
-        message("\nDispersion scores are adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208)")
+        message("\nThe dispersion score is adjusted for frequency using the min-max")
+        message("  transformation (see Gries 2024: 196-208); please note that the")
+        message("  method implemented here does not work well if corpus parts differ")
+        message("  considerably in size; see vignette('frequency-adjustment')")
+        
+        if (unit_interval & item_exceeds_limits){
+          message("\nThe frequency-adjusted score exceeds the limits of the unit")
+          message("  interval [0,1] and was replaced by 0 or 1")
+        }
       }
       if (directionality == "gries") {
         message("\nScores follow scaling used by Gries (2008):")
@@ -209,7 +217,7 @@ disp_DA <- function(subfreq,
 #' 
 #' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`pervasive`) or evenness (`even`). You can choose between these with the argument `freq_adjust_method`; the default is `even`. For details and explanations, see `vignette("frequency-adjustment")`. 
 #' 
-#'    - To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (`pervasiveness`), or they are assigned to the smallest corpus part(s) (`even`).
+#'    - To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (`pervasive`), or they are assigned to the smallest corpus part(s) (`even`).
 #'    - To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (`pervasive`), or they are allocated to corpus parts in proportion to their size (`even`). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for `find_max_disp()`.
 #'    
 #'    
@@ -269,18 +277,19 @@ disp_DA <- function(subfreq,
 #'   freq_adjust = FALSE)
 #' 
 disp_DA_tdm <- function(tdm,
-                        row_partsize,
+                        row_partsize = "first",
                         directionality = "conventional",
                         procedure = "basic",
                         freq_adjust = FALSE,
                         freq_adjust_method = "even",
+                        unit_interval = TRUE,
                         digits = NULL,
                         verbose = TRUE,
-                        print_score = TRUE) {
+                        print_scores = TRUE) {
   
   if(missing(row_partsize)){
     stop("Please indicate which row in the term-document matrix includes the part sizes.\n  Use argument 'row_partsize' to locate the correct row ('first' or 'last').")
-    }
+  }
   
   
   if ("data.frame" %in% class(tdm)){
@@ -296,9 +305,10 @@ disp_DA_tdm <- function(tdm,
   
   if (row_partsize == "first"){
     
-    if (!all(colSums(tdm[-1,]) < tdm[1,])){
+    if (!all(colSums(tdm[-1,]) <= tdm[1,])){
       stop("The row you indicated (first row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  first row. At the moment, (some) counts in the first row are too small.")
     }
+    
     
     DA_score <- apply(
       tdm[-1,],
@@ -308,8 +318,8 @@ disp_DA_tdm <- function(tdm,
                 partsize = tdm[1,],
                 directionality,
                 procedure,
-                freq_adjust,
-                freq_adjust_method,
+                freq_adjust = FALSE,
+                unit_interval = FALSE,
                 digits = NULL,
                 verbose = FALSE,
                 print_score = FALSE,
@@ -318,7 +328,7 @@ disp_DA_tdm <- function(tdm,
     
   } else if (row_partsize == "last"){
     
-    if (!all(colSums(tdm[-nrow(tdm),]) < tdm[nrow(tdm),])){
+    if (!all(colSums(tdm[-nrow(tdm),]) <= tdm[nrow(tdm),])){
       stop("The row you indicated (last row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  last row. At the moment, (some) counts in the last row are too small.")
     }
     
@@ -330,8 +340,8 @@ disp_DA_tdm <- function(tdm,
                 partsize = tdm[nrow(tdm),],
                 directionality,
                 procedure,
-                freq_adjust,
-                freq_adjust_method,
+                freq_adjust = FALSE,
+                unit_interval = FALSE,
                 digits = NULL,
                 verbose = FALSE,
                 print_score = FALSE,
@@ -341,8 +351,16 @@ disp_DA_tdm <- function(tdm,
   
   if (freq_adjust == TRUE){
     
-    min_disp_tdm <- find_min_disp_tdm(tdm, freq_adjust_method)
-    max_disp_tdm <- find_max_disp_tdm(tdm, freq_adjust_method)
+    min_disp_tdm <- find_min_disp_tdm(
+      tdm, 
+      freq_adjust_method = freq_adjust_method, 
+      row_partsize = row_partsize)
+    
+    max_disp_tdm <- find_max_disp_tdm(
+      tdm, 
+      freq_adjust_method = freq_adjust_method, 
+      row_partsize = row_partsize)
+    
     
     if (row_partsize == "first"){
       
@@ -354,8 +372,9 @@ disp_DA_tdm <- function(tdm,
                   partsize = min_disp_tdm[1,],
                   directionality,
                   procedure,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -370,8 +389,9 @@ disp_DA_tdm <- function(tdm,
                   partsize = max_disp_tdm[1,],
                   directionality,
                   procedure,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -388,8 +408,9 @@ disp_DA_tdm <- function(tdm,
                   partsize = min_disp_tdm[nrow(min_disp_tdm),],
                   directionality,
                   procedure,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -404,8 +425,9 @@ disp_DA_tdm <- function(tdm,
                   partsize = max_disp_tdm[nrow(max_disp_tdm),],
                   procedure,
                   directionality,
-                  freq_adjust,
-                  freq_adjust_method,
+                  freq_adjust = FALSE,
+                  #freq_adjust_method,
+                  unit_interval = FALSE,
                   digits = NULL,
                   verbose = FALSE,
                   print_score = FALSE,
@@ -413,6 +435,15 @@ disp_DA_tdm <- function(tdm,
         })
     }
     output <- (DA_score - DA_min) / (DA_max - DA_min)
+    
+    if (unit_interval){
+      
+      n_items_exceeding_limits <- sum(
+        output < 0 | output > 1, na.rm = TRUE) 
+      
+      output[output > 1] <- 1
+      output[output < 0] <- 0
+    }
     
   } else {
     output <- DA_score
@@ -422,12 +453,21 @@ disp_DA_tdm <- function(tdm,
   
   if (!is.null(digits)) output <- round(output, digits)
   
-  if (print_score != FALSE) print(output)
+  if (print_scores != FALSE) print(output)
   
   if (verbose) {
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
-      message("  transformation (see Gries 2024: 196-208)")
+      message("  transformation (see Gries 2024: 196-208); please note that the")
+      message("  method implemented here does not work well if corpus parts differ")
+      message("  considerably in size; see vignette('frequency-adjustment')")
+      
+      if (unit_interval){
+        message(paste0(
+          "\nFor ", n_items_exceeding_limits, " items, the frequency-adjusted score exceeds the limits of the"
+        ))
+        message("  unit interval [0,1]; these scores were replaced by 0 or 1")
+      }
     }
     if (directionality == "gries") {
       message("\nScores follow scaling used by Gries (2008):")
@@ -441,28 +481,28 @@ disp_DA_tdm <- function(tdm,
     
     if (procedure == "basic") {
       message("\nComputed using the basic formula for DA, see:")
-      message("  Wilcox (1967: 343, 'MDA', column 2), Burch et al. (2017: 194-196)")
+      message("  Wilcox (1967: 343, 'MDA', column 2), Burch et al. (2017: 194-196)\n")
     } else if (procedure == "shortcut") {
       message("\nComputed using the computational shortcut suggested by")
-      message("  Wilcox (1967: 343, 'MDA', column 4)")
+      message("  Wilcox (1967: 343, 'MDA', column 4)\n")
     } else if (procedure == "shortcut_mod") {
       message("\nComputed using the computational shortcut suggested by")
       message("  Wilcox (1967: 343, 'MDA', column 4) with a minor")
-      message("  correction to ensure DA does not exceed 1 (conventional)")
+      message("  correction to ensure DA does not exceed 1 (conventional)\n")
     }
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     }  
   }
   if (row_partsize == "last"){
     if (sum(rowSums(tdm[-nrow(tdm),]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     } 
   }
   if (sum(rowSums(tdm) == 1) > 0 & freq_adjust == TRUE){
-    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score.")
+    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score")
   }
   invisible(output)
 }

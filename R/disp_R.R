@@ -5,6 +5,7 @@
 #'
 #' @inheritParams disp
 #' @param type Character string indicating which type of range to calculate. See details below. Possible values are `"relative"` (default), `"absolute"`, `"relative_withsize"`
+#' @param freq_adjust_method Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are `"pervasive"` (default) and `"even"`
 #'
 #' @author Lukas Soenning
 #'
@@ -42,7 +43,8 @@ disp_R <- function(subfreq,
                    partsize,
                    type = "relative",
                    freq_adjust = FALSE,
-                   freq_adjust_method = "even",
+                   freq_adjust_method = "pervasive",
+                   unit_interval = TRUE,
                    digits = NULL,
                    verbose = TRUE,
                    print_score = TRUE,
@@ -56,11 +58,11 @@ disp_R <- function(subfreq,
     w_i <- partsize / sum(partsize)
     
     if (type == "absolute") {
-      R <- sum(subfreq > 0)
+      R <- sum(subfreq > 0, na.rm = TRUE)
     } else if (type == "relative_withsize") {
       R <- sum(w_i[subfreq > 0])
     } else {
-      R <- sum(subfreq > 0) / length(subfreq)
+      R <- sum(subfreq > 0, na.rm = TRUE) / length(subfreq)
     }
   }
   
@@ -76,17 +78,25 @@ disp_R <- function(subfreq,
       
       subfreq_min_disp <- find_min_disp(
         subfreq, 
-        partsize)
+        partsize,
+        freq_adjust_method)
       
       subfreq_max_disp <- find_max_disp(
         subfreq, 
-        partsize)
+        partsize,
+        freq_adjust_method)
       
       R_min <- calculate_R(subfreq_min_disp, partsize, type)
       R_max <- calculate_R(subfreq_max_disp, partsize, type)
       
-      # frequency-adjusted version
       output <- (R_score - R_min) / (R_max - R_min)
+      
+      item_exceeds_limits <- FALSE
+      if (unit_interval){
+        item_exceeds_limits <- sum(output < 0 | output > 1, na.rm = TRUE) > 0
+        output[output > 1] <- 1
+        output[output < 0] <- 0
+      }
       
     }
   }
@@ -110,8 +120,15 @@ disp_R <- function(subfreq,
   } else {
     if (verbose) {
       if (freq_adjust == TRUE){
-        message("\nDispersion scores are adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208)")
+        message("\nThe dispersion score is adjusted for frequency using the min-max")
+        message("  transformation (see Gries 2024: 196-208); please note that the")
+        message("  method implemented here does not work well if corpus parts differ")
+        message("  considerably in size; see vignette('frequency-adjustment')")
+        
+        if (unit_interval & item_exceeds_limits){
+          message("\nThe frequency-adjusted score exceeds the limits of the unit")
+          message("  interval [0,1] and was replaced by 0 or 1")
+        }
       }
       if (type == "absolute") {
         message("\nScores represent absolute range, i.e. the number of corpus parts")
@@ -138,6 +155,7 @@ disp_R <- function(subfreq,
 #'
 #' @inheritParams disp_tdm
 #' @inheritParams disp_R
+#' @param freq_adjust_method Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are `"pervasive"` (default) and `"even"`
 #'
 #' @author Lukas Soenning
 #'
@@ -175,13 +193,14 @@ disp_R <- function(subfreq,
 #'   freq_adjust = FALSE)
 #'
 disp_R_tdm <- function(tdm,
-                       row_partsize,
+                       row_partsize = "first",
                        type = "relative",
                        freq_adjust = FALSE,
-                       freq_adjust_method = "even",
+                       freq_adjust_method = "pervasive",
+                       unit_interval = TRUE,
                        digits = NULL,
                        verbose = TRUE,
-                       print_score = TRUE) {
+                       print_scores = TRUE) {
   
   if(missing(row_partsize)){
     stop("Please indicate which row in the term-document matrix includes the part sizes.\n  Use argument 'row_partsize' to locate the correct row ('first' or 'last').")
@@ -200,7 +219,7 @@ disp_R_tdm <- function(tdm,
   
   if (row_partsize == "first"){
     
-    if (!all(colSums(tdm[-1,]) < tdm[1,])){
+    if (!all(colSums(tdm[-1,]) <= tdm[1,])){
       stop("The row you indicated (first row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  first row. At the moment, (some) counts in the first row are too small.")
     }
     
@@ -211,7 +230,8 @@ disp_R_tdm <- function(tdm,
         disp_R(subfreq = x, 
                partsize = tdm[1,],
                type,
-               freq_adjust,
+               freq_adjust = FALSE,
+               unit_interval = FALSE,
                verbose = FALSE,
                digits = NULL,
                print_score = FALSE,
@@ -220,7 +240,7 @@ disp_R_tdm <- function(tdm,
     
   } else if (row_partsize == "last"){
     
-    if (!all(colSums(tdm[-nrow(tdm),]) < tdm[nrow(tdm),])){
+    if (!all(colSums(tdm[-nrow(tdm),]) <= tdm[nrow(tdm),])){
       stop("The row you indicated (last row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  last row. At the moment, (some) counts in the last row are too small.")
     }
     
@@ -231,7 +251,8 @@ disp_R_tdm <- function(tdm,
         disp_R(subfreq = x, 
                partsize = tdm[nrow(tdm),],
                type,
-               freq_adjust,
+               freq_adjust = FALSE,
+               unit_interval = FALSE,
                verbose = FALSE,
                digits = NULL,
                print_score = FALSE,
@@ -241,8 +262,16 @@ disp_R_tdm <- function(tdm,
   
   if (freq_adjust == TRUE){
     
-    min_disp_tdm <- find_min_disp_tdm(tdm, freq_adjust_method)
-    max_disp_tdm <- find_max_disp_tdm(tdm, freq_adjust_method)
+    min_disp_tdm <- find_min_disp_tdm(
+      tdm, 
+      freq_adjust_method = freq_adjust_method,
+      row_partsize = row_partsize)
+    
+    max_disp_tdm <- find_max_disp_tdm(
+      tdm, 
+      freq_adjust_method = freq_adjust_method,
+      row_partsize = row_partsize)
+    
     
     if (row_partsize == "first"){
       
@@ -253,8 +282,9 @@ disp_R_tdm <- function(tdm,
           disp_R(subfreq = x, 
                  partsize = min_disp_tdm[1,],
                  type,
-                 freq_adjust,
-                 freq_adjust_method,
+                 freq_adjust = FALSE,
+                 #freq_adjust_method,
+                 unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
                  print_score = FALSE,
@@ -268,8 +298,9 @@ disp_R_tdm <- function(tdm,
           disp_R(subfreq = x, 
                  partsize = max_disp_tdm[1,],
                  type,
-                 freq_adjust,
-                 freq_adjust_method,
+                 freq_adjust = FALSE,
+                 #freq_adjust_method,
+                 unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
                  print_score = FALSE,
@@ -285,8 +316,9 @@ disp_R_tdm <- function(tdm,
           disp_R(subfreq = x, 
                  partsize = min_disp_tdm[nrow(min_disp_tdm),],
                  type,
-                 freq_adjust,
-                 freq_adjust_method,
+                 freq_adjust = FALSE,
+                 #freq_adjust_method,
+                 unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
                  print_score = FALSE,
@@ -300,8 +332,9 @@ disp_R_tdm <- function(tdm,
           disp_R(subfreq = x, 
                  partsize = max_disp_tdm[nrow(max_disp_tdm),],
                  type,
-                 freq_adjust,
-                 freq_adjust_method,
+                 freq_adjust = FALSE,
+                 #freq_adjust_method,
+                 unit_interval = FALSE,
                  verbose = FALSE,
                  digits = NULL,
                  print_score = FALSE,
@@ -309,6 +342,15 @@ disp_R_tdm <- function(tdm,
         })
     }
     output <- (R_score - R_min) / (R_max - R_min)
+    
+    if (unit_interval){
+      
+      n_items_exceeding_limits <- sum(
+        output < 0 | output > 1, na.rm = TRUE) 
+      
+      output[output > 1] <- 1
+      output[output < 0] <- 0
+    }
     
   } else {
     output <- R_score
@@ -318,39 +360,48 @@ disp_R_tdm <- function(tdm,
   
   if (!is.null(digits)) output <- round(output, digits)
   
-  if (print_score == TRUE) print(output)
+  if (print_scores != FALSE) print(output)
   
   if (verbose) {
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
-      message("  transformation (see Gries 2024: 196-208)")
+      message("  transformation (see Gries 2024: 196-208); please note that the")
+      message("  method implemented here does not work well if corpus parts differ")
+      message("  considerably in size; see vignette('frequency-adjustment')")
+      
+      if (unit_interval){
+        message(paste0(
+          "\nFor ", n_items_exceeding_limits, " items, the frequency-adjusted score exceeds the limits of the"
+        ))
+        message("  unit interval [0,1]; these scores were replaced by 0 or 1")
+      }
     }
     if (type == "absolute") {
       message("\nScores represent absolute range, i.e. the number of corpus parts")
-      message("  containing at least one occurrence of the item.")
+      message("  containing at least one occurrence of the item.\n")
     } else if (type == "relative") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
       message("  containing at least one occurrence of the item. The size of the")
-      message("  corpus parts is not taken into account.")
+      message("  corpus parts is not taken into account.\n")
     } else if (type == "relative_withsize") {
       message("\nScores represent relative range, i.e. the proportion of corpus parts")
       message("  containing at least one occurrence of the item. The size of the")
       message("  corpus parts is taken into account, see Gries (2022: 179-180),")
-      message("  Gries (2024: 27-28)")
+      message("  Gries (2024: 27-28)\n")
     }
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     }  
   }
   if (row_partsize == "last"){
     if (sum(rowSums(tdm[-nrow(tdm),]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     } 
   }
   if (sum(rowSums(tdm) == 1) > 0 & freq_adjust == TRUE){
-    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score.")
+    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score")
   }
   invisible(output)
 }

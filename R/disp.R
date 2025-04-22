@@ -4,10 +4,11 @@
 #' This function calculates a number of parts-based dispersion measures and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 #' 
 #' @param subfreq A numeric vector of subfrequencies, i.e. the number of occurrences of the item in each corpus part
-#' @param partsize A numeric vector with the size of the corpus parts
+#' @param partsize A numeric vector specifying the size of the corpus parts
 #' @param directionality Character string indicating the directionality of scaling. See details below. Possible values are `"conventional"` (default) and `"gries"`
 #' @param freq_adjust Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is `FALSE`
 #' @param freq_adjust_method Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are `"even"` (default) and `"pervasive"`
+#' @param unit_interval Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is `TRUE`
 #' @param digits Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)
 #' @param verbose Logical. Whether additional information (on directionality, formulas, frequency adjustment) should be printed; default is `TRUE`
 #' @param print_score Logical. Whether the dispersion score should be printed to the console; default is `TRUE`
@@ -41,9 +42,10 @@
 #' - \eqn{T_i} &ensp; the absolute subfrequency in part \eqn{i}
 #' - \eqn{t_i} &ensp; a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
 #' - \eqn{W_i} &ensp; the absolute size of corpus part \eqn{i}
-#' - \eqn{w_i} &ensp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes) 
+#' - \eqn{w_i} &ensp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
 #' - \eqn{R_i} &ensp; the normalized subfrequency in part \eqn{i}, i.e. the subfrequency divided by the size of the corpus part
 #' - \eqn{r_i} &ensp; a proportional quantity; the normalized subfrequency in part \eqn{i} divided by the sum of all normalized subfrequencies
+#' - \eqn{N} &ensp; corpus frequency, i.e. the total number of occurrence of the item in the corpus
 #' 
 #' Note that the formulas cited below differ in their scaling, i.e. whether 1 reflects an even or an uneven distribution. In the current function, this behavior is overridden by the argument `directionality`. The specific scaling used in the formulas below is therefore irrelevant.
 #' 
@@ -128,6 +130,7 @@ disp <- function(subfreq,
                  directionality = "conventional",
                  freq_adjust = FALSE,
                  freq_adjust_method = "even",
+                 unit_interval = TRUE,
                  digits = NULL,
                  verbose = TRUE,
                  print_score = TRUE,
@@ -136,7 +139,7 @@ disp <- function(subfreq,
   if (length(subfreq) != length(partsize)){
     stop("Lengths of the variables 'subfreq' and 'partsize' differ.")
   }
-
+  
   calculate_dispersion <- function(subfreq,
                                    partsize){
     W_i <- partsize
@@ -153,7 +156,7 @@ disp <- function(subfreq,
     
     D    <- 1 - (sqrt(sum((R_i - mean(R_i))^2) / k) / (mean(R_i) * sqrt(k - 1)))
     
-    D2   <- (log(sum(R_i)) - sum(ifelse(R_i == 0, 0, R_i * log(R_i))) / sum(R_i)) / log(k)
+    D2 <- -sum(r_i * ifelse(r_i == 0, 0, log2(r_i))) / log2(k)
     
     S    <- (sum(sqrt(w_i * T_i))^2) / sum(T_i)
     
@@ -165,15 +168,14 @@ disp <- function(subfreq,
     DKL  <- 1 - (KLD / (1 + KLD))
     
     output <- c(Rrel, D, D2, S, DP, DA, DKL)
-    names(output) <- c("Rrel", "D", "D2", "S", "DP", "DA", "DKL")
     
     return(output)
   }
-
+  
   
   if (sum(subfreq) == 0){
     output <- rep(NA, 7)
-
+    
   } else {
     
     disp_score <- calculate_dispersion(subfreq, partsize)
@@ -181,39 +183,16 @@ disp <- function(subfreq,
     
     if (freq_adjust == TRUE){
       
-        subfreq_min_disp <- find_min_disp(
-          subfreq,
-          partsize,
-          freq_adjust_method)
-        
-        subfreq_max_disp <- find_max_disp(
-          subfreq,
-          partsize,
-          freq_adjust_method)
+      subfreq_min_disp <- find_min_disp(
+        subfreq,
+        partsize,
+        freq_adjust_method)
       
+      subfreq_max_disp <- find_max_disp(
+        subfreq,
+        partsize,
+        freq_adjust_method)
       
-      # if(freq_adjust_method == "pervasive"){
-      #   subfreq_min_disp <- find_min_disp(
-      #     subfreq, 
-      #     partsize, 
-      #     freq_adjust_method = "pervasive")
-      #   
-      #   subfreq_max_disp <- find_max_disp(
-      #     subfreq, 
-      #     partsize, 
-      #     freq_adjust_method = "pervasive")
-      #   
-      # } else {
-      #   subfreq_min_disp <- find_min_disp(
-      #     subfreq, 
-      #     partsize, 
-      #     freq_adjust_method = "even")
-      #   
-      #   subfreq_max_disp <- find_max_disp(
-      #     subfreq, 
-      #     partsize, 
-      #     freq_adjust_method = "even")
-      # }
       
       disp_min <- calculate_dispersion(subfreq_min_disp, partsize)
       disp_max <- calculate_dispersion(subfreq_max_disp, partsize)
@@ -225,6 +204,13 @@ disp <- function(subfreq,
       
       output <- (disp_score - disp_min) / (disp_max - disp_min)
       output[is.nan(output)] <- disp_score[is.nan(output)]
+      
+      item_exceeds_limits <- FALSE
+      if (unit_interval){
+        item_exceeds_limits <- sum(output < 0 | output > 1) > 0
+        output[output > 1] <- 1
+        output[output < 0] <- 0
+      }
     }
   }
   
@@ -248,7 +234,14 @@ disp <- function(subfreq,
     if (verbose) {
       if (freq_adjust == TRUE){
         message("\nDispersion scores are adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208)")
+        message("  transformation (see Gries 2024: 196-208); please note that the")
+        message("  method implemented here does not work well if corpus parts differ")
+        message("  considerably in size; see vignette('frequency-adjustment')")
+        
+        if (unit_interval & item_exceeds_limits){
+          message("\nSome frequency-adjusted score(s) exceed(s) the limits of the")
+          message("  unit interval [0,1], and was/were replaced by 0 or 1")
+        }
       }
       if (directionality == "gries") {
         message("\nScores follow scaling used by Gries (2008):")
@@ -276,7 +269,8 @@ disp <- function(subfreq,
 #'
 #' @inheritParams disp
 #' @param tdm A term-document matrix, where rows represent items and columns represent corpus parts; must also contain a row giving the size of the corpus parts (first or last row in the term-document matrix)
-#' @param row_partsize Character string indicating which row in the term-document matrix contains the size of the corpus parts. Possible values are `"first"` (default) and `"last"` 
+#' @param row_partsize Character string indicating which row in the term-document matrix contains the size of the corpus parts. Possible values are `"first"` (default) and `"last"`
+#' @param print_scores Logical. Whether the dispersion scores should be printed to the console; default is `TRUE`
 #' 
 #' @author Lukas Soenning
 #' 
@@ -305,9 +299,10 @@ disp <- function(subfreq,
 #' - \eqn{T_i} &ensp; the absolute subfrequency in part \eqn{i}
 #' - \eqn{t_i} &ensp; a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
 #' - \eqn{W_i} &ensp; the absolute size of corpus part \eqn{i}
-#' - \eqn{w_i} &ensp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of a part sizes) 
+#' - \eqn{w_i} &ensp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
 #' - \eqn{R_i} &ensp; the normalized subfrequency in part \eqn{i}, i.e. the subfrequency divided by the size of the corpus part
 #' - \eqn{r_i} &ensp; a proportional quantity; the normalized subfrequency in part \eqn{i} divided by the sum of all normalized subfrequencies
+#' - \eqn{N} &ensp; corpus frequency, i.e. the total number of occurrence of the item in the corpus
 #' 
 #' Note that the formulas cited below differ in their scaling, i.e. whether 1 reflects an even or an uneven distribution. In the current function, this behavior is overridden by the argument `directionality`. The specific scaling used in the formulas below is therefore irrelevant.
 #' 
@@ -392,9 +387,10 @@ disp_tdm <- function(tdm,
                      directionality = "conventional",
                      freq_adjust = FALSE,
                      freq_adjust_method = "even",
+                     unit_interval = TRUE,
                      digits = NULL,
                      verbose = TRUE,
-                     print_score = TRUE,
+                     print_scores = TRUE,
                      suppress_warning = FALSE) {
   
   if(missing(row_partsize)){
@@ -412,7 +408,38 @@ disp_tdm <- function(tdm,
     }
   }
   
-
+  calculate_dispersion <- function(subfreq,
+                                   partsize){
+    W_i <- partsize
+    w_i <- W_i / sum(W_i)
+    T_i <- subfreq
+    t_i <- T_i / sum(T_i)
+    R_i <- T_i / W_i
+    r_i <- R_i / sum(R_i)
+    k <- length(T_i)
+    
+    dist_r <- as.matrix(stats::dist(r_i, method = "manhattan"))
+    
+    Rrel <- sum(T_i != 0) / length(T_i)
+    
+    D    <- 1 - (sqrt(sum((R_i - mean(R_i))^2) / k) / (mean(R_i) * sqrt(k - 1)))
+    
+    D2 <- -sum(r_i * ifelse(r_i == 0, 0, log2(r_i))) / log2(k)
+    
+    S    <- (sum(sqrt(w_i * T_i))^2) / sum(T_i)
+    
+    DP   <- 1 - ((sum(abs(t_i - w_i)) * (sum(W_i) / (sum(W_i) - min(W_i[T_i > 0], fill = 0)))) / 2)
+    
+    DA   <- 1 - (mean(dist_r[lower.tri(dist_r)]) / (2 / k))
+    
+    KLD  <- sum(t_i * ifelse(t_i == 0, 0, log2(t_i / w_i)))
+    DKL  <- 1 - (KLD / (1 + KLD))
+    
+    output <- c(Rrel, D, D2, S, DP, DA, DKL)
+    
+    return(output)
+  }
+  
   if (row_partsize == "first"){
     
     if (!all(colSums(tdm[-1,]) <= tdm[1,])){
@@ -423,19 +450,14 @@ disp_tdm <- function(tdm,
       tdm[-1,],
       1,
       function(x){
-        disp(subfreq = x, 
-             partsize = tdm[1,],
-             directionality,
-             freq_adjust,
-             digits = NULL,
-             verbose = FALSE,
-             print_score = FALSE,
-             suppress_warning = TRUE)
+        calculate_dispersion(
+          subfreq = x, 
+          partsize = tdm[1,])
       })
     
   } else if (row_partsize == "last"){
     
-    if (!all(colSums(tdm[-nrow(tdm),]) < tdm[nrow(tdm),])){
+    if (!all(colSums(tdm[-nrow(tdm),]) <= tdm[nrow(tdm),])){
       stop("The row you indicated (last row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  last row. At the moment, (some) counts in the last row are too small.")
     }
     
@@ -443,21 +465,24 @@ disp_tdm <- function(tdm,
       tdm[-nrow(tdm),],
       1,
       function(x){
-        disp(subfreq = x, 
-             partsize = tdm[nrow(tdm),],
-             directionality,
-             freq_adjust,
-             digits = NULL,
-             verbose = FALSE,
-             print_score = FALSE,
-             suppress_warning = TRUE)
+        calculate_dispersion(
+          subfreq = x, 
+          partsize = tdm[nrow(tdm),])
       })
   }
   
   if (freq_adjust == TRUE){
     
-    min_disp_tdm <- find_min_disp_tdm(tdm, freq_adjust_method)
-    max_disp_tdm <- find_max_disp_tdm(tdm, freq_adjust_method)
+    min_disp_tdm <- find_min_disp_tdm(
+      tdm, 
+      row_partsize = row_partsize,
+      freq_adjust_method = freq_adjust_method)
+    
+    max_disp_tdm <- find_max_disp_tdm(
+      tdm, 
+      row_partsize = row_partsize,
+      freq_adjust_method = freq_adjust_method)
+    
     
     if (row_partsize == "first"){
       
@@ -465,30 +490,16 @@ disp_tdm <- function(tdm,
         min_disp_tdm[-1,],
         1,
         function(x){
-          disp(x, 
-               min_disp_tdm[1,],
-               directionality,
-               freq_adjust,
-               freq_adjust_method,
-               digits = NULL,
-               verbose = FALSE,
-               print_score = FALSE,
-               suppress_warning = TRUE)
+          calculate_dispersion(x, 
+                               min_disp_tdm[1,])
         })
       
       disp_max <- apply(
         max_disp_tdm[-1,],
         1,
         function(x){
-          disp(x, 
-               max_disp_tdm[1,],
-               directionality,
-               freq_adjust,
-               freq_adjust_method,
-               digits = NULL,
-               verbose = FALSE,
-               print_score = FALSE,
-               suppress_warning = TRUE)
+          calculate_dispersion(x, 
+                               max_disp_tdm[1,])
         })
       
       
@@ -498,48 +509,77 @@ disp_tdm <- function(tdm,
         min_disp_tdm[-nrow(min_disp_tdm),],
         1,
         function(x){
-          disp(x, 
-               min_disp_tdm[nrow(min_disp_tdm),],
-               directionality,
-               freq_adjust,
-               freq_adjust_method,
-               digits = NULL,
-               verbose = FALSE,
-               print_score = FALSE,
-               suppress_warning = TRUE)
+          calculate_dispersion(
+            x, 
+            min_disp_tdm[nrow(min_disp_tdm),])
         })
       
       disp_max <- apply(
         max_disp_tdm[-nrow(max_disp_tdm),],
         1,
         function(x){
-          disp(x, 
-               max_disp_tdm[nrow(max_disp_tdm),],
-               directionality,
-               freq_adjust,
-               freq_adjust_method,
-               digits = NULL,
-               verbose = FALSE,
-               print_score = FALSE,
-               suppress_warning = TRUE)
+          calculate_dispersion(
+            x, 
+            max_disp_tdm[nrow(max_disp_tdm),])
         })
     }
     output <- (disp_score - disp_min) / (disp_max - disp_min)
     output[is.nan(output)] <- disp_score[is.nan(output)]
     
+    if (unit_interval){
+      
+      n_items_exceeding_limits_measure <- apply(
+        output, 1, function(x){
+          sum(x < 0 | x > 1, na.rm = TRUE)
+        })
+      
+      output[output > 1] <- 1
+      output[output < 0] <- 0
+    }
+    
   } else {
     output <- disp_score
   }
   
-  #if (directionality == "gries") output <- 1 - output
+  if (freq_adjust == TRUE){
+    rownames(output) <- c(
+      "Rrel_nofreq", "D_nofreq", "D2_nofreq", "S_nofreq", 
+      "DP_nofreq", "DA_nofreq", "DKL_nofreq")    
+  } else {
+    rownames(output) <- c("Rrel", "D", "D2", "S", "DP", "DA", "DKL")
+  }
+  
+  if (directionality == "gries") output <- 1 - output 
   
   if (!is.null(digits)) output <- round(output, digits)
-
+  
   output <- t(output)
   
-  if (print_score != FALSE) print(output)
+  if (print_scores != FALSE) print(output)
   
   if (verbose) {
+    
+    if (freq_adjust == TRUE){
+      message("\nDispersion scores are adjusted for frequency using the min-max")
+      message("  transformation (see Gries 2024: 196-208); please note that the")
+      message("  method implemented here does not work well if corpus parts differ")
+      message("  considerably in size; see vignette('frequency-adjustment')")
+      
+      if (unit_interval){
+        message(paste0(
+          "\nFrequency-adjusted scores that exceed the limits of the unit interval [0,1]"
+        ))
+        message("  were replaced by 0 or 1; number of items affected, by measure:")
+        message(paste0("  - Rrel: ", n_items_exceeding_limits_measure[1]))
+        message(paste0("  - D   : ", n_items_exceeding_limits_measure[2]))
+        message(paste0("  - D2  : ", n_items_exceeding_limits_measure[3]))
+        message(paste0("  - S   : ", n_items_exceeding_limits_measure[4]))
+        message(paste0("  - DP  : ", n_items_exceeding_limits_measure[5]))
+        message(paste0("  - DA  : ", n_items_exceeding_limits_measure[6]))
+        message(paste0("  - DKL : ", n_items_exceeding_limits_measure[7]))
+      }
+    }
+    
     if (directionality == "gries") {
       message("\nScores follow scaling used by Gries (2008):")
       message("  0 = maximally even/dispersed/balanced distribution (optimum)")
@@ -557,22 +597,22 @@ disp_tdm <- function(tdm,
   
   if (row_partsize == "first" & suppress_warning != TRUE){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     }  
     if (sum(rowSums(is.na(tdm[-1,])) > 0) > 0){
-      warning("\n  For some item(s), the subfrequency is NA; treating this as 0.")
+      warning("\n  For some item(s), the subfrequency is NA; treating this as 0\n\n")
     }  
   }
   if (row_partsize == "last" & suppress_warning != TRUE){
     if (sum(rowSums(tdm[-nrow(tdm),]) == 0) > 0){
-      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case.")
+      warning("\n  For some item(s), all subfrequencies are 0; returning NA in this case\n\n")
     }
     if (sum(rowSums(is.na(tdm[-nrow(tdm),])) > 0) > 0){
-      warning("\n  For some item(s), the subfrequency is NA; treating this as 0.")
+      warning("\n  For some item(s), the subfrequency is NA; treating this as 0\n\n")
     }  
   }
   if (sum(rowSums(tdm) == 1) > 0 & freq_adjust == TRUE & suppress_warning  != TRUE){
-    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score.")
+    warning("\n  For some item(s), the corpus frequency is 1; no frequency adjustment\n  made in this case; function returns unadjusted dispersion score")
   }
   invisible(output)
 }

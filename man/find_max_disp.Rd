@@ -9,7 +9,7 @@ find_max_disp(subfreq, partsize, freq_adjust_method = "even")
 \arguments{
 \item{subfreq}{A numeric vector of subfrequencies, i.e. the number of occurrences of the item in each corpus part}
 
-\item{partsize}{A numeric vector with the size of the corpus parts}
+\item{partsize}{A numeric vector specifying the size of the corpus parts}
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 }

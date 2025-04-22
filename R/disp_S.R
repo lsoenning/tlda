@@ -1,40 +1,30 @@
-#' Calculate the dispersion measure \eqn{D_{KL}}
+#' Calculate the dispersion measure \eqn{S}
 #'
 #' @description
-#' This function calculates the dispersion measure \eqn{D_{KL}}, which is based on the Kullback-Leibler divergence (Gries 2020, 2021, 2024). It offers three options for standardization to the unit interval \[0,1\] (see Gries 2024: 90-92) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
+#' This function calculates the dispersion measure \eqn{S} (Rosengren 1971) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 #'
 #' @inheritParams disp
-#' @param standardization Character string indicating which standardization method to use. See details below. Possible values are `"o2p"` (default), `"base_e"`, and `"base_2"`.
 #'
 #' @author Lukas Soenning
 #' 
-#' @details The function calculates the dispersion measure \eqn{D_{KL}} based on a set of subfrequencies (number of occurrences of the item in each corpus part) and a matching set of part sizes (the size of the corpus parts, i.e. number of word tokens).
+#' @details The function calculates the dispersion measure \eqn{S} based on a set of subfrequencies (number of occurrences of the item in each corpus part) and a matching set of part sizes (the size of the corpus parts, i.e. number of word tokens).
 #' 
-#' - Directionality: \eqn{D_{KL}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = "gries"` to choose this option.
-#'
-#' - Standardization: Irrespective of the directionality of scaling, three ways of standardizing the Kullback-Leibler divergence to the unit interval \[0;1\] are mentioned in Gries (2024: 90-92). The choice between these transformations can have an appreciable effect on the standardized dispersion score. In Gries (2020: 103-104), the Kullback-Leibler divergence is not standardized. In Gries (2021: 20), the transformation `"base_e"` is used (see (1) below), and in Gries (2024), the default strategy is `"o2p"`, the odds-to-probability transformation (see (3) below). 
+#' - Directionality: \eqn{S} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = "gries"` to choose this option.
 #' 
-#' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`"pervasive"`) or evenness (`"even"`). You can choose between these with the argument `freq_adjust_method`; the default is `even`. For details and explanations, see `vignette("frequency-adjustment")`. 
+#' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed here in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`"pervasive"`) or evenness (`"even"`). You can choose between these with the argument `freq_adjust_method`; the default is `even`. For details and explanations, see `vignette("frequency-adjustment")`. 
 #' 
 #'    - To obtain the lowest possible level of dispersion, the occurrences are either allocated to as few corpus parts as possible (`"pervasive"`), or they are assigned to the smallest corpus part(s) (`"even"`).
 #'    - To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (`"pervasive"`), or they are allocated to corpus parts in proportion to their size (`"even"`). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for `find_max_disp()` and `vignette("frequency-adjustment")`.
 #'    
 #' In the formulas given below, the following notation is used:
 #' 
-#' - \eqn{t_i} &ensp; a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
-#' - \eqn{w_i} &ensp; a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
+#' - \eqn{k} &ensp; the number of corpus parts
+#' - \eqn{T_i} &ensp; the absolute subfrequency in part \eqn{i}
+#' - \eqn{w_i} a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
 #' 
-#' The first step is to calculate the Kullback-Leibler divergence based on the proportional subfrequencies (\eqn{t_i}) and the size of the corpus parts (\eqn{w_i}):
+#' \eqn{S} is the dispersion measure proposed by Rosengren (1971); the formula uses conventional scaling:
 #' 
-#' &emsp; \eqn{KLD = \sum_i^k t_i \log_2{\frac{t_i}{w_i}}} &emsp; with \eqn{\log_2(0) = 0}
-#' 
-#' This KLD score is then standardized (i.e. transformed) to the conventional unit interval \[0,1\]. Three options are discussed in Gries (2024: 90-92). The following formulas represents Gries scaling (0 = even, 1 = uneven):
-#' 
-#' &emsp; (1) &emsp; \eqn{e^{-KLD}} &emsp; (Gries 2021: 20), represented by the value `"base_e"`
-#'
-#' &emsp; (2) &emsp; \eqn{2^{-KLD}} &emsp; (Gries 2024: 90), represented by the value" `"base_2"`
-#'
-#' &emsp; (3) &emsp; \eqn{\frac{KLD}{1+KLD}} &emsp; (Gries 2024: 90), represented by the value `"o2p"` (default)
+#' &emsp; \eqn{\frac{(\sum_i^k r_i \sqrt{w_i T_i}}{N}}
 #' 
 #'
 #' @returns A numeric value
@@ -56,16 +46,14 @@
 #' @export
 #'
 #' @examples
-#' disp_DKL(
+#' disp_S(
 #'   subfreq = c(0,0,1,2,5), 
 #'   partsize = rep(1000, 5),
-#'   standardization = "base_e",
 #'   directionality = "conventional")
 #' 
-disp_DKL <- function(subfreq,
+disp_S <- function(subfreq,
                      partsize,
                      directionality = "conventional",
-                     standardization = "o2p",
                      freq_adjust = FALSE,
                      freq_adjust_method = "even",
                      unit_interval = TRUE,
@@ -78,19 +66,10 @@ disp_DKL <- function(subfreq,
     stop("Lengths of the variables 'subfreq' and 'partsize' differ.")
   }
   
-  calculate_DKL <- function(subfreq, partsize, standardization){
+  calculate_S <- function(subfreq, partsize){
     w_i <- partsize / sum(partsize)
-    t_i <- subfreq / sum(subfreq)
-    
-    KLD <- sum(t_i * ifelse(t_i == 0, 0, log2(t_i / w_i)))
-    
-    if (standardization == "base_e") {
-      DKL <- exp(-KLD)
-    } else if (standardization == "base_2") {
-      DKL <- 2^(-KLD)
-    } else {
-      DKL <- 1 - (KLD / (1 + KLD))
-    }    
+
+    S   <- (sum(sqrt(w_i * subfreq))^2) / sum(subfreq)
   }
   
   if (sum(subfreq) == 0){
@@ -98,9 +77,9 @@ disp_DKL <- function(subfreq,
     
   } else {
     
-    DKL_score <- calculate_DKL(subfreq, partsize, standardization)
-    output <- DKL_score
-  
+    S_score <- calculate_S(subfreq, partsize)
+    output <- S_score
+    
     if (freq_adjust == TRUE){
       
       subfreq_min_disp <- find_min_disp(
@@ -113,10 +92,10 @@ disp_DKL <- function(subfreq,
         partsize,
         freq_adjust_method)
       
-      DKL_min <- calculate_DKL(subfreq_min_disp, partsize, standardization)
-      DKL_max <- calculate_DKL(subfreq_max_disp, partsize, standardization)
-
-      output <- (DKL_score - DKL_min) / (DKL_max - DKL_min)
+      S_min <- calculate_S(subfreq_min_disp, partsize)
+      S_max <- calculate_S(subfreq_max_disp, partsize)
+      
+      output <- (S_score - S_min) / (S_max - S_min)
       
       item_exceeds_limits <- FALSE
       if (unit_interval){
@@ -130,9 +109,9 @@ disp_DKL <- function(subfreq,
   if (directionality == "gries") output <- 1 - output
   
   if (freq_adjust == TRUE){
-    names(output) <- "DKL_nofreq"
+    names(output) <- "S_nofreq"
   } else {
-    names(output) <- "DKL"
+    names(output) <- "S"
   }
   
   if (!is.null(digits)) output <- round(output, digits)
@@ -163,39 +142,26 @@ disp_DKL <- function(subfreq,
         message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
         message("  1 = maximally even/dispersed/balanced distribution (optimum)\n")
       }
-      
-      if (standardization == "base_e") {
-        message("\nStandardization to the unit interval [0,1] using base e,")
-        message("  see Gries (2021: 20)")
-      } else if (standardization == "base_2") {
-        message("\nStandardization to the unit interval [0,1] using base 2,")
-        message("  see Gries (2024: 90)")
-      } else {
-        message("\nStandardization to the unit interval [0,1] using the odds-to-probability")
-        message("  transformation, see Gries (2024: 90)")
-      }
     }
   }
   invisible(output)
 }
 
 
-#' Calculate the dispersion measure \eqn{D_{KL}} for a term-document matrix
+#' Calculate the dispersion measure \eqn{S} for a term-document matrix
 #'
 #' @description
-#' This function calculates the dispersion measure \eqn{D_{KL}}, which is based on the Kullback-Leibler divergence (Gries 2020, 2021, 2024). It offers three different options for standardization to the unit interval \[0,1\] (see Gries 2024: 90-92) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
+#' This function calculates the dispersion measure \eqn{S} (Rosengren 1971) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 #'
 #' @inheritParams disp_tdm
-#' @inheritParams disp_DKL
+#' @inheritParams disp_S
 #'
 #' @author Lukas Soenning
 #' 
 #' @details 
-#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{KL}}. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{S}. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 #' 
-#' - Directionality: \eqn{D_{KL}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = 'gries'` to choose this option.
-#' 
-#' - Standardization: Irrespective of the directionality of scaling, three ways of standardizing the Kullback-Leibler divergence to the unit interval \[0;1\] are mentioned in Gries (2024: 90-92). The choice between these transformations can have an appreciable effect on the standardized dispersion score. In Gries (2020: 103-104), the Kullback-Leibler divergence is not standardized. In Gries (2021: 20), the transformation `'base_e'` is used (see (1) below), and in Gries (2024), the default strategy is `'o2p'`, the odds-to-probability transformation (see (3) below). 
+#' - Directionality: \eqn{S} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = 'gries'` to choose this option.
 #' 
 #' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`pervasive`) or evenness (`even`). You can choose between these with the argument `freq_adjust_method`; the default is `even`. For details and explanations, see `vignette("frequency-adjustment")`. 
 #' 
@@ -204,20 +170,13 @@ disp_DKL <- function(subfreq,
 #'    
 #' In the formulas given below, the following notation is used:
 #' 
-#' - \eqn{t_i} a proportional quantity; the subfrequency in part \eqn{i} divided by the total number of occurrences of the item in the corpus (i.e. the sum of all subfrequencies)
+#' - \eqn{k} &ensp; the number of corpus parts
+#' - \eqn{T_i} &ensp; the absolute subfrequency in part \eqn{i}
 #' - \eqn{w_i} a proportional quantity; the size of corpus part \eqn{i} divided by the size of the corpus (i.e. the sum of the part sizes) 
 #' 
-#' The first step is to calculate the Kullback-Leibler divergence based on the proportional subfrequencies (\eqn{t_i}) and the size of the corpus parts (\eqn{w_i}):
+#' \eqn{S} is the dispersion measure proposed by Rosengren (1971); the formula uses conventional scaling:
 #' 
-#' &emsp; \eqn{KLD = \sum_i^k t_i \log_2{\frac{t_i}{w_i}}} &emsp; with \eqn{\log_2(0) = 0}
-#' 
-#' This KLD score is then standardized (i.e. transformed) to the conventional unit interval \[0,1\]. Three options are discussed in Gries (2024: 90-92). The following formulas represents Gries scaling (0 = even, 1 = uneven):
-#' 
-#' &emsp; (1) &emsp; \eqn{e^{-KLD}} &emsp; (Gries 2021: 20), represented by the value `'base_e'`
-#'
-#' &emsp; (2) &emsp; \eqn{2^{-KLD}} &emsp; (Gries 2024: 90), represented by the value `'base_2'`
-#'
-#' &emsp; (3) &emsp; \eqn{\frac{KLD}{1+KLD}} &emsp; (Gries 2024: 90), represented by the value `'o2p'` (default)
+#' &emsp; \eqn{\frac{(\sum_i^k r_i \sqrt{w_i T_i}}{N}}
 #' 
 #'
 #' @returns A numeric vector the same length as the number of items in the term-document matrix
@@ -240,16 +199,14 @@ disp_DKL <- function(subfreq,
 #' @export
 #'
 #' @examples
-#' disp_DKL_tdm(
+#' disp_S_tdm(
 #'   tdm = biber150_spokenBNC2014[1:20,],
 #'   row_partsize = "first",
-#'   standardization = "base_e",
 #'   directionality = "conventional")
 #' 
-disp_DKL_tdm <- function(tdm,
+disp_S_tdm <- function(tdm,
                          row_partsize = "first",
                          directionality = "conventional",
-                         standardization = "o2p",
                          freq_adjust = FALSE,
                          freq_adjust_method = "even",
                          unit_interval = TRUE,
@@ -278,14 +235,13 @@ disp_DKL_tdm <- function(tdm,
       stop("The row you indicated (first row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  first row. At the moment, (some) counts in the first row are too small.")
     }
     
-    DKL_score <- apply(
+    S_score <- apply(
       tdm[-1,],
       1,
       function(x){
-        disp_DKL(subfreq = x, 
+        disp_S(subfreq = x, 
                  partsize = tdm[1,],
                  directionality,
-                 standardization,
                  freq_adjust = FALSE,
                  unit_interval = FALSE,
                  digits = NULL,
@@ -300,14 +256,13 @@ disp_DKL_tdm <- function(tdm,
       stop("The row you indicated (last row) does not contain the (correct) part sizes.\n  Use argument 'row_partsize' to locate the correct row or check content of\n  last row. At the moment, (some) counts in the last row are too small.")
     }
     
-    DKL_score <- apply(
+    S_score <- apply(
       tdm[-nrow(tdm),],
       1,
       function(x){
-        disp_DKL(subfreq = x, 
+        disp_S(subfreq = x, 
                  partsize = tdm[nrow(tdm),],
                  directionality,
-                 standardization,
                  freq_adjust = FALSE,
                  unit_interval = FALSE,
                  digits = NULL,
@@ -332,14 +287,13 @@ disp_DKL_tdm <- function(tdm,
     
     if (row_partsize == "first"){
       
-      DKL_min <- apply(
+      S_min <- apply(
         min_disp_tdm[-1,],
         1,
         function(x){
-          disp_DKL(subfreq = x, 
+          disp_S(subfreq = x, 
                    partsize = min_disp_tdm[1,],
                    directionality,
-                   standardization,
                    freq_adjust = FALSE,
                    #freq_adjust_method,
                    unit_interval = FALSE,
@@ -349,14 +303,13 @@ disp_DKL_tdm <- function(tdm,
                    suppress_warning = TRUE)
         })
       
-      DKL_max <- apply(
+      S_max <- apply(
         max_disp_tdm[-1,],
         1,
         function(x){
-          disp_DKL(subfreq = x, 
+          disp_S(subfreq = x, 
                    partsize = max_disp_tdm[1,],
                    directionality,
-                   standardization,
                    freq_adjust = FALSE,
                    #freq_adjust_method,
                    unit_interval = FALSE,
@@ -368,14 +321,13 @@ disp_DKL_tdm <- function(tdm,
       
     } else if (row_partsize == "last"){
       
-      DKL_min <- apply(
+      S_min <- apply(
         min_disp_tdm[-nrow(min_disp_tdm),],
         1,
         function(x){
-          disp_DKL(subfreq = x, 
+          disp_S(subfreq = x, 
                    partsize = min_disp_tdm[nrow(min_disp_tdm),],
                    directionality,
-                   standardization,
                    freq_adjust = FALSE,
                    #freq_adjust_method,
                    unit_interval = FALSE,
@@ -385,14 +337,13 @@ disp_DKL_tdm <- function(tdm,
                    suppress_warning = TRUE)
         })
       
-      DKL_max <- apply(
+      S_max <- apply(
         max_disp_tdm[-nrow(max_disp_tdm),],
         1,
         function(x){
-          disp_DKL(subfreq = x, 
+          disp_S(subfreq = x, 
                    partsize = max_disp_tdm[nrow(max_disp_tdm),],
                    directionality,
-                   standardization,
                    freq_adjust = FALSE,
                    #freq_adjust_method,
                    unit_interval = FALSE,
@@ -402,7 +353,7 @@ disp_DKL_tdm <- function(tdm,
                    suppress_warning = TRUE)
         })
     }
-    output <- (DKL_score - DKL_min) / (DKL_max - DKL_min)
+    output <- (S_score - S_min) / (S_max - S_min)
     
     if (unit_interval){
       
@@ -414,7 +365,7 @@ disp_DKL_tdm <- function(tdm,
     }
     
   } else {
-    output <- DKL_score
+    output <- S_score
   }
   
   output <- t(output)
@@ -445,17 +396,6 @@ disp_DKL_tdm <- function(tdm,
       message("\nScores follow conventional scaling:")
       message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
       message("  1 = maximally even/dispersed/balanced distribution (optimum)")
-    }
-    
-    if (standardization == "base_e") {
-      message("\nStandardization to the unit interval [0,1] using base e,")
-      message("  see Gries (2021: 20)\n")
-    } else if (standardization == "base_2") {
-      message("\nStandardization to the unit interval [0,1] using base 2,")
-      message("  see Gries (2024: 90)\n")
-    } else {
-      message("\nStandardization to the unit interval [0,1] using the odds-to-probability")
-      message("  transformation, see Gries (2024: 90)\n")
     }
   }
   if (row_partsize == "first"){
