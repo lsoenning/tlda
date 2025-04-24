@@ -419,6 +419,8 @@ str(DM_ice_gb_nofreq)
 The association with frequency is now attenuated:
 
 ```{r fig.width=3, fig.height=2.5, warning=FALSE, message=FALSE, fig.align='center', out.width="35%"}
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
+
 par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
 
 plot(
@@ -427,6 +429,7 @@ plot(
   ylab = "DP",
   ylim = c(0,1))
 
+par(oldpar)
 ```
 
 
@@ -442,7 +445,7 @@ cor(
 
 
 
-## References
+### References
 
 Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s *D* to measure lexical dispersion in large corpora. *International Journal of Corpus Linguistics* 21(4). 439–464. doi: [10.1075/ijcl.21.4.01bib](https://doi.org/10.1075/ijcl.21.4.01bib) 
 

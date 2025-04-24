@@ -28,6 +28,8 @@ Gries (2022: 184-191; 2024: 196-208) proposed a strategy for 'partialing out' th
 The figure below illustrates this strategy. Suppose we calculate a dispersion score of .05 for an item. Then we determine the dispersion minimum (.01) and the dispersion maximum (.11). The observed score is just about halfway between .01 and .11. If we map .01 (minimum) to 0, and .11 (maximum) to 1, we can express the observed score relative to these limits. This gives us a frequency-adjusted dispersion score of .40. It tells us that the observed score is a little bit closer to the minimum than the maximum. This is referred to as a *min-max transformation*.
 
 ```{r fig.height=1, fig.width=3.5, fig.align='center', echo=FALSE}
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
+
 par(mar = c(0, 0, 0, 0), xpd = TRUE)
 
 plot(c(1,2), c(1,1), xlim = c(-.2, 2.1), ylim = c(.7, 1.6), axes = FALSE, type = "n")
@@ -42,6 +44,8 @@ text(x = 1.4, y = 1.2, label = ".05", col = "grey40", cex = .8)
 text(x = .7, y = 1.19, label = "Dispersion scores", adj = 1, col = "grey40", cex = .8)
 text(x = .7, y = .79, label = "Frequency adjustment", adj = 1, cex = .8)
 text(x = 1:2, y = 1.5, label = c("Min", "Max"), cex = .8)
+
+par(oldpar)
 ```
 
 ### Finding the dispersion extremes for an item
@@ -89,6 +93,8 @@ plot_fill <- matrix(
 for(i in 1:length(partsizes)) plot_fill[(1:(subfreqs[i] + 1)) - 1, i] <- "grey40"
 
 
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
+
 par(mar = c(2, 0, 0, 0), xpd = TRUE)
 
 plot(rep(1:length(subfreqs), each = max(partsizes)),
@@ -97,6 +103,8 @@ plot(rep(1:length(subfreqs), each = max(partsizes)),
      xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
 
 text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+
+par(oldpar)
 ```
 
 Our task is now to reallocate these 61 occurrences across corpus parts in a way that produces a minimally dispersed and a maximally dispersed set of subfrequencies. The way we assign observations to corpus parts depends on which meaning of 'dispersion' we prefer for the task at hand: pervasiveness or evenness. We will illustrate how these distributional features influence the hypothetical extremes we design.  
@@ -122,6 +130,8 @@ plot_fill_min <- matrix(
 
 for(i in 1:length(partsizes)) plot_fill_min[(1:(subfreq_min_disp[i] + 1)) - 1, i] <- "grey40"
 
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
+
 par(mar = c(2, 0, 0, 0), xpd = TRUE)
 
 plot(rep(1:length(subfreq_min_disp), each = max(partsizes)),
@@ -130,6 +140,8 @@ plot(rep(1:length(subfreq_min_disp), each = max(partsizes)),
      xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
 
 text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+
+par(oldpar)
 ```
 
 
@@ -149,6 +161,7 @@ plot_fill_max <- matrix(
 
 for(i in 1:length(partsizes)) plot_fill_max[(1:(subfreq_max_disp[i] + 1)) - 1, i] <- "grey40"
 
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
 
 par(mar = c(2, 0, 0, 0), xpd = TRUE)
 
@@ -158,6 +171,8 @@ plot(rep(1:length(subfreq_max_disp), each = max(partsizes)),
      xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
 
 text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+
+par(oldpar)
 ```
 
 
@@ -185,6 +200,8 @@ plot_fill_max <- matrix(
 for(i in 1:length(partsizes)) plot_fill_max[(1:(subfreq_min_disp[i] + 1)) - 1, i] <- "grey40"
 
 
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
+
 par(mar = c(2, 0, 0, 0), xpd = TRUE)
 
 plot(rep(1:length(subfreqs), each = max(partsizes)),
@@ -193,6 +210,8 @@ plot(rep(1:length(subfreqs), each = max(partsizes)),
      xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
 
 text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+
+par(oldpar)
 ```
 
 To construct a maximally even (i.e. maximally dispersed) distribution of subfrequencies, we assign occurrences to the corpus parts in proportion to their size. The figure below shows a set of evenly dispersed subfrequencies for our illustrative data.
@@ -211,6 +230,7 @@ plot_fill_max <- matrix(
 
 for(i in 1:length(partsizes)) plot_fill_max[(1:(subfreq_max_disp[i] + 1)) - 1, i] <- "grey40"
 
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
 
 par(mar = c(2, 0, 0, 0), xpd = TRUE)
 
@@ -220,6 +240,8 @@ plot(rep(1:length(subfreqs), each = max(partsizes)),
      xlab = "", ylab = NA, asp = .6, cex = .8, lwd = .5)
 
 text(x = 15.5, y = -3, label = "Corpus parts (texts)", cex = .8)
+
+par(oldpar)
 ```
 
 
@@ -260,6 +282,8 @@ It seems that Biber et al.'s (2016) set of lexical items is particularly suitabl
 The built-in data set `biber150_spokenBNC1994` considers individual speakers in the Spoken BNC1994 as corpus parts. The word counts are distributed very unevenly across speakers; they range from 1 to 68,136. The extremely skewed distribution of part sizes is apparent in the following histogram:
 
 ```{r fig.width=4, fig.height=2.5, warning=FALSE, message=FALSE, out.width="30%"}
+oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
+
 par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
 
 hist(
@@ -268,6 +292,8 @@ hist(
   xlab = "Size of corpus parts (speakers)", 
   breaks = seq(0, 70000, length=40), 
   col = "grey60")
+
+par(oldpar)
 ```
 
 We start by calculating frequency-adjusted scores for the 150 items in this dataset. Note that we use `unit_interval = FALSE` to avoid forcing adjusted scores into the unit interval (i.e. replacing scores smaller than 0 with 0, and scores greater than 1 with 1).
@@ -338,6 +364,15 @@ apply(
 ```
 
 
+### References
+
+Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s *D* to measure lexical dispersion in large corpora. *International Journal of Corpus Linguistics* 21(4). 439–464. doi: [10.1075/ijcl.21.4.01bib](https://doi.org/10.1075/ijcl.21.4.01bib) 
+
+Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. *International Journal of Corpus Linguistics* 13(4). 403–437. doi: [10.1075/ijcl.13.4.02gri](https://doi.org/10.1075/ijcl.13.4.02gri)
+
+Gries, Stefan Th. 2022. What do (most of) our dispersion measures measure (most)? Dispersion? *Journal of Second Language Studies* 5(2). 171--205. doi: [10.1075/jsls.21029.gri](https://doi.org/10.1075/jsls.21029.gri)
+
+Gries, Stefan Th. 2024. *Frequency, dispersion, association, and keyness: Revising and tupleizing corpus-linguistic measures*. Amsterdam: Benjamins. doi: [10.1075/scl.115](https://doi.org/10.1075/scl.115)
 
 
 
