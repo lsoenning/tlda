@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # tlda : Tools for language data analysis
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/tlda)](https://CRAN.R-project.org/package=tlda)
 <!-- badges: end -->
 
 This package includes a number of utility functions and resources for analyzing linguistic data. At the moment, the focus is on corpus-linguistic **dispersion analysis** (see Gries 2020; Sönning 2025), which quantifies how widely and/or evenly and item is distributed across corpus parts. This kind of analysis requires two variables:

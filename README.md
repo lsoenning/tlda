@@ -4,6 +4,9 @@
 # tlda : Tools for language data analysis
 
 <!-- badges: start -->
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/tlda)](https://CRAN.R-project.org/package=tlda)
 <!-- badges: end -->
 
 This package includes a number of utility functions and resources for
