@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# tlda : Tools for language data analysis
+# tlda : Tools for language data analysis <img src='man/figures/logo.png' align="right" height="138" />
 
 <!-- badges: start -->
 
