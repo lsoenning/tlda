@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# tlda : Tools for language data analysis <img src='man/figures/logo.png' align="right" height="138" />
+# tlda: Tools for language data analysis <img src='man/figures/logo_transparent.png' align="right" height="138" />
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/tlda)](https://CRAN.R-project.org/package=tlda)
