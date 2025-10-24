@@ -1,5 +1,6 @@
 ---
 title: "Frequency-adjusted dispersion scores"
+author: "Lukas Sönning"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Frequency-adjusted dispersion scores}

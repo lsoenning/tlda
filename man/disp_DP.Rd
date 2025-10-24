@@ -9,7 +9,7 @@ disp_DP(
   partsize,
   directionality = "conventional",
   formula = "egbert_etal_2020",
-  freq_adjust = TRUE,
+  freq_adjust = FALSE,
   freq_adjust_method = "even",
   unit_interval = TRUE,
   digits = NULL,

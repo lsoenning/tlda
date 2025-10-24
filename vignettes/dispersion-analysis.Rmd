@@ -1,5 +1,6 @@
 ---
 title: "Dispersion analysis"
+author: "Lukas Sönning"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Dispersion analysis}
