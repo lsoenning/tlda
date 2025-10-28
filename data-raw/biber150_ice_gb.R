@@ -6,6 +6,7 @@ items <- c("a", "able", "actually", "after", "against", "ah", "aha", "all", "amo
 
 # load data provided by Gries (2024)
 ICEGB.df <- readRDS("data-raw/files/ICEGB.df.RDS")
+str(ICEGB.df)
 
 # change the spelling for four items that ar spelled differently in ICE-GB
 items[items == "erm"] <- "uhm"

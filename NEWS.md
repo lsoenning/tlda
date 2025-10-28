@@ -8,3 +8,5 @@
 
 * fixed function disp_DP(): default behavior fixed (freq_adjust = FALSE in stead of TRUE)
 * added function scale_y_dispersion() to draw annotated y-axes when using ggplot2
+* added function add_sampling_weights()
+* added function disp_DMB()

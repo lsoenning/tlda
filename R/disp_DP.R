@@ -474,3 +474,189 @@ disp_DP_tdm <- function(tdm,
   }
   invisible(output)
 }
+
+
+
+
+#' Bootstrap (and weight) Gries's *deviation of proportions*
+#'
+#' @description
+#' This function offers facilities for bootstrapping and weighting Gries's dispersion measure DP (deviation of proportions). In addition to the full functionality offered by the function `disp_DP()`, it can be used to obtain weighted dispersion scores as well as bootstrap confidence intervals.
+#' 
+#' @inheritParams disp_DP
+#' @param n_replicates Integer value specifying the number of bootstrap replicates to draw; default: `500`
+#' @param boot_ci Logical. Whether a percentile bootstrap confidence interval should be computed; default: `FALSE`
+#' @param conf_level Scalar giving the confidence level; default `0.95` for a 95% percentile CI
+#' @param partweight A numeric vector specifying the weights of the corpus parts; if not specified, function returns unweighted estimate
+#'
+#' @author Lukas Soenning
+#' 
+#' @details 
+#' This function calculates weighted dispersion measures and bootstrap confidence intervals.
+#' 
+#' @seealso [disp_DP()] for finer control over the calculation of DP
+#' 
+#' @export
+#'
+#' @examples
+#' disp_DP_bw(
+#'   subfreq = biber150_ice_gb[3,], 
+#'   partsize = biber150_ice_gb[1,], 
+#'   digits = 2,
+#'   freq_adjust = TRUE,
+#'   directionality = "conventional",
+#'   formula = "gries_2008")
+#' 
+
+disp_DP_bw <- function(subfreq,
+                       partsize,
+                       n_replicates = 500,
+                       boot_ci = FALSE,
+                       conf_level = .95,
+                       partweight = NULL,
+                       directionality = "conventional",
+                       formula = "egbert_etal_2020",
+                       freq_adjust = FALSE,
+                       freq_adjust_method = "even",
+                       unit_interval = TRUE,
+                       digits = NULL,
+                       verbose = TRUE,
+                       print_score = TRUE,
+                       suppress_warning = FALSE){
+  if (length(subfreq) != length(partsize)){
+    stop("Lengths of the variables 'subfreq', 'partsize', and 'partweight' differ.")
+  }
+  
+  if (!is.null(partweight)) {
+    if(length(subfreq) != length(partweight)){
+      stop("Lengths of the variables 'subfreq', 'partsize', and 'partweight' differ.")
+    }
+  }
+    
+  if (sum(subfreq) == 0){
+    output <- NA
+    
+  } else {
+    
+  boot_DP <- function(data, 
+                      indices)
+  {
+    d <- data[indices,]
+    
+    disp_score <- disp_DP(
+      subfreq = d$subfreq, 
+      partsize = d$partsize,
+      directionality = directionality,
+      formula = formula,
+      freq_adjust = freq_adjust,
+      freq_adjust_method = freq_adjust_method,
+      unit_interval = FALSE,
+      digits = digits,
+      verbose = FALSE,
+      print_score = FALSE,
+      suppress_warning = TRUE)
+    
+    return(disp_score)
+  }
+  if (is.null(partweight)) {
+    partweight <- rep(1, length(subfreq))
+  }
+  data <- data.frame(
+    subfreq,
+    partsize,
+    partweight
+  )
+  boot_results <- boot::boot(
+    data, 
+    statistic = boot_DP,
+    R = n_replicates,
+    weights = data$partweight)
+  }
+  
+  boot_output <- boot_results$t
+  
+  if (unit_interval){
+    
+    n_replicates_exceeding_limits <- sum(
+      boot_output < 0 | boot_output > 1, na.rm = TRUE) 
+    
+    boot_output[boot_output > 1] <- 1
+    boot_output[boot_output < 0] <- 0
+  }
+  
+  if(boot_ci){
+    output <- stats::quantile(
+      boot_output, 
+      probs = c(.5, (1 - conf_level)/2, 1 - (1 - conf_level)/2))
+    
+    if (freq_adjust == TRUE){
+      names(output) <- c("DP_nofreq", "conf.low", "conf.high")
+    } else {
+      names(output) <- c("DP", "conf.low", "conf.high")
+    }
+  } else {
+    output <- stats::median(boot_output)
+    
+    if (freq_adjust == TRUE){
+      names(output) <- "DP_nofreq"
+    } else {
+      names(output) <- "DP"
+    }
+  }
+
+
+  if (print_score != FALSE) print(output)
+  
+  if (sum(subfreq) == 0 & suppress_warning == FALSE){
+    warning("All subfrequencies are 0; returning NA.")
+  } else {
+    if (verbose) {
+      message(paste0("\nBased on ", n_replicates, " bootstrap replicates"))
+      if(boot_ci){
+        message(paste0("  Median and ", conf_level*100, "% percentile confidence interval limits"))
+      } else {
+        message(paste0("  Dispersion score is the median over the ", n_replicates, " replicates"))
+      }
+      if (!is.null(partweight) | length(unique(partweight)) == 1) {
+        message("  Unweighted estimate (all corpus parts weighted equally)")
+      } else {
+        message("  Weighted estimate (corpus parts weighted differently)")
+      }
+      if (freq_adjust == TRUE){
+        message("\nThe dispersion score is adjusted for frequency using the min-max")
+        message("  transformation (see Gries 2024: 196-208); please note that the")
+        message("  method implemented here does not work well if corpus parts differ")
+        message("  considerably in size; see vignette('frequency-adjustment')")
+        
+        if (unit_interval & n_replicates_exceeding_limits > 0){
+          message("\nThe frequency-adjusted score exceeds the limits of the unit")
+          message("  interval [0,1] and was replaced by 0 or 1")
+        }
+      }
+      if (unit_interval){
+        message(paste0(
+          "\nFor ", n_replicates_exceeding_limits, " replicates, the frequency-adjusted score exceeds the limits of the"
+        ))
+        message("  unit interval [0,1]; these scores were replaced by 0 or 1")
+      }
+      if (directionality == "gries") {
+        message("\nScores follow scaling used by Gries (2008):")
+        message("  0 = maximally even/dispersed/balanced distribution (optimum)")
+        message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
+      } else {
+        message("\nScores follow conventional scaling:")
+        message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        message("  1 = maximally even/dispersed/balanced distribution (optimum)")
+      }
+      
+      if (formula == "gries_2008") {
+        message("\nComputed using the original version proposed by Gries (2008)")
+      } else if (formula == "lijffit_gries_2012") {
+        message("\nComputed using the modification suggested by Lijffit & Gries (2012)")
+      } else {
+        message("\nComputed using the modification suggested by Egbert et al. (2020)")
+      }
+    }
+  }
+  invisible(output)
+}
