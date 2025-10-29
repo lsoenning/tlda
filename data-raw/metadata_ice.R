@@ -137,7 +137,7 @@ genre[grep("^w2f", text_files)] <- "novels_short_stories"
 
 
 # combine into data frame
-ice_metadata <- data.frame(
+metadata_ice <- data.frame(
   text_file = text_files,
   mode = mode,
   text_category = text_category,
@@ -146,4 +146,4 @@ ice_metadata <- data.frame(
   genre_short = genre_short
 )
 
-save(ice_metadata, file = "data/ice_metadata.rda")
+save(metadata_ice, file = "data/metadata_ice.rda")

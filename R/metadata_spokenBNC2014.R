@@ -2,7 +2,7 @@
 #'
 #' This dataset provides some metadata for the speakers in the Spoken BNC2014 (Love et al. 2017), including information on age, gender, and the total number of word tokens contributed to the corpus.
 #'
-#' @format ## `spokenBNC2014_metadata`
+#' @format ## `metadata_spokenBNC2014`
 #' A data frame with 668 rows and 6 columns:
 #' 
 #' \describe{
@@ -15,4 +15,4 @@
 #' }
 #' @source 
 #' Love, Robbie, Claire Dembry, Andrew Hardie, Vaclav Brezina & Tony McEnery. 2017. The Spoken BNC2014: Designing and building a spoken corpus of everyday conversations. \emph{International Journal of Corpus Linguistics}, 22(3), 319--344.
-"spokenBNC2014_metadata"
+"metadata_spokenBNC2014"

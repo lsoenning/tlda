@@ -6,7 +6,7 @@ items <- c("a", "able", "actually", "after", "against", "ah", "aha", "all", "amo
 
 # load data provided by Gries (2024)
 ICEGB.df <- readRDS("data-raw/files/ICEGB.df.RDS")
-str(ICEGB.df)
+
 
 # change the spelling for four items that ar spelled differently in ICE-GB
 items[items == "erm"] <- "uhm"
@@ -24,6 +24,10 @@ ice_gb_150$PART <- str_split(
 	ice_gb_150$PART, 
 	pattern = "\\.", 
 	simplify = TRUE)[,1]
+
+
+# Corpus parts: Text files
+#-------------------------------------------------------------------------------
 
 # cross-tabulate number of occurrence of each item in each text
 biber150_ice_gb <- table(ice_gb_150$WORD, ice_gb_150$PART)
@@ -66,4 +70,115 @@ biber150_ice_gb <- rbind(
   add_word_count,
   biber150_ice_gb
 )
+
+
+
+# Corpus parts: Genres
+#-------------------------------------------------------------------------------
+
+# add text metadata
+colnames(ice_gb_150)[1] <- "text_file"
+ice_gb_150 <- merge(ice_gb_150, metadata_ice, by = "text_file")
+
+str(ice_gb_150)
+
+
+# cross-tabulate number of occurrence of each item in each text
+biber150_ice_gb_genre <- table(ice_gb_150$WORD, ice_gb_150$genre)
+
+# convert to matrix
+biber150_ice_gb_genre <- as.matrix(biber150_ice_gb_genre)
+str(biber150_ice_gb_genre)
+
+# add those items that do not occur in ICE-GB
+add_0_items <- matrix(
+  0, 
+  nrow = 4, 
+  ncol = length(unique(ice_gb_150$genre)),
+  dimnames = list(
+    c("aye", "corp", "ltd", "tt"),
+    colnames(biber150_ice_gb_genre)
+  ))
+
+# combine with matrix
+biber150_ice_gb_genre <- rbind(
+  biber150_ice_gb_genre,
+  add_0_items
+)
+
+# order items alphabetically
+biber150_ice_gb_genre <- biber150_ice_gb_genre[order(rownames(biber150_ice_gb_genre)),]
+
+
+
+# add word count
+add_word_count <- matrix(
+  table(ICEGB.df$genre), 
+  nrow = 1, 
+  ncol = length(unique(ice_gb_150$genre)),
+  dimnames = list(
+    "word_count",
+    colnames(biber150_ice_gb_genre)
+  ))
+
+biber150_ice_gb_genre <- rbind(
+  add_word_count,
+  biber150_ice_gb_genre
+)
+
+str(biber150_ice_gb_genre)
+
+
+
+
+
+# Corpus parts: Macro-genres
+#-------------------------------------------------------------------------------
+
+# cross-tabulate number of occurrence of each item in each text
+biber150_ice_gb_macro_genre <- table(ice_gb_150$WORD, ice_gb_150$macro_genre)
+
+# convert to matrix
+biber150_ice_gb_macro_genre <- as.matrix(biber150_ice_gb_macro_genre)
+str(biber150_ice_gb_macro_genre)
+
+# add those items that do not occur in ICE-GB
+add_0_items <- matrix(
+  0, 
+  nrow = 4, 
+  ncol = length(unique(ice_gb_150$macro_genre)),
+  dimnames = list(
+    c("aye", "corp", "ltd", "tt"),
+    colnames(biber150_ice_gb_macro_genre)
+  ))
+
+# combine with matrix
+biber150_ice_gb_macro_genre <- rbind(
+  biber150_ice_gb_macro_genre,
+  add_0_items
+)
+
+# order items alphabetically
+biber150_ice_gb_macro_genre <- biber150_ice_gb_macro_genre[order(rownames(biber150_ice_gb_macro_genre)),]
+
+
+
+# add word count
+add_word_count <- matrix(
+  table(ICEGB.df$macro_genre), 
+  nrow = 1, 
+  ncol = length(unique(ice_gb_150$macro_genre)),
+  dimnames = list(
+    "word_count",
+    colnames(biber150_ice_gb_macro_genre)
+  ))
+
+biber150_ice_gb_macro_genre <- rbind(
+  add_word_count,
+  biber150_ice_gb_macro_genre
+)
+
+str(biber150_ice_gb_macro_genre)
+
+
 

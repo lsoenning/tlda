@@ -4,7 +4,7 @@
 #' corpora. It maps standardized file names to various textual categories
 #' such as mode of production, macro genre and genre.
 #'
-#' @format ## `ice_metadata`
+#' @format ## `metadata_ice`
 #' A data frame with 500 rows and 6 columns:
 #' 
 #' \describe{
@@ -21,4 +21,4 @@
 #' Greenbaum, Sidney. 1996. Introducing ICE. In Sidney Greenbaum (ed.), \emph{Comparing English worldwide: The International Corpus of English}, 3--12. Oxford: Clarendon Press.
 #' 
 #' Schützler, Ole. 2023. \emph{Concessive constructions in varieties of English}. Berlin: Language Science Press. \doi{doi:10.5281/zenodo.8375010} 
-"ice_metadata"
+"metadata_ice"

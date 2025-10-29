@@ -4,7 +4,7 @@
 #' corpora. It maps standardized file names to the textual categories genre
 #' and subgenre.
 #'
-#' @format ## `brown_metadata`
+#' @format ## `metadata_brown`
 #' A data frame with 500 rows and 3 columns:
 #' 
 #' \describe{
@@ -14,4 +14,4 @@
 #' }
 #' @source 
 #' McEnery, Tony & Andrew Hardie. 2012. \emph{Corpus linguistics}. Cambridge: Cambridge University Press.
-"brown_metadata"
+"metadata_brown"

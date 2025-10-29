@@ -1,21 +1,21 @@
-
+library(tidyverse)
 
 # 1994
 #-------------------------------------------------------------------------------
 
 # load biodata
-spokenBNC1994_metadata <- read.csv(
+metadata_spokenBNC1994 <- read.csv(
   "./data-raw/files/spokenBNC1994DS_biodata.csv")
 
 # exclude speakers with no information on age and/or gender
-spokenBNC1994_metadata <- subset(
-  spokenBNC1994_metadata,
+metadata_spokenBNC1994 <- subset(
+  metadata_spokenBNC1994,
   !is.na(u_age_group) & !is.na(u_sex))
 
 
-str(spokenBNC1994_metadata)
+str(metadata_spokenBNC1994)
 
-colnames(spokenBNC1994_metadata) <- c(
+colnames(metadata_spokenBNC1994) <- c(
   "speaker_id",
   "age_group",
   "gender",
@@ -25,9 +25,9 @@ colnames(spokenBNC1994_metadata) <- c(
   "age_bin"
 )
 
-spokenBNC1994_metadata$age <- as.numeric(str_replace(spokenBNC1994_metadata$age, "\\+", ""))
+metadata_spokenBNC1994$age <- as.numeric(str_replace(metadata_spokenBNC1994$age, "\\+", ""))
 
-str(spokenBNC1994_metadata)
+str(metadata_spokenBNC1994)
 
 
 
@@ -35,12 +35,12 @@ str(spokenBNC1994_metadata)
 #-------------------------------------------------------------------------------
 
 # load biodata
-spokenBNC2014_metadata <- read.csv2(
+metadata_spokenBNC2014 <- read.csv2(
   "./data-raw/files/spokenBNC2014_biodata.csv", row.names = 1)
 
-str(spokenBNC2014_metadata)
+str(metadata_spokenBNC2014)
 
-spokenBNC2014_metadata <- spokenBNC2014_metadata |> 
+metadata_spokenBNC2014 <- metadata_spokenBNC2014 |> 
   select(
     ID, 
     Age..BNC1994.groups.,
@@ -50,7 +50,7 @@ spokenBNC2014_metadata <- spokenBNC2014_metadata |>
     age_bins
   )
 
-colnames(spokenBNC2014_metadata) <- c(
+colnames(metadata_spokenBNC2014) <- c(
   "speaker_id",
   "age_group",
   "gender",
@@ -59,5 +59,5 @@ colnames(spokenBNC2014_metadata) <- c(
   "age_bin"
 )
 
-str(spokenBNC2014_metadata)
+str(metadata_spokenBNC2014)
 

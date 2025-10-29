@@ -33,8 +33,9 @@ genre[substr(text_files, 1, 1) == "R"] <- "humour"
 
 
 # combine into data frame
-brown_metadata <- data.frame(
+metadata_brown <- data.frame(
   text_file = text_files,
   macro_genre = genre,
   genre = genre
 )
+

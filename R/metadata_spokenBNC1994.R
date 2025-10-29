@@ -2,7 +2,7 @@
 #'
 #' This dataset provides some metadata for speakers in the demographically sampled part of the Spoken BNC1994 (Crowdy 1995), including information on age, gender, and the total number of word tokens contributed to the corpus.
 #'
-#' @format ## `spokenBNC1994_metadata`
+#' @format ## `metadata_spokenBNC1994`
 #' A data frame with 1,017 rows and 7 columns:
 #' 
 #' \describe{
@@ -15,4 +15,4 @@
 #' }
 #' @source 
 #' Crowdy, Steve. 1995. The BNC spoken corpus. In Geoffrey Leech, Greg Myers & Jenny Thomas (eds.), \emph{Spoken English on Computer: Transcription, Mark-Up and Annotation}, 224--234. Harlow: Longman.
-"spokenBNC1994_metadata"
+"metadata_spokenBNC1994"
