@@ -37,6 +37,8 @@ VignetteBuilder: knitr
 Collate: 
     'add_sampling_weights.R'
     'biber150_ice_gb.R'
+    'biber150_ice_gb_genre.R'
+    'biber150_ice_gb_macro_genre.R'
     'biber150_spokenBNC1994.R'
     'biber150_spokenBNC2014.R'
     'disp.R'
