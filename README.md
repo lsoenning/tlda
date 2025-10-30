@@ -241,4 +241,5 @@ relation to the structure of frequency dictionaries. *Etudes de
 linguistique appliquee (Nouvelle Serie)* 1. 103–127.
 
 Sönning, Lukas. 2025. Advancing our understanding of dispersion measures
-in corpus research. *Corpora*.
+in corpus research. *Corpora* 20(1). 3–35. doi:
+[10.3366/cor.2025.0326](https://doi.org/10.3366/cor.2025.0326)

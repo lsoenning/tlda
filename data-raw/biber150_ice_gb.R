@@ -1,4 +1,4 @@
-
+library(tidyverse)
 
 # Biber et al. (2016)'s 150 items
 
@@ -113,7 +113,7 @@ biber150_ice_gb_genre <- biber150_ice_gb_genre[order(rownames(biber150_ice_gb_ge
 
 # add word count
 add_word_count <- matrix(
-  table(ICEGB.df$genre), 
+  table(ice_gb_150$genre), 
   nrow = 1, 
   ncol = length(unique(ice_gb_150$genre)),
   dimnames = list(
@@ -165,7 +165,7 @@ biber150_ice_gb_macro_genre <- biber150_ice_gb_macro_genre[order(rownames(biber1
 
 # add word count
 add_word_count <- matrix(
-  table(ICEGB.df$macro_genre), 
+  table(ice_gb_150$macro_genre), 
   nrow = 1, 
   ncol = length(unique(ice_gb_150$macro_genre)),
   dimnames = list(
