@@ -1,5 +1,5 @@
 ## load names of the 500 text files
-text_files <- readRDS("./data-raw/ice_text_labels.rds")
+text_files <- readRDS("./data-raw/files/ice_text_labels.rds")
 
 ## initialize vectors for metadata
 mode <- rep(NA, 500)
@@ -144,6 +144,107 @@ metadata_ice <- data.frame(
   macro_genre = macro_genre,
   genre = genre,
   genre_short = genre_short
+)
+
+metadata_ice$text_category <- factor(
+  metadata_ice$text_category,
+  levels = c("dialogues",
+             "monologues",
+             "non_printed",
+             "printed"),
+  ordered = TRUE
+)
+
+metadata_ice$macro_genre <- factor(
+  metadata_ice$macro_genre,
+  levels = c("private_dialogues",
+             "public_dialogues",
+             "unscripted_monologues",
+             "scripted_monologues",
+             "student_writing",
+             "letters",
+             "academic_writing",
+             "popular_writing",
+             "reportage",
+             "instructional_writing",
+             "persuasive_writing",
+             "creative_writing"),
+  ordered = TRUE
+)
+  
+metadata_ice$genre <- factor(
+  metadata_ice$genre,
+  levels = c("face_to_face_conversations",
+             "phonecalls",
+             "classroom_lessons",
+             "broadcast_discussions",
+             "broadcast_interviews",
+             "parliamentary_debates",
+             "legal_cross_examinations",
+             "business_transactions",
+             "spontaneous_commentaries",
+             "unscripted_speeches",
+             "demonstrations",
+             "legal_presentations",
+             "broadcast_news",
+             "broadcast_talks",
+             "non_broadcast_talks",
+             "student_essays",
+             "exam_scripts",
+             "social_letters",
+             "business_letters",
+             "acad_humanities",
+             "acad_social_sciences",
+             "acad_natural_sciences",
+             "acad_technology",
+             "pop_humanities",
+             "pop_social_sciences",
+             "pop_natural_sciences",
+             "pop_technology",
+             "press_news_reports",
+             "administrative_writing",
+             "skills_hobbies",
+             "press_editorials",
+             "novels_short_stories"),
+  ordered = TRUE
+)
+
+
+metadata_ice$genre_short <- factor(
+  metadata_ice$genre_short,
+  levels = c("con",
+             "ph",
+             "les",
+             "bdis",
+             "bint",
+             "parl",
+             "cr",
+             "btrans",
+             "com",
+             "unsp",
+             "dem",
+             "leg",
+             "bnew",
+             "btal",
+             "nbtal",
+             "ess",
+             "ex",
+             "sl",
+             "bl",
+             "Ahum",
+             "Asoc",
+             "Anat",
+             "Atec",
+             "Phum",
+             "Psoc",
+             "Pnat",
+             "Ptec",
+             "rep",
+             "adm",
+             "skho",
+             "ed",
+             "nov"),
+  ordered = TRUE
 )
 
 save(metadata_ice, file = "data/metadata_ice.rda")
