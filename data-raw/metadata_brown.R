@@ -32,10 +32,47 @@ genre[substr(text_files, 1, 1) == "P"] <- "romance_love_story"
 genre[substr(text_files, 1, 1) == "R"] <- "humour"
 
 
+
 # combine into data frame
 metadata_brown <- data.frame(
   text_file = text_files,
   macro_genre = genre,
   genre = genre
 )
+
+
+metadata_brown$genre <- factor(
+  metadata_brown$genre,
+  levels = c("press",
+             "general_prose",
+             "learned",
+             "fiction"),
+  ordered = TRUE
+)
+
+metadata_brown$macro_genre <- factor(
+  metadata_brown$macro_genre,
+  levels = c("press_reportage",
+             "press_editorial",
+             "press_reviews",
+             "religion",
+             "skills_trades_hobbies",
+             "popular_lore",
+             "belles_lettres_biography_essays",
+             "government_official_documents",
+             "learned_and_scientific_writings",
+             "general_fiction",
+             "mystery_detective_fiction",
+             "science_fiction",
+             "adventure_western_fiction",
+             "romance_love_story",
+             "humour"),
+  ordered = TRUE
+)
+
+
+save(metadata_brown, file = "data/metadata_brown.rda")
+
+
+
 

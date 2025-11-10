@@ -1,8 +1,6 @@
 #' Text metadata for Brown corpora
 #'
-#' This dataset provides metadata for the text files in the Brown family of 
-#' corpora. It maps standardized file names to the textual categories genre
-#' and subgenre.
+#' This dataset provides metadata for the text files in the Brown family of corpora. It maps standardized file names to the textual categories macro genre and genre. Macro genres and genres are ordered based on the sampling frame informing the design of the Brown family of corpora (see https://listings.lib.msu.edu/public-corpora/cd421/manuals/brown/INDEX.HTM).
 #'
 #' @format ## `metadata_brown`
 #' A data frame with 500 rows and 3 columns:

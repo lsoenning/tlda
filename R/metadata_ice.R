@@ -1,8 +1,6 @@
 #' Text metadata for ICE corpora
 #'
-#' This dataset provides metadata for the text files in the ICE family of 
-#' corpora. It maps standardized file names to various textual categories
-#' such as mode of production, macro genre and genre.
+#' This dataset provides metadata for the text files in the ICE family of corpora. It maps standardized file names to various textual categories such as mode of production, macro genre and genre. Text categories, macro genres and genres are ordered based on the sampling frame informing the design of the ICE family of corpora (see https://www.ice-corpora.uzh.ch/en/design.html).
 #'
 #' @format ## `metadata_ice`
 #' A data frame with 500 rows and 6 columns:
@@ -10,10 +8,10 @@
 #' \describe{
 #'   \item{text_file}{Standardized name of the text file (e.g. "s1a-001", "w1b-008", "w2d-018")}
 #'   \item{mode}{Mode of production ("spoken" vs. "written")}
-#'   \item{text_category}{4 higher-level text categories ("dialogues", "monologues", "non-printed", "printed")}
-#'   \item{macro_genre}{12 macro genres (e.g. "private_dialogues", "student_writing", "reportage")}
-#'   \item{genre}{32 genres (e.g. "phonecalls", "unscripted_speeches", "novels_short_stories")}
-#'   \item{genre_short}{Short label for the genre (see Schützler 2023: 228)}
+#'   \item{text_category}{4 higher-level text categories ("dialogues", "monologues", "non-printed", "printed"); ordered factor}
+#'   \item{macro_genre}{12 macro genres (e.g. "private_dialogues", "student_writing", "reportage"); ordered factor}
+#'   \item{genre}{32 genres (e.g. "phonecalls", "unscripted_speeches", "novels_short_stories"); ordered factor}
+#'   \item{genre_short}{Short label for the genre (see Schützler 2023: 228); ordered factor}
 #' }
 #' @source 
 #' <https://www.ice-corpora.uzh.ch/en/design.html>
