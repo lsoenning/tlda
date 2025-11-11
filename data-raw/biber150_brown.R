@@ -80,6 +80,7 @@ biber150_brown <- rbind(
 #-------------------------------------------------------------------------------
 
 str(brown_150)
+
 # add text metadata
 colnames(brown_150)[1] <- "text_file"
 brown_150 <- brown_150[,c(1, 3)]
@@ -99,7 +100,7 @@ str(biber150_brown_genre)
 add_0_items <- matrix(
   0, 
   nrow = 7, 
-  ncol = 4,
+  ncol = 15,
   dimnames = list(
     c("aha", "cor", "cos", "ltd", "mhm", "nought", "pence"),
     colnames(biber150_brown_genre)
@@ -114,13 +115,14 @@ biber150_brown_genre <- rbind(
 # order items alphabetically
 biber150_brown_genre <- biber150_brown_genre[order(rownames(biber150_brown_genre)),]
 
-
+# columns ordered based on sampling frame?
+colnames(biber150_brown_genre) == levels(metadata_brown$genre)
 
 # add word count
 add_word_count <- matrix(
   table(brown_150$genre), 
   nrow = 1, 
-  ncol = 4,
+  ncol = 15,
   dimnames = list(
     "word_count",
     colnames(biber150_brown_genre)
@@ -151,7 +153,7 @@ str(biber150_brown_macro_genre)
 add_0_items <- matrix(
   0, 
   nrow = 7, 
-  ncol = length(unique(brown_150$macro_genre)),
+  ncol = 4,
   dimnames = list(
     c("aha", "cor", "cos", "ltd", "mhm", "nought", "pence"),
     colnames(biber150_brown_macro_genre)
@@ -166,13 +168,16 @@ biber150_brown_macro_genre <- rbind(
 # order items alphabetically
 biber150_brown_macro_genre <- biber150_brown_macro_genre[order(rownames(biber150_brown_macro_genre)),]
 
+# columns ordered based on sampling frame?
+str(biber150_brown_macro_genre)
+colnames(biber150_brown_macro_genre) == levels(metadata_brown$macro_genre)
 
 
 # add word count
 add_word_count <- matrix(
   table(brown_150$macro_genre), 
   nrow = 1, 
-  ncol = length(unique(brown_150$macro_genre)),
+  ncol = 4,
   dimnames = list(
     "word_count",
     colnames(biber150_brown_macro_genre)

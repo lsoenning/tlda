@@ -24,7 +24,7 @@ This function takes as input a data frame, where observations (rows) represent a
 }
 \examples{
 add_sampling_weights(
-  data = metadata_ice,
+  data = metadata_ice_gb,
   variable = "mode")
 }
 \author{

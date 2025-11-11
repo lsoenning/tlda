@@ -8,20 +8,20 @@
 #' 
 #' The data are provided in the form of a term-document matrix, where rows denote the 150 items and columns denote the 15 genres in the corpus. Seven items do not occur in Brown (\emph{aha, cor, cos, ltd, mhm, nought, pence)}). These are included in the term-document matrix with frequencies of 0 for all texts. Further, seven items are spelled differently in Brown (compared to the BNC, on which Biber et al.'s (2016) study is based): "u.s.a." (Brown) instead of "usa" (BNC), "inc." instead of "inc", "mr." instead of "mr", "ugh" instead of "urgh", "uh" instead of "er", "um" instead of "erm", and "hmm" instead of "hm".
 #' 
-#' The first row of the term-document matrix gives the size of the genre (i.e. number of word tokens).
+#' The first row of the term-document matrix gives the size of the genre (i.e. number of word and nonword tokens).
 #'
 #' @format ## `biber150_brown_genre`
 #' A matrix with 151 rows and 15 columns
 #' 
 #' \describe{
 #'   \item{rows}{Size of the genre (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-#'   \item{columns}{15 genres, ordered alphabetically ("acad_humanities", "acad_natural_sciences", "acad_social_sciences", ... ,"student_essays", "unscripted_speeches"))}
+#'   \item{columns}{15 genres, ordered based on the sampling frame ("press_reportage", "press_editorial", ... ,"romance_love_story", "humour"))}
 #' }
 #' @source 
 #' Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s D to measure lexical dispersion in large corpora. \emph{International Journal of Corpus Linguistics} 21(4). 439--464. 
 #' 
 #' Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189--216. 
 #' 
-#' Nelson, Gerald, Sean Wallis and Bas Aarts. 2002. \emph{Exploring Natural Language: Working with the British Component of the International Corpus of English}. Amsterdam: John Benjamins.
+#' Francis, W. Nelson & Henry Kučera. 1979. \emph{A Standard Corpus of Present-Day Edited American English, for Use with Digital Computers (Brown)}. Providence, RI: Brown University.
 #' 
-"biber150_ice_gb_genre"
+"biber150_brown_genre"

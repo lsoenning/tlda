@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' add_sampling_weights(
-#'   data = metadata_ice,
+#'   data = metadata_ice_gb,
 #'   variable = "mode")
 add_sampling_weights <- function(data, 
                                  variable, 

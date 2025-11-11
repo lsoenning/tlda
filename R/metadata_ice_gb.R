@@ -2,7 +2,7 @@
 #'
 #' This dataset provides metadata for the text files in ICE-GB (Nelson et al. 2002). It maps standardized file names to various textual categories such as mode of production, macro genre and genre, and records the length of each text file (in the total number of word and nonword tokens). Text categories, macro genres and genres are ordered based on the sampling frame informing the design of the ICE family of corpora (see https://www.ice-corpora.uzh.ch/en/design.html).
 #'
-#' @format ## `metadata_ice`
+#' @format ## `metadata_ice_gb`
 #' A data frame with 500 rows and 7 columns:
 #' 
 #' \describe{

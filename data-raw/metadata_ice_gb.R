@@ -147,7 +147,7 @@ colnames(text_file_wordcount)[2] <- "word_count"
 
 
 # combine into data frame
-metadata_ice <- data.frame(
+metadata_ice_gb <- data.frame(
   text_file = text_files,
   mode = mode,
   text_category = text_category,
@@ -157,8 +157,8 @@ metadata_ice <- data.frame(
   word_count = text_file_wordcount$word_count
 )
 
-metadata_ice$text_category <- factor(
-  metadata_ice$text_category,
+metadata_ice_gb$text_category <- factor(
+  metadata_ice_gb$text_category,
   levels = c("dialogues",
              "monologues",
              "non_printed",
@@ -166,8 +166,8 @@ metadata_ice$text_category <- factor(
   ordered = TRUE
 )
 
-metadata_ice$macro_genre <- factor(
-  metadata_ice$macro_genre,
+metadata_ice_gb$macro_genre <- factor(
+  metadata_ice_gb$macro_genre,
   levels = c("private_dialogues",
              "public_dialogues",
              "unscripted_monologues",
@@ -183,8 +183,8 @@ metadata_ice$macro_genre <- factor(
   ordered = TRUE
 )
   
-metadata_ice$genre <- factor(
-  metadata_ice$genre,
+metadata_ice_gb$genre <- factor(
+  metadata_ice_gb$genre,
   levels = c("face_to_face_conversations",
              "phonecalls",
              "classroom_lessons",
@@ -221,8 +221,8 @@ metadata_ice$genre <- factor(
 )
 
 
-metadata_ice$genre_short <- factor(
-  metadata_ice$genre_short,
+metadata_ice_gb$genre_short <- factor(
+  metadata_ice_gb$genre_short,
   levels = c("con",
              "ph",
              "les",
@@ -258,4 +258,4 @@ metadata_ice$genre_short <- factor(
   ordered = TRUE
 )
 
-save(metadata_ice, file = "data/metadata_ice_gb.rda")
+usethis::use_data(metadata_ice_gb)

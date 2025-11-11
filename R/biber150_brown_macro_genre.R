@@ -6,22 +6,22 @@
 #' 
 #' \emph{a, able, actually, after, against, ah, aha, all, among, an, and, another, anybody, at, aye, be, became, been, began, bet, between, bloke, both, bringing, brought, but, charles, claimed, cor, corp, cos, da, day, decided, did, do, doo, during, each, economic, eh, eighty, england, er, erm, etcetera, everybody, fall, fig, for, forty, found, from, full, get, government, ha, had, has, have, having, held, hello, himself, hm, however, hundred, i, ibm, if, important, in, inc, including, international, into, it, just, know, large, later, latter, let, life, ltd, made, may, methods, mhm, minus, mm, most, mr, mum, new, nineteen, ninety, nodded, nought, oh, okay, on, ooh, out, pence, percent, political, presence, provides, put, really, reckon, say, seemed, seriously, sixty, smiled, so, social, somebody, system, take, talking, than, the, they, thing, think, thirteen, though, thus, time, tt, tv, twenty, uk, under, urgh, us, usa, wants, was, we, who, with, world, yeah, yes, you, your}
 #' 
-#' The data are provided in the form of a term-document matrix, where rows denote the 150 items and columns denote the 12 macro-genres in the corpus. Four items do not occur in ICE-GB (\emph{aye, corp, ltd, tt}). These are included in the term-document matrix with frequencies of 0 for all texts.
+#' The data are provided in the form of a term-document matrix, where rows denote the 150 items and columns denote the 4 macro genres in the corpus. Seven items do not occur in Brown (\emph{aha, cor, cos, ltd, mhm, nought, pence)}). These are included in the term-document matrix with frequencies of 0 for all texts. Further, seven items are spelled differently in Brown (compared to the BNC, on which Biber et al.'s (2016) study is based): "u.s.a." (Brown) instead of "usa" (BNC), "inc." instead of "inc", "mr." instead of "mr", "ugh" instead of "urgh", "uh" instead of "er", "um" instead of "erm", and "hmm" instead of "hm".
 #' 
-#' The first row of the term-document matrix gives the size of the genre (i.e. number of word tokens).
+#' The first row of the term-document matrix gives the size of the genre (i.e. number of word and nonword tokens).
 #'
-#' @format ## `biber150_ice_gb_macro_genre`
-#' A matrix with 151 rows and 12 columns
+#' @format ## `biber150_brown_macro_genre`
+#' A matrix with 151 rows and 4 columns
 #' 
 #' \describe{
-#'   \item{rows}{Size of the macro-genre (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-#'   \item{columns}{12 macro-genres, ordered alphabetically ("academic_writing", "creative_writing", "instructional_writing", ... ,"student_writing", "unscripted_monologues"))}
+#'   \item{rows}{Size of the macro genre (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
+#'   \item{columns}{4 macro genres, ordered based on the sampling frame ("press", "general_prose", "learned", "fiction"))}
 #' }
 #' @source 
 #' Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s D to measure lexical dispersion in large corpora. \emph{International Journal of Corpus Linguistics} 21(4). 439--464. 
 #' 
 #' Burch, Brent, Jesse Egbert & Douglas Biber. 2017. Measuring and interpreting lexical dispersion in corpus linguistics. \emph{Journal of Research Design and Statistics in Linguistics and Communication Science} 3(2). 189--216. 
 #' 
-#' Nelson, Gerald, Sean Wallis and Bas Aarts. 2002. \emph{Exploring Natural Language: Working with the British Component of the International Corpus of English}. Amsterdam: John Benjamins.
+#' Francis, W. Nelson & Henry Kučera. 1979. \emph{A Standard Corpus of Present-Day Edited American English, for Use with Digital Computers (Brown)}. Providence, RI: Brown University.
 #' 
-"biber150_ice_gb_macro_genre"
+"biber150_brown_macro_genre"

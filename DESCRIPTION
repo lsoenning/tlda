@@ -36,6 +36,9 @@ BugReports: https://github.com/lsoenning/tlda/issues
 VignetteBuilder: knitr
 Collate: 
     'add_sampling_weights.R'
+    'biber150_brown.R'
+    'biber150_brown_genre.R'
+    'biber150_brown_macro_genre.R'
     'biber150_ice_gb.R'
     'biber150_ice_gb_genre.R'
     'biber150_ice_gb_macro_genre.R'
