@@ -1,9 +1,9 @@
-#' Text metadata for ICE corpora
+#' Text metadata for ICE-GB
 #'
-#' This dataset provides metadata for the text files in the ICE family of corpora. It maps standardized file names to various textual categories such as mode of production, macro genre and genre. Text categories, macro genres and genres are ordered based on the sampling frame informing the design of the ICE family of corpora (see https://www.ice-corpora.uzh.ch/en/design.html).
+#' This dataset provides metadata for the text files in ICE-GB (Nelson et al. 2002). It maps standardized file names to various textual categories such as mode of production, macro genre and genre, and records the length of each text file (in the total number of word and nonword tokens). Text categories, macro genres and genres are ordered based on the sampling frame informing the design of the ICE family of corpora (see https://www.ice-corpora.uzh.ch/en/design.html).
 #'
 #' @format ## `metadata_ice`
-#' A data frame with 500 rows and 6 columns:
+#' A data frame with 500 rows and 7 columns:
 #' 
 #' \describe{
 #'   \item{text_file}{Standardized name of the text file (e.g. "s1a-001", "w1b-008", "w2d-018")}
@@ -17,7 +17,9 @@
 #' @source 
 #' <https://www.ice-corpora.uzh.ch/en/design.html>
 #' 
-#' Greenbaum, Sidney. 1996. Introducing ICE. In Sidney Greenbaum (ed.), \emph{Comparing English worldwide: The International Corpus of English}, 3--12. Oxford: Clarendon Press.
+#' Greenbaum, Sidney. 1996. Introducing ICE. In Sidney Greenbaum (ed.), \emph{Comparing English worldwide: The International Corpus of English}, 3--12. Clarendon Press.
 #' 
-#' Schützler, Ole. 2023. \emph{Concessive constructions in varieties of English}. Berlin: Language Science Press. \doi{doi:10.5281/zenodo.8375010} 
-"metadata_ice"
+#' Nelson, Gerald, Sean Wallis, and Bas Aarts. 2002. \emph{Exploring Natural Language: Working with the British Component of the International Corpus of English}. John Benjamins.
+#' 
+#' Schützler, Ole. 2023. \emph{Concessive constructions in varieties of English}. Language Science Press. \doi{doi:10.5281/zenodo.8375010} 
+"metadata_ice_gb"
