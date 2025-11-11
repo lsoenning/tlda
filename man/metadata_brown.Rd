@@ -13,6 +13,7 @@ A data frame with 500 rows and 3 columns:
 \item{text_file}{Standardized name of the text file (e.g. "A01", "J58", "R07")}
 \item{macro_genre}{4 macro genres ("press", "general_prose", "learned", "fiction")}
 \item{genre}{15 genres (e.g. "press_editorial", "popular_lore", "adventure_western_fiction"))}
+\item{word_count}{The length of the text file, expressed as the number of (word and nonword) tokens}
 }
 }
 }
