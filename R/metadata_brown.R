@@ -1,16 +1,19 @@
-#' Text metadata for Brown corpora
+#' Text metadata for the Brown corpus
 #'
-#' This dataset provides metadata for the text files in the Brown family of corpora. It maps standardized file names to the textual categories macro genre and genre, and records the length of each text file (in the total number of word and nonword tokens). Macro genres and genres are ordered based on the sampling frame informing the design of the Brown family of corpora (see https://listings.lib.msu.edu/public-corpora/cd421/manuals/brown/INDEX.HTM).
+#' This dataset provides metadata for the text files in the Brown corpus (Francis & Kučera 1979). It maps standardized file names to the textual categories macro genre and genre, and records the length of each text file (in the total number of word and nonword tokens). Macro genres and genres are ordered based on the sampling frame informing the design of the Brown family of corpora (see https://listings.lib.msu.edu/public-corpora/cd421/manuals/brown/INDEX.HTM).
 #'
 #' @format ## `metadata_brown`
 #' A data frame with 500 rows and 4 columns:
 #' 
 #' \describe{
 #'   \item{text_file}{Standardized name of the text file (e.g. "A01", "J58", "R07")}
-#'   \item{macro_genre}{4 macro genres ("press", "general_prose", "learned", "fiction")}
-#'   \item{genre}{15 genres (e.g. "press_editorial", "popular_lore", "adventure_western_fiction"))}
+#'   \item{macro_genre}{4 macro genres ("press", "general_prose", "learned", "fiction"); ordered factor}
+#'   \item{genre}{15 genres (e.g. "press_editorial", "popular_lore", "adventure_western_fiction")); ordered factor}
 #'   \item{word_count}{The length of the text file, expressed as the number of (word and nonword) tokens}
 #' }
 #' @source 
+#' 
+#' Francis, W. Nelson & Henry Kučera. 1979. \emph{A Standard Corpus of Present-Day Edited American English, for Use with Digital Computers (Brown)}. Providence, RI: Brown University.
+#' 
 #' McEnery, Tony & Andrew Hardie. 2012. \emph{Corpus linguistics}. Cambridge: Cambridge University Press.
 "metadata_brown"

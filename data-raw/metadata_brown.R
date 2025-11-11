@@ -46,14 +46,14 @@ colnames(text_file_wordcount)[2] <- "word_count"
 # combine into data frame
 metadata_brown <- data.frame(
   text_file = text_files,
-  macro_genre = genre,
+  macro_genre = macro_genre,
   genre = genre,
   word_count = text_file_wordcount$word_count
 )
 
 
-metadata_brown$genre <- factor(
-  metadata_brown$genre,
+metadata_brown$macro_genre <- factor(
+  metadata_brown$macro_genre,
   levels = c("press",
              "general_prose",
              "learned",
@@ -61,8 +61,8 @@ metadata_brown$genre <- factor(
   ordered = TRUE
 )
 
-metadata_brown$macro_genre <- factor(
-  metadata_brown$macro_genre,
+metadata_brown$genre <- factor(
+  metadata_brown$genre,
   levels = c("press_reportage",
              "press_editorial",
              "press_reviews",
@@ -82,7 +82,7 @@ metadata_brown$macro_genre <- factor(
 )
 
 
-save(metadata_brown, file = "data/metadata_brown.rda")
+usethis::use_data(metadata_brown)
 
 
 

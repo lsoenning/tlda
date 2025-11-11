@@ -50,7 +50,7 @@ Collate:
     'disp_S.R'
     'dispersion_min_max_functions.R'
     'metadata_brown.R'
-    'metadata_ice.R'
+    'metadata_ice_gb.R'
     'metadata_spokenBNC1994.R'
     'metadata_spokenBNC2014.R'
     'scale_y_dispersion.R'
