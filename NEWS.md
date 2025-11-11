@@ -15,6 +15,9 @@
   - "ice_metadata" -> "metadata_ice"
   - "spokenBNC1994_metadata" -> "metadata_spokenBNC1994"
   - "spokenBNC2014_metadata" -> "metadata_spokenBNC2014"
+* changed contents of data objects
+  - metadata_brown: macro_genre and genre as ordered factors
+  - metadata_ice: text_category, macro_genre and genre as ordered factors
 * added data objects
   - "biber150_ice_gb_genre"
   - "biber150_ice_gb_macro_genre"

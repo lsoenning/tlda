@@ -1,13 +1,14 @@
 ## load names of the 500 text files
 text_files <- readRDS("./data-raw/files/ice_text_labels.rds")
 
+
 ## initialize vectors for metadata
 mode <- rep(NA, 500)
 text_category <- rep(NA, 500)
 macro_genre <- rep(NA, 500)
 genre <- rep(NA, 500)
 genre_short <- rep(NA, 500)
-
+word_count <- rep(NA, 500)
 
 ## fill in metadata
 
@@ -135,6 +136,14 @@ genre[text_files %in% skho]     <- "skills_hobbies"
 genre[grep("^w2e", text_files)] <- "press_editorials"
 genre[grep("^w2f", text_files)] <- "novels_short_stories"
 
+# Length of text files
+
+tmp <- readRDS("./data-raw/files/ICEGB.df.RDS")
+tmp$text_file <- substr(tmp$PART, 1, 7)
+
+text_file_wordcount <- data.frame(with(tmp, table(text_file)))
+colnames(text_file_wordcount)[2] <- "word_count"
+
 
 # combine into data frame
 metadata_ice <- data.frame(
@@ -143,7 +152,8 @@ metadata_ice <- data.frame(
   text_category = text_category,
   macro_genre = macro_genre,
   genre = genre,
-  genre_short = genre_short
+  genre_short = genre_short,
+  word_count = text_file_wordcount$word_count
 )
 
 metadata_ice$text_category <- factor(
