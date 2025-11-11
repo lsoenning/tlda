@@ -1,6 +1,6 @@
-#' Distribution of Biber et al.'s (2016) 150 lexical items in ICE-GB (term-document matrix), using macro-genres as corpus parts
+#' Distribution of Biber et al.'s (2016) 150 lexical items in the Brown Corpus (term-document matrix), using macro-genres as corpus parts
 #'
-#' This dataset contains text-level frequencies for ICE-GB (Nelson et al. 2002) for a set of 150 word forms. The list of items was compiled by Biber et al. (2016) for methodological purposes, that is, to study the behavior of dispersion measures in different distributional settings. The items are intended to cover a broad range of frequency and dispersion levels.
+#' This dataset contains text-level frequencies for the Brown Corpus (Francis & Kučera 1979) for a set of 150 word forms. The list of items was compiled by Biber et al. (2016) for methodological purposes, that is, to study the behavior of dispersion measures in different distributional settings. The items are intended to cover a broad range of frequency and dispersion levels.
 #'
 #' While Biber et al. (2016: 446) used 153 target items, the 150 word forms included in the present data set correspond to the slightly narrower selection of forms used in Burch et al. (2017: 214-216). These 150 word forms are listed next, in alphabetical order: 
 #' 
