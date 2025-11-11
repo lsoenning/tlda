@@ -33,11 +33,22 @@ genre[substr(text_files, 1, 1) == "R"] <- "humour"
 
 
 
+# Length of text files
+
+tmp <- read.delim("./data-raw/files/corp_brown_token_df.tsv", sep = "\t")
+colnames(tmp)[1] <- "text_file"
+str(tmp)
+
+text_file_wordcount <- data.frame(with(tmp, table(text_file)))
+colnames(text_file_wordcount)[2] <- "word_count"
+
+
 # combine into data frame
 metadata_brown <- data.frame(
   text_file = text_files,
   macro_genre = genre,
-  genre = genre
+  genre = genre,
+  word_count = text_file_wordcount$word_count
 )
 
 

@@ -136,9 +136,10 @@ genre[text_files %in% skho]     <- "skills_hobbies"
 genre[grep("^w2e", text_files)] <- "press_editorials"
 genre[grep("^w2f", text_files)] <- "novels_short_stories"
 
-# Length of text files
 
+# Length of text files
 tmp <- readRDS("./data-raw/files/ICEGB.df.RDS")
+str(tmp)
 tmp$text_file <- substr(tmp$PART, 1, 7)
 
 text_file_wordcount <- data.frame(with(tmp, table(text_file)))
