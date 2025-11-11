@@ -16,6 +16,7 @@ A data frame with 500 rows and 6 columns:
 \item{macro_genre}{12 macro genres (e.g. "private_dialogues", "student_writing", "reportage"); ordered factor}
 \item{genre}{32 genres (e.g. "phonecalls", "unscripted_speeches", "novels_short_stories"); ordered factor}
 \item{genre_short}{Short label for the genre (see Schützler 2023: 228); ordered factor}
+\item{word_count}{The length of the text file, expressed as the number of (word and nonword) tokens}
 }
 }
 }
