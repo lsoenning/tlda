@@ -359,11 +359,23 @@ disp_R_tdm <- function(tdm,
   
   output <- data.frame(
     item = colnames(output),
-    DP = as.numeric(output)
+    Rrel = as.numeric(output)
   )
   
-  if (freq_adjust == TRUE){
-    colnames(output)[2] <- "DP_nofreq"
+  if (freq_adjust == TRUE & type == "relative"){
+    colnames(output)[2] <- "Rrel_nofreq"
+  }
+  if (freq_adjust == FALSE & type == "abolute"){
+    colnames(output)[2] <- "Rabs"
+  }
+  if (freq_adjust == TRUE & type == "abolute"){
+    colnames(output)[2] <- "Rabs_nofreq"
+  }
+  if (freq_adjust == FALSE & type == "relative_withsize"){
+    colnames(output)[2] <- "Rrel_withsize"
+  }
+  if (freq_adjust == TRUE & type == "relative_withsize"){
+    colnames(output)[2] <- "Rrel_withsize_nofreq"
   }
   
   if (add_frequency == TRUE){

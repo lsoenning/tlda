@@ -420,11 +420,11 @@ disp_DKL_tdm <- function(tdm,
   
   output <- data.frame(
     item = colnames(output),
-    DP = as.numeric(output)
+    DKL = as.numeric(output)
   )
   
   if (freq_adjust == TRUE){
-    colnames(output)[2] <- "DP_nofreq"
+    colnames(output)[2] <- "DKL_nofreq"
   }
   
   if (add_frequency == TRUE){

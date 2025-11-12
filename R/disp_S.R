@@ -371,11 +371,11 @@ disp_S_tdm <- function(tdm,
   
   output <- data.frame(
     item = colnames(output),
-    DP = as.numeric(output)
+    S = as.numeric(output)
   )
   
   if (freq_adjust == TRUE){
-    colnames(output)[2] <- "DP_nofreq"
+    colnames(output)[2] <- "S_nofreq"
   }
   
   if (add_frequency == TRUE){

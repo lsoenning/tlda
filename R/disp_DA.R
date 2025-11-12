@@ -458,11 +458,11 @@ disp_DA_tdm <- function(tdm,
   
   output <- data.frame(
     item = colnames(output),
-    DP = as.numeric(output)
+    DA = as.numeric(output)
   )
   
   if (freq_adjust == TRUE){
-    colnames(output)[2] <- "DP_nofreq"
+    colnames(output)[2] <- "DA_nofreq"
   }
   
   if (add_frequency == TRUE){
