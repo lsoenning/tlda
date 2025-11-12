@@ -15,7 +15,7 @@
 #' 
 #' \describe{
 #'   \item{rows}{Size of the macro genre (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-#'   \item{columns}{4 macro genres, ordered based on the sampling frame ("press", "general_prose", "learned", "fiction"))}
+#'   \item{columns}{4 macro genres, ordered based on the sampling frame ("press", "general_prose", "learned", "fiction")}
 #' }
 #' @source 
 #' Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s D to measure lexical dispersion in large corpora. \emph{International Journal of Corpus Linguistics} 21(4). 439--464. 

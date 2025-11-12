@@ -11,6 +11,7 @@ disp_DKL_tdm(
   standardization = "o2p",
   freq_adjust = FALSE,
   freq_adjust_method = "even",
+  add_frequency = TRUE,
   unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
@@ -30,6 +31,8 @@ disp_DKL_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
+\item{add_frequency}{Logical. Whether to add a column that gives the total number of occurrences of the item across a corpus parts; default is \code{TRUE}}
+
 \item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
@@ -39,13 +42,13 @@ disp_DKL_tdm(
 \item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 }
 \value{
-A numeric vector the same length as the number of items in the term-document matrix
+A data frame with one row per item
 }
 \description{
 This function calculates the dispersion measure \eqn{D_{KL}}, which is based on the Kullback-Leibler divergence (Gries 2020, 2021, 2024). It offers three different options for standardization to the unit interval [0,1] (see Gries 2024: 90-92) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 }
 \details{
-This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{KL}}. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{KL}}. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 \itemize{
 \item Directionality: \eqn{D_{KL}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use \code{directionality = 'gries'} to choose this option.
 \item Standardization: Irrespective of the directionality of scaling, three ways of standardizing the Kullback-Leibler divergence to the unit interval [0;1] are mentioned in Gries (2024: 90-92). The choice between these transformations can have an appreciable effect on the standardized dispersion score. In Gries (2020: 103-104), the Kullback-Leibler divergence is not standardized. In Gries (2021: 20), the transformation \code{'base_e'} is used (see (1) below), and in Gries (2024), the default strategy is \code{'o2p'}, the odds-to-probability transformation (see (3) below).

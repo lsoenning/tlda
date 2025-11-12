@@ -11,7 +11,7 @@ A matrix with 151 rows and 15 columns
 
 \describe{
 \item{rows}{Size of the genre (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-\item{columns}{15 genres, ordered based on the sampling frame ("press_reportage", "press_editorial", ... ,"romance_love_story", "humour"))}
+\item{columns}{15 genres, ordered based on the sampling frame ("press_reportage", "press_editorial", ... ,"romance_love_story", "humour")}
 }
 }
 }

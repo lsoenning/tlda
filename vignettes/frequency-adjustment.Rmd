@@ -327,16 +327,17 @@ We then examine, for each dispersion measure, the range of scores across the 150
 ```{r}
 round(
   apply(
-    DM_even,
+    DM_even[-c(1,9)],
     2,
     range, na.rm = TRUE),
   2)
 ```
+
 Then we look at how many items are affected by this, for each measure:
 
 ```{r}
 apply(
-  DM_even,
+    DM_even[-c(1,9)],
   2,
   function(x){
     sum(x < 0 | x > 1, na.rm = TRUE)
@@ -348,7 +349,7 @@ Next, we consider the range of scores for adjusted based on `freq_adjust_method 
 ```{r}
 round(
   apply(
-    DM_pervasive,
+    DM_pervasive[-c(1,9)],
     2,
     range, na.rm = TRUE),
   2)
@@ -357,7 +358,7 @@ Number of items affected by this, for each measure:
 
 ```{r}
 apply(
-  DM_pervasive,
+  DM_pervasive[-c(1,9)],
   2,
   function(x){
     sum(x < 0 | x > 1, na.rm = TRUE)

@@ -159,7 +159,7 @@ disp_S <- function(subfreq,
 #' @author Lukas Soenning
 #' 
 #' @details 
-#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{S}. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{S}. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 #' 
 #' - Directionality: \eqn{S} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = 'gries'` to choose this option.
 #' 
@@ -179,7 +179,7 @@ disp_S <- function(subfreq,
 #'    \eqn{\frac{(\sum_i^k r_i \sqrt{w_i T_i}}{N}}
 #' 
 #'
-#' @returns A numeric vector the same length as the number of items in the term-document matrix
+#' @returns A data frame with one row per item
 #' 
 #' @references 
 #' 
@@ -205,14 +205,15 @@ disp_S <- function(subfreq,
 #'   directionality = "conventional")
 #' 
 disp_S_tdm <- function(tdm,
-                         row_partsize = "first",
-                         directionality = "conventional",
-                         freq_adjust = FALSE,
-                         freq_adjust_method = "even",
-                         unit_interval = TRUE,
-                         digits = NULL,
-                         verbose = TRUE,
-                         print_scores = TRUE) {
+                       row_partsize = "first",
+                       directionality = "conventional",
+                       freq_adjust = FALSE,
+                       freq_adjust_method = "even",
+                       unit_interval = TRUE,
+                       add_frequency = TRUE,
+                       digits = NULL,
+                       verbose = TRUE,
+                       print_scores = TRUE) {
   
   if(missing(row_partsize)){
     stop("Please indicate which row in the term-document matrix includes the part sizes.\n  Use argument 'row_partsize' to locate the correct row ('first' or 'last').")
@@ -367,6 +368,24 @@ disp_S_tdm <- function(tdm,
   output <- t(output)
   
   if (!is.null(digits)) output <- round(output, digits)
+  
+  output <- data.frame(
+    item = colnames(output),
+    DP = as.numeric(output)
+  )
+  
+  if (freq_adjust == TRUE){
+    colnames(output)[2] <- "DP_nofreq"
+  }
+  
+  if (add_frequency == TRUE){
+    if (row_partsize == "first"){
+      output$frequency <- rowSums(tdm[-1,])
+    }
+    if (row_partsize == "last"){
+      output$frequency <- rowSums(tdm[-nrow(tdm),])
+    }
+  }
   
   if (print_scores != FALSE) print(output)
   

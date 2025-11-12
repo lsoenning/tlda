@@ -191,7 +191,7 @@ disp_DKL <- function(subfreq,
 #' @author Lukas Soenning
 #' 
 #' @details 
-#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{KL}}. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{KL}}. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 #' 
 #' - Directionality: \eqn{D_{KL}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = 'gries'` to choose this option.
 #' 
@@ -220,7 +220,7 @@ disp_DKL <- function(subfreq,
 #'    (3) \eqn{\frac{KLD}{1+KLD}} (Gries 2024: 90), represented by the value `'o2p'` (default)
 #' 
 #'
-#' @returns A numeric vector the same length as the number of items in the term-document matrix
+#' @returns A data frame with one row per item
 #' 
 #' @references 
 #' 
@@ -252,6 +252,7 @@ disp_DKL_tdm <- function(tdm,
                          standardization = "o2p",
                          freq_adjust = FALSE,
                          freq_adjust_method = "even",
+                         add_frequency = TRUE,
                          unit_interval = TRUE,
                          digits = NULL,
                          verbose = TRUE,
@@ -416,6 +417,24 @@ disp_DKL_tdm <- function(tdm,
   output <- t(output)
   
   if (!is.null(digits)) output <- round(output, digits)
+  
+  output <- data.frame(
+    item = colnames(output),
+    DP = as.numeric(output)
+  )
+  
+  if (freq_adjust == TRUE){
+    colnames(output)[2] <- "DP_nofreq"
+  }
+  
+  if (add_frequency == TRUE){
+    if (row_partsize == "first"){
+      output$frequency <- rowSums(tdm[-1,])
+    }
+    if (row_partsize == "last"){
+      output$frequency <- rowSums(tdm[-nrow(tdm),])
+    }
+  }
   
   if (print_scores != FALSE) print(output)
   

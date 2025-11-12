@@ -301,26 +301,21 @@ All of the operations can be applied to a term-document matrix (TDM) using the `
 - `tdm` A term-document matrix, where rows represent items and columns represent corpus parts; it must also contain a row giving the size of the corpus parts (first or last row in the TDM)
 - `row_partsize` Character string indicating which row in the TDM contains the size of the corpus parts.
 
-In the TDMs that ship with the `tlda` package, it is the first row that contains the part sizes. You can obtain dispersion scores for all 150 items in the TDM for ICE-GB (`biber150_ice_gb`) as follows. Since the function `disp_tdm()` returns seven indices, the output is a matrix, which we store as a new object `DM_ice_gb`.
+In the TDMs that ship with the `tlda` package, it is the first row that contains the part sizes. You can obtain dispersion scores for all 150 items in the TDM for ICE-GB (`biber150_ice_gb`) as follows. Since the function `disp_tdm()` returns seven indices, the output is a data frame, which we store as a new object `DM_ice_gb`.
 
 ```{r}
 DM_ice_gb <- disp_tdm(
     tdm = biber150_ice_gb, 
     row_partsize = "first",
     print_score = FALSE,
-    verbose = FALSE)
-```
-
-We convert the matrix to a data frame, since this makes it easier to work with the results here.
-
-```{r}
-DM_ice_gb <- data.frame(DM_ice_gb)
+    verbose = FALSE,
+    digits = 2)
 ```
 
 We then only print the first ten items, and round scores to two decimal places:
 
 ```{r}
-round(DM_ice_gb[1:10,], 2)
+DM_ice_gb[1:10,]
 ```
 
 We can now inspect the distribution of scores for these 150 items visually. For instance, we may be interested in the distribution of the *D~P~* scores for the 150 items.
@@ -368,16 +363,10 @@ hist(
 To inspect the correlation between the scores produced by different measures, we can draw a scatterplot matrix:
 
 ```{r fig.width=5, fig.height=5, fig.align='center'}
-pairs(DM_ice_gb, gap = 0, cex = .5, cex.labels = 1)
+pairs(DM_ice_gb[-c(1,8)], gap = 0, cex = .5, cex.labels = 1)
 ```
 
-To inspect the association of dispersion scores with frequency, we add a new column to the data frame. To obtain the corpus frequency for the 150 items, we add up their subfrequencies by summing across the rows in the TDM `biber150_ice_gb`, excluding row 1 (!), which contains the sizes of the corpus parts.
-
-```{r}
-DM_ice_gb$frequency <- rowSums(biber150_ice_gb[-1,])
-```
-
-Now we can look at the association between dispersion scores and the (logged) corpus frequency of these 150 items. The following scatterplot looks at *D~P~*:
+We can also look at the association between dispersion scores and the (logged) corpus frequency of these 150 items. The following scatterplot looks at *D~P~*:
 
 ```{r fig.width=3, fig.height=2.5, warning=FALSE, message=FALSE, fig.align='center', out.width="35%"}
 par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
@@ -410,10 +399,6 @@ DM_ice_gb_nofreq <- disp_tdm(
     freq_adjust_method = "even",
     print_score = FALSE,
     verbose = FALSE)
-
-DM_ice_gb_nofreq <- data.frame(DM_ice_gb_nofreq)
-
-DM_ice_gb_nofreq$frequency <- rowSums(biber150_ice_gb[-1,])
 
 str(DM_ice_gb_nofreq)
 ```

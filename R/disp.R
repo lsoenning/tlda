@@ -269,12 +269,13 @@ disp <- function(subfreq,
 #'
 #' @inheritParams disp
 #' @param tdm A term-document matrix, where rows represent items and columns represent corpus parts; must also contain a row giving the size of the corpus parts (first or last row in the term-document matrix)
+#' @param add_frequency Logical. Whether to add a column that gives the total number of occurrences of the item across a corpus parts; default is `TRUE` 
 #' @param row_partsize Character string indicating which row in the term-document matrix contains the size of the corpus parts. Possible values are `"first"` (default) and `"last"`
 #' @param print_scores Logical. Whether the dispersion scores should be printed to the console; default is `TRUE`
 #' 
 #' @author Lukas Soenning
 #' 
-#' @details This function takes as input a term-document matrix and returns, for each item (i.e. each row) a variety of dispersion measures. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+#' @details This function takes as input a term-document matrix and returns, for each item (i.e. each row) a variety of dispersion measures. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 #' 
 #' - Directionality: The scores for all measures range from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; this is implemented by the value `gries`.
 #' 
@@ -337,7 +338,7 @@ disp <- function(subfreq,
 #'    \eqn{\frac{\sum_i^k t_i \log_2{\frac{t_i}{w_i}}}{1 + \sum_i^k t_i \log_2{\frac{t_i}{w_i}}}}
 #' 
 #' 
-#' @returns A numeric matrix with one row per item and seven columns
+#' @returns A data frame with one row per item
 #' 
 #' 
 #' @seealso For finer control over the calculation of several dispersion measures:
@@ -387,6 +388,7 @@ disp_tdm <- function(tdm,
                      directionality = "conventional",
                      freq_adjust = FALSE,
                      freq_adjust_method = "even",
+                     add_frequency = TRUE,
                      unit_interval = TRUE,
                      digits = NULL,
                      verbose = TRUE,
@@ -554,6 +556,32 @@ disp_tdm <- function(tdm,
   if (!is.null(digits)) output <- round(output, digits)
   
   output <- t(output)
+  
+  if (add_frequency == TRUE){
+    if (row_partsize == "first"){
+      output <- cbind(output, rowSums(tdm[-1,]))
+    }
+    if (row_partsize == "last"){
+      output <- cbind(output, rowSums(tdm[-nrow(tdm),]))
+    }
+    colnames(output)[8] <- "frequency"
+  }
+  output <- data.frame(output)
+  
+  if (row_partsize == "first"){
+    output <- data.frame(
+      item = rownames(tdm[-1,]),
+      output
+    )
+  }
+  if (row_partsize == "last"){
+    output <- data.frame(
+      item = rownames(tdm[-nrow(tdm),]),
+      output
+    )
+  }
+  rownames(output) <- 1:nrow(output)
+
   
   if (print_scores != FALSE) print(output)
   

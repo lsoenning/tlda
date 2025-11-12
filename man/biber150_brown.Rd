@@ -11,7 +11,7 @@ A matrix with 151 rows and 500 columns
 
 \describe{
 \item{rows}{Length of text (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-\item{columns}{500 texts, ordered by file name (e.g. "A01", "A02", ... , "R08", "R09"))}
+\item{columns}{500 texts, ordered by file name (e.g. "A01", "A02", ... , "R08", "R09")}
 }
 }
 }

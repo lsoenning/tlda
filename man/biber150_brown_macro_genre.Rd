@@ -11,7 +11,7 @@ A matrix with 151 rows and 4 columns
 
 \describe{
 \item{rows}{Size of the macro genre (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-\item{columns}{4 macro genres, ordered based on the sampling frame ("press", "general_prose", "learned", "fiction"))}
+\item{columns}{4 macro genres, ordered based on the sampling frame ("press", "general_prose", "learned", "fiction")}
 }
 }
 }

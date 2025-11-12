@@ -15,7 +15,7 @@
 #' 
 #' \describe{
 #'   \item{rows}{Length of text (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-#'   \item{columns}{500 texts, ordered by file name (e.g. "A01", "A02", ... , "R08", "R09"))}
+#'   \item{columns}{500 texts, ordered by file name (e.g. "A01", "A02", ... , "R08", "R09")}
 #' }
 #' @source 
 #' Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s D to measure lexical dispersion in large corpora. \emph{International Journal of Corpus Linguistics} 21(4). 439--464. 

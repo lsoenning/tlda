@@ -10,6 +10,7 @@ disp_R_tdm(
   type = "relative",
   freq_adjust = FALSE,
   freq_adjust_method = "pervasive",
+  add_frequency = TRUE,
   unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
@@ -27,6 +28,8 @@ disp_R_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"pervasive"} (default) and \code{"even"}}
 
+\item{add_frequency}{Logical. Whether to add a column that gives the total number of occurrences of the item across a corpus parts; default is \code{TRUE}}
+
 \item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
@@ -36,13 +39,13 @@ disp_R_tdm(
 \item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 }
 \value{
-A numeric vector the same length as the number of items in the term-document matrix
+A data frame with one row per item
 }
 \description{
 This function calculates the dispersion measure 'range'. It offers three different versions: 'absolute range' (the number of corpus parts containing at least one occurrence of the item), 'relative range' (the proportion of corpus parts containing at least one occurrence of the item), and 'relative range with size' (relative range that takes into account the size of the corpus parts). The function also offers the option of calculating frequency-adjusted dispersion scores.
 }
 \details{
-This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure 'range'. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure 'range'. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 
 Three different types of range measures can be calculated:
 \itemize{

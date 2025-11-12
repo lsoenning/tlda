@@ -11,6 +11,7 @@ disp_DA_tdm(
   procedure = "basic",
   freq_adjust = FALSE,
   freq_adjust_method = "even",
+  add_frequency = TRUE,
   unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
@@ -30,6 +31,8 @@ disp_DA_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
+\item{add_frequency}{Logical. Whether to add a column that gives the total number of occurrences of the item across a corpus parts; default is \code{TRUE}}
+
 \item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
@@ -39,13 +42,13 @@ disp_DA_tdm(
 \item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 }
 \value{
-A numeric vector the same length as the number of items in the term-document matrix
+A data frame with one row per item
 }
 \description{
 This function calculates the dispersion measure \eqn{D_{A}}. It offers two different computational procedures, the basic version as well as a computational shortcut. It also allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also provides the option of calculating frequency-adjusted dispersion scores.
 }
 \details{
-This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{A}}. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{A}}. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 \itemize{
 \item Directionality: \eqn{D_{A}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use \code{directionality = 'gries'} to choose this option.
 \item Procedure: Irrespective of the directionality of scaling, two computational procedures for \eqn{D_{A}} exist (see below for details). Both appear in Wilcox (1973), where the measure is referred to as "MDA". The basic version (represented by the value \code{basic}) carries out the full set of computations required by the composition of the formula. As the number of corpus parts grows, this can become computationally very expensive. Wilcox (1973) also gives a "computational" procedure, which is a shortcut that is much quicker and closely approximates the scores produced by the basic formula. This version is represented by the value \code{shortcut}.

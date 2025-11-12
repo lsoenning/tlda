@@ -11,6 +11,7 @@ disp_DP_tdm(
   formula = "egbert_etal_2020",
   freq_adjust = FALSE,
   freq_adjust_method = "even",
+  add_frequency = TRUE,
   unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
@@ -30,6 +31,8 @@ disp_DP_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
+\item{add_frequency}{Logical. Whether to add a column that gives the total number of occurrences of the item across a corpus parts; default is \code{TRUE}}
+
 \item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
@@ -39,13 +42,13 @@ disp_DP_tdm(
 \item{print_scores}{Logical. Whether the dispersion scores should be printed to the console; default is \code{TRUE}}
 }
 \value{
-A numeric vector the same length as the number of items in the term-document matrix
+A data frame with one row per item
 }
 \description{
 This function calculates Gries's dispersion measure DP (deviation of proportions). It offers three different formulas and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 }
 \details{
-This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure DP. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure DP. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 \itemize{
 \item Directionality: DP ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use \code{directionality = "gries"} to choose this option.
 \item Formula: Irrespective of the directionality of scaling, four formulas for DP exist in the literature (see below for details). This is because the original version proposed by Gries (2008: 415), which is commonly denoted as \eqn{DP} (and here referenced by the value \code{"gries_2008"}) does not always reach its theoretical limits of 0 and 1. For this reason, modifications have been suggested, starting with Gries (2008: 419) himself, who referred to this version as \eqn{DPnorm}. This version is not implemented in the current package, because Lijffit & Gries (2012) updated \eqn{DPnorm} to ensure that it also works as intended when corpus parts differ in size; this version is represented by the value \code{"lijffit_gries_2012"} and often denoted using subscript notation \eqn{DP_{norm}} . Finally, Egbert et al. (2020: 99) suggest a further modification to ensure proper behavior in settings where the item occurs in only one corpus part. They label this version \eqn{D_P}. In the current function, it is the default and represented by the value \code{"egbert_etal_2020"}.

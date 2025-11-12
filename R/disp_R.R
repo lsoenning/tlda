@@ -160,7 +160,7 @@ disp_R <- function(subfreq,
 #' @author Lukas Soenning
 #'
 #' @details 
-#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure 'range'. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure 'range'. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 #' 
 #' Three different types of range measures can be calculated:
 #'
@@ -174,7 +174,7 @@ disp_R <- function(subfreq,
 #'    - To obtain the highest possible level of dispersion, the occurrences are either spread as broadly across corpus parts as possible (`"pervasive"`), or they are allocated to corpus parts in proportion to their size (`"even"`). The choice between these methods is particularly relevant if corpus parts differ considerably in size. See documentation for `find_max_disp()`.
 #' 
 #' 
-#' @returns A numeric vector the same length as the number of items in the term-document matrix
+#' @returns A data frame with one row per item
 #'
 #' @references
 #' 
@@ -197,6 +197,7 @@ disp_R_tdm <- function(tdm,
                        type = "relative",
                        freq_adjust = FALSE,
                        freq_adjust_method = "pervasive",
+                       add_frequency = TRUE,
                        unit_interval = TRUE,
                        digits = NULL,
                        verbose = TRUE,
@@ -355,6 +356,24 @@ disp_R_tdm <- function(tdm,
   output <- t(output)
   
   if (!is.null(digits)) output <- round(output, digits)
+  
+  output <- data.frame(
+    item = colnames(output),
+    DP = as.numeric(output)
+  )
+  
+  if (freq_adjust == TRUE){
+    colnames(output)[2] <- "DP_nofreq"
+  }
+  
+  if (add_frequency == TRUE){
+    if (row_partsize == "first"){
+      output$frequency <- rowSums(tdm[-1,])
+    }
+    if (row_partsize == "last"){
+      output$frequency <- rowSums(tdm[-nrow(tdm),])
+    }
+  }
   
   if (print_scores != FALSE) print(output)
   

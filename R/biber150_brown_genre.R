@@ -15,7 +15,7 @@
 #' 
 #' \describe{
 #'   \item{rows}{Size of the genre (\code{word_count}), followed by set of 150 items in alphabetical order (\emph{a, able, ..., you, your})}
-#'   \item{columns}{15 genres, ordered based on the sampling frame ("press_reportage", "press_editorial", ... ,"romance_love_story", "humour"))}
+#'   \item{columns}{15 genres, ordered based on the sampling frame ("press_reportage", "press_editorial", ... ,"romance_love_story", "humour")}
 #' }
 #' @source 
 #' Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s D to measure lexical dispersion in large corpora. \emph{International Journal of Corpus Linguistics} 21(4). 439--464. 

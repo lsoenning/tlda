@@ -10,6 +10,7 @@ disp_tdm(
   directionality = "conventional",
   freq_adjust = FALSE,
   freq_adjust_method = "even",
+  add_frequency = TRUE,
   unit_interval = TRUE,
   digits = NULL,
   verbose = TRUE,
@@ -28,6 +29,8 @@ disp_tdm(
 
 \item{freq_adjust_method}{Character string indicating which method to use for devising dispersion extremes. See details below. Possible values are \code{"even"} (default) and \code{"pervasive"}}
 
+\item{add_frequency}{Logical. Whether to add a column that gives the total number of occurrences of the item across a corpus parts; default is \code{TRUE}}
+
 \item{unit_interval}{Logical. Whether frequency-adjusted scores that exceed the limits of the unit interval should be replaced by 0 and 1; default is \code{TRUE}}
 
 \item{digits}{Rounding: Integer value specifying the number of decimal places to retain (default: no rounding)}
@@ -39,13 +42,13 @@ disp_tdm(
 \item{suppress_warning}{Logical. Whether warning messages should be suppressed; default is \code{FALSE}}
 }
 \value{
-A numeric matrix with one row per item and seven columns
+A data frame with one row per item
 }
 \description{
 This function calculates a number of parts-based dispersion measures and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 }
 \details{
-This function takes as input a term-document matrix and returns, for each item (i.e. each row) a variety of dispersion measures. The rows in the matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+This function takes as input a term-document matrix and returns, for each item (i.e. each row) a variety of dispersion measures. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
 \itemize{
 \item Directionality: The scores for all measures range from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; this is implemented by the value \code{gries}.
 \item Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (\code{"pervasive"}) or evenness (\code{"even"}). You can choose between these with the argument \code{freq_adjust_method}; the default is \code{even}. For details and explanations, see \code{vignette("frequency-adjustment")}.
