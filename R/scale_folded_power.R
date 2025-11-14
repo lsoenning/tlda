@@ -153,31 +153,86 @@ invfpower <- function(y, lambda = 1, scaling = "plus_minus_1") {
     x_num
   }
   
-  if (lambda < 0 | lambda > 1){
-    stop("Lambda must not be smaller than 0 or greater than 1.")
-  }
   
   if (is.null(y)) return(y)
   y_num <- safe_numeric(y)
   
-  # Range check: y must be within [-1, 1]
-  if (any(y_num < -1 | y_num > 1, na.rm = TRUE)) {
-    stop("Transformed values must lie within [-1, 1].")
+  
+  if (scaling == "plus_minus_1"){
+    
+    if (lambda < 0 | lambda > 1){
+      stop("Lambda must not be smaller than 0 or greater than 1.")
+    }
+
+    
+    # Range check: y must be within [-1, 1]
+    if (any(y_num < -1 | y_num > 1, na.rm = TRUE)) {
+      stop("Transformed values must lie within [-1, 1].")
+    }
+    
+    res <- rep(NA_real_, length(y_num))
+    ok <- !is.na(y_num)
+    
+    if (lambda == 0) {
+      # inverse of logit/4
+      res[ok] <- exp(4 * y_num[ok]) / (1 + exp(4 * y_num[ok]))
+    } else {
+      # numerical inversion for λ != 0
+      res[ok] <- sapply(y_num[ok], function(yi) {
+        f <- function(p) p^lambda - (1 - p)^lambda - yi
+        stats::uniroot(f, c(0, 1), tol = .Machine$double.eps^0.5)$root
+      })
+    }
   }
   
-  res <- rep(NA_real_, length(y_num))
-  ok <- !is.na(y_num)
-  
-  if (lambda == 0) {
-    # inverse of logit/4
-    res[ok] <- exp(4 * y_num[ok]) / (1 + exp(4 * y_num[ok]))
-  } else {
-    # numerical inversion for λ != 0
-    res[ok] <- sapply(y_num[ok], function(yi) {
-      f <- function(p) p^lambda - (1 - p)^lambda - yi
-      stats::uniroot(f, c(0, 1), tol = .Machine$double.eps^0.5)$root
-    })
+  if (scaling == "free"){
+
+    res <- rep(NA_real_, length(y_num))
+    ok <- !is.na(y_num) & is.finite(y_num)
+    
+    if (lambda == 0) {
+      res[ok] <- exp(y_num[ok]) / (1 + exp(y_num[ok]))
+    } else{
+      # Pre-compute endpoint values
+      f0 <- (0^lambda - (1-0)^lambda) / lambda     # = -1/lambda
+      f1 <- (1^lambda - (1-1)^lambda) / lambda     # = +1/lambda
+      
+      # ensure f0 <= f1
+      lo <- min(f0, f1)
+      hi <- max(f0, f1)
+      
+      # small tolerance to account for floating-point drift
+      eps <- 1e-12
+      
+      # Solve each y_i
+      res[ok] <- sapply(y_num[ok], function(yi) {
+        
+        # If yi below possible range → clamp to p=0
+        if (yi < lo - eps) return(0)
+        
+        # If yi above possible range → clamp to p=1
+        if (yi > hi + eps) return(1)
+        
+        # If yi extremely close to endpoints → snap
+        if (abs(yi - lo) < eps) return(0)
+        if (abs(yi - hi) < eps) return(1)
+        
+        # Function for root-finding
+        f <- function(p) (p^lambda - (1 - p)^lambda) / lambda - yi
+        
+        # Safe uniroot call: domain is always [0,1]
+        out <- try(
+          stats::uniroot(f, interval = c(0, 1), tol = .Machine$double.eps^0.5)$root,
+          silent = TRUE
+        )
+        
+        # If uniroot still fails for any pathological reason → return NA
+        if (inherits(out, "try-error")) return(NA_real_)
+        out
+      })
+    }
   }
+ 
   res
 }
 
