@@ -311,11 +311,12 @@ fpower_trans <- function(lambda = 0) {
   )
 }
 
-
-
 #' Position scales for Tukey's folded power transformation
 #' 
 #' @param lambda Numeric value of the applied power transformation
+#' @param breaks Numeric values indicating where the tick marks should be placed
+#' @param labels Character vector giving the labels that should be drawn at the tick marks
+#' @param n_breaks Integer specifying the number of tick marks to draw
 #' @param ... Other argument passed on to `scale_(x|y)_continuous()`
 #'
 #' @details
@@ -337,24 +338,97 @@ fpower_trans <- function(lambda = 0) {
 #'     geom_dotplot() +
 #'     scale_x_fpower(lambda = .5)
 #' }
-scale_x_fpower <- function(lambda = 0, ...) {
+scale_x_fpower <- function(lambda = 0, 
+                           breaks = NULL,
+                           labels = NULL, 
+                           n_breaks = 6,
+                           ...) {
   
-
+  folded_1_2_5_candidates <- function() {
+    c(0,0.001, 0.002, 0.005,
+      0.01, 0.02, 0.05, 
+      0.10, 0.20, 0.25, 0.50, 
+      0.75, 0.80, 0.90, 
+      0.95, 0.98, 0.99,
+      0.005, 0.998, 0.999,
+      1)
+  }
+  
+  tr <- fpower_trans(lambda)
+  
+  default_breaks <- if (is.null(breaks)) {
+    
+    p_candidates <- folded_1_2_5_candidates()
+    t_candidates <- tr$transform(p_candidates)
+    t_pretty <- pretty(range(t_candidates, finite = TRUE), n = n_breaks)
+    
+    # map each transformed-space tick to nearest folded candidate
+    sapply(t_pretty, function(tp) {
+      idx <- which.min(abs(t_candidates - tp))
+      p_candidates[idx]
+    })
+    
+  } else {
+    breaks
+  }
+  
+  default_labels <- if (is.null(labels)) {
+    scales::label_number(accuracy = 0.01)
+  } else {
+    labels
+  }
+  
   ggplot2::scale_x_continuous(
-    trans  = fpower_trans(lambda),
-    ...,
-    breaks = pretty(c(0, 1), n = 6),
-    labels = scales::label_number(accuracy = 0.01)
+    trans  = tr,
+    breaks = default_breaks,
+    labels = default_labels,
+    ...
   )
 }
 
-scale_y_fpower <- function(lambda = 0, ...) {
+scale_y_fpower <- function(lambda = 0, 
+                           breaks = NULL,
+                           labels = NULL, 
+                           n_breaks = 6,
+                           ...) {
   
+  folded_1_2_5_candidates <- function() {
+    c(0,0.001, 0.002, 0.005,
+      0.01, 0.02, 0.05, 
+      0.10, 0.20, 0.25, 0.50, 
+      0.75, 0.80, 0.90, 
+      0.95, 0.98, 0.99,
+      0.005, 0.998, 0.999,
+      1)
+  }
+  
+  tr <- fpower_trans(lambda)
+  
+  default_breaks <- if (is.null(breaks)) {
+    
+    p_candidates <- folded_1_2_5_candidates()
+    t_candidates <- tr$transform(p_candidates)
+    t_pretty <- pretty(range(t_candidates, finite = TRUE), n = n_breaks)
+    
+    sapply(t_pretty, function(tp) {
+      idx <- which.min(abs(t_candidates - tp))
+      p_candidates[idx]
+    })
+    
+  } else {
+    breaks
+  }
+  
+  default_labels <- if (is.null(labels)) {
+    scales::label_number(accuracy = 0.01)
+  } else {
+    labels
+  }
   
   ggplot2::scale_y_continuous(
-    trans  = fpower_trans(lambda),
-    ...,
-    breaks = pretty(c(0, 1), n = 6),
-    labels = scales::label_number(accuracy = 0.01)
+    trans  = tr,
+    breaks = default_breaks,
+    labels = default_labels,
+    ...
   )
 }

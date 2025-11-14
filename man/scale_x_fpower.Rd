@@ -4,10 +4,16 @@
 \alias{scale_x_fpower}
 \title{Position scales for Tukey's folded power transformation}
 \usage{
-scale_x_fpower(lambda = 0, ...)
+scale_x_fpower(lambda = 0, breaks = NULL, labels = NULL, n_breaks = 6, ...)
 }
 \arguments{
 \item{lambda}{Numeric value of the applied power transformation}
+
+\item{breaks}{Numeric values indicating where the tick marks should be placed}
+
+\item{labels}{Character vector giving the labels that should be drawn at the tick marks}
+
+\item{n_breaks}{Integer specifying the number of tick marks to draw}
 
 \item{...}{Other argument passed on to \verb{scale_(x|y)_continuous()}}
 }
