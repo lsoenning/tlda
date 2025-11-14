@@ -212,18 +212,17 @@ fpower_trans <- function(lambda = 0) {
     x_num
   }
   
+  # ------------------------------------------------------------------
   # Forward transformation
-  
+  # ------------------------------------------------------------------
   forward <- function(p) {
     if (is.null(p)) return(p)
     p_num <- safe_numeric(p)
     
-    # domain check
     if (any(p_num < 0 | p_num > 1, na.rm = TRUE)) {
       stop("Input values must lie within [0, 1].")
     }
     
-    # only λ = 0 being logit requires exclusion of 0 and 1
     if (lambda == 0 && any(p_num %in% c(0, 1), na.rm = TRUE)) {
       stop("Input contains 0 or 1, which are undefined for lambda = 0.")
     }
@@ -240,8 +239,9 @@ fpower_trans <- function(lambda = 0) {
     res
   }
   
-  # Inverse transformation
-
+  # ------------------------------------------------------------------
+  # Inverse with automatic domain adjustment
+  # ------------------------------------------------------------------
   inverse <- function(y) {
     if (is.null(y)) return(y)
     y_num <- safe_numeric(y)
@@ -249,17 +249,50 @@ fpower_trans <- function(lambda = 0) {
     res <- rep(NA_real_, length(y_num))
     ok  <- !is.na(y_num)
     
+    # handle lambda = 0 directly (inverse logit)
     if (lambda == 0) {
-      # inverse logit
       res[ok] <- exp(y_num[ok]) / (1 + exp(y_num[ok]))
-    } else {
-      # λ ≠ 0 : numeric inversion
-      res[ok] <- sapply(y_num[ok], function(yi) {
-        f <- function(p) (p^lambda - (1 - p)^lambda) / lambda - yi
-        # root must be in [0, 1]
-        stats::uniroot(f, interval = c(0, 1), tol = .Machine$double.eps^0.5)$root
-      })
+      return(res)
     }
+    
+    # Pre-compute endpoint values
+    f0 <- (0^lambda - (1-0)^lambda) / lambda     # = -1/lambda
+    f1 <- (1^lambda - (1-1)^lambda) / lambda     # = +1/lambda
+    
+    # ensure f0 <= f1
+    lo <- min(f0, f1)
+    hi <- max(f0, f1)
+    
+    # small tolerance to account for floating-point drift
+    eps <- 1e-12
+    
+    # Solve each y_i
+    res[ok] <- sapply(y_num[ok], function(yi) {
+      
+      # If yi below possible range → clamp to p=0
+      if (yi < lo - eps) return(0)
+      
+      # If yi above possible range → clamp to p=1
+      if (yi > hi + eps) return(1)
+      
+      # If yi extremely close to endpoints → snap
+      if (abs(yi - lo) < eps) return(0)
+      if (abs(yi - hi) < eps) return(1)
+      
+      # Function for root-finding
+      f <- function(p) (p^lambda - (1 - p)^lambda) / lambda - yi
+      
+      # Safe uniroot call: domain is always [0,1]
+      out <- try(
+        stats::uniroot(f, interval = c(0, 1), tol = .Machine$double.eps^0.5)$root,
+        silent = TRUE
+      )
+      
+      # If uniroot still fails for any pathological reason → return NA
+      if (inherits(out, "try-error")) return(NA_real_)
+      
+      out
+    })
     
     res
   }
@@ -277,6 +310,7 @@ fpower_trans <- function(lambda = 0) {
     domain    = c(0, 1)
   )
 }
+
 
 
 #' Position scales for Tukey's folded power transformation
@@ -303,18 +337,22 @@ fpower_trans <- function(lambda = 0) {
 #'     geom_dotplot() +
 #'     scale_x_fpower(lambda = .5)
 #' }
-scale_x_fpower <- function(lambda = 1, ...) {
+scale_x_fpower <- function(lambda = 0, ...) {
+  
+
   ggplot2::scale_x_continuous(
-    trans = fpower_trans(lambda),
+    trans  = fpower_trans(lambda),
     ...,
     breaks = pretty(c(0, 1), n = 6),
     labels = scales::label_number(accuracy = 0.01)
   )
 }
 
-scale_y_fpower <- function(lambda = 1, ...) {
+scale_y_fpower <- function(lambda = 0, ...) {
+  
+  
   ggplot2::scale_y_continuous(
-    trans = fpower_trans(lambda),
+    trans  = fpower_trans(lambda),
     ...,
     breaks = pretty(c(0, 1), n = 6),
     labels = scales::label_number(accuracy = 0.01)

@@ -4,7 +4,7 @@
 \alias{scale_x_fpower}
 \title{Position scales for Tukey's folded power transformation}
 \usage{
-scale_x_fpower(lambda = 1, ...)
+scale_x_fpower(lambda = 0, ...)
 }
 \arguments{
 \item{lambda}{Numeric value of the applied power transformation}
