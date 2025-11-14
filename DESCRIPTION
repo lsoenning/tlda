@@ -25,6 +25,7 @@ Suggests:
     boot,
     ggplot2,
     knitr,
+    scales,
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -56,4 +57,5 @@ Collate:
     'metadata_ice_gb.R'
     'metadata_spokenBNC1994.R'
     'metadata_spokenBNC2014.R'
+    'scale_folded_power.R'
     'scale_y_dispersion.R'
