@@ -81,7 +81,24 @@ fpower <- function(x, lambda = 1, scaling = "plus_minus_1") {
       res[ok] <- x_num[ok]^lambda - (1 - x_num[ok])^lambda
     }
   }
+  
   if (scaling == "free"){
+    # Check domain
+    if (any(x_num < 0 | x_num > 1, na.rm = TRUE)) {
+      stop("Input values must be within [0, 1].")
+    }
+    
+    # λ = 0 cannot handle 0 or 1 because it uses the logit
+    if (lambda == 0 && any(x_num %in% c(0, 1), na.rm = TRUE)) {
+      stop("Input contains 0 or 1; folded powers with lambda = 0 (logit transformation) are undefined for 0 and 1; choose a different value for lambda (e.g. .14, which approximates a multiple of the probit transformation).")
+    }
+    
+    res <- rep(NA_real_, length(x_num))
+    
+    # Valid points
+    ok <- !is.na(x_num)
+    
+    
     if (lambda == 0) {
       res[ok] <- log(x_num[ok] / (1 - x_num[ok]))
     } else {
