@@ -24,8 +24,12 @@
 #' `lambda` = 0.41 gives a close approximation to the arcsine-square-root (or angular) transformation (see Fox 2016: 74)
 #' `lambda` = 0.5 implements folded roots
 #' 
+#' This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
 #' 
 #' @returns A numeric vector
+#' 
+#' @references 
+#' OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
 #' 
 #' @export
 #'
@@ -119,8 +123,15 @@ fpower <- function(x, lambda = 1, scaling = "plus_minus_1") {
 #' @param lambda Numeric value of the applied power transformation, which can range between 0 (limiting case: logit transformation) and 1 (no transformation) 
 #' @param scaling Character string indicating whether scores were re-expressed to the \[-1, 1\] interval (`plus_minus_1`) or not (`free`)
 #'
+#' @author Lukas Soenning
+#' 
+#' @details
+#' This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
 #'
 #' @returns A numeric vector
+#' 
+#' @references 
+#' OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
 #' 
 #' @export
 #'
@@ -175,7 +186,14 @@ invfpower <- function(y, lambda = 1, scaling = "plus_minus_1") {
 #'
 #' @param lambda Numeric value of the applied power transformation, which can range between 0 (limiting case: logit transformation) and 1 (no transformation) 
 #'
+#'
+#' @details
+#' This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
+#' 
 #' @returns A numeric vector
+#' 
+#' @references 
+#' OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
 #' 
 #' @export
 #'
@@ -194,70 +212,64 @@ fpower_trans <- function(lambda = 0) {
     x_num
   }
   
-  # Forward transformation (range [-1, +1])
+  # Forward transformation
+  
   forward <- function(p) {
     if (is.null(p)) return(p)
     p_num <- safe_numeric(p)
     
-    # Check domain
+    # domain check
     if (any(p_num < 0 | p_num > 1, na.rm = TRUE)) {
-      stop("Input values must be within [0, 1].")
+      stop("Input values must lie within [0, 1].")
     }
     
-    # λ = 0 cannot handle 0 or 1 because it uses the logit
+    # only λ = 0 being logit requires exclusion of 0 and 1
     if (lambda == 0 && any(p_num %in% c(0, 1), na.rm = TRUE)) {
       stop("Input contains 0 or 1, which are undefined for lambda = 0.")
     }
     
     res <- rep(NA_real_, length(p_num))
-    
-    # Valid points
-    ok <- !is.na(p_num)
+    ok  <- !is.na(p_num)
     
     if (lambda == 0) {
-      # logit/4 version, continuous λ→0 limit
-      res[ok] <- log(p_num[ok] / (1 - p_num[ok])) / 4
+      res[ok] <- log(p_num[ok] / (1 - p_num[ok]))
     } else {
-      # folded-power without division by λ
-      res[ok] <- p_num[ok]^lambda - (1 - p_num[ok])^lambda
+      res[ok] <- (p_num[ok]^lambda - (1 - p_num[ok])^lambda) / lambda
     }
     
     res
   }
   
   # Inverse transformation
+
   inverse <- function(y) {
     if (is.null(y)) return(y)
     y_num <- safe_numeric(y)
     
-    # Range check: y must be within [-1, 1]
-    if (any(y_num < -1 | y_num > 1, na.rm = TRUE)) {
-      stop("Transformed values must lie within [-1, 1].")
-    }
-    
     res <- rep(NA_real_, length(y_num))
-    ok <- !is.na(y_num)
+    ok  <- !is.na(y_num)
     
     if (lambda == 0) {
-      # inverse of logit/4
-      res[ok] <- exp(4 * y_num[ok]) / (1 + exp(4 * y_num[ok]))
+      # inverse logit
+      res[ok] <- exp(y_num[ok]) / (1 + exp(y_num[ok]))
     } else {
-      # numerical inversion for λ != 0
+      # λ ≠ 0 : numeric inversion
       res[ok] <- sapply(y_num[ok], function(yi) {
-        f <- function(p) p^lambda - (1 - p)^lambda - yi
-        stats::uniroot(f, c(0, 1), tol = .Machine$double.eps^0.5)$root
+        f <- function(p) (p^lambda - (1 - p)^lambda) / lambda - yi
+        # root must be in [0, 1]
+        stats::uniroot(f, interval = c(0, 1), tol = .Machine$double.eps^0.5)$root
       })
     }
     
     res
   }
   
-  # Breaks and labels stay in probability space
+  # axis helpers
   breaks <- function(x) pretty(c(0, 1), n = 5)
   labels <- scales::label_number(accuracy = 0.01)
   
   scales::trans_new(
-    name   = paste0("fpower_unit_", lambda),
+    name      = paste0("folded_power_", lambda),
     transform = forward,
     inverse   = inverse,
     breaks    = breaks,
@@ -266,12 +278,20 @@ fpower_trans <- function(lambda = 0) {
   )
 }
 
+
 #' Position scales for Tukey's folded power transformation
 #' 
 #' @param lambda Numeric value of the applied power transformation
 #' @param ... Other argument passed on to `scale_(x|y)_continuous()`
 #'
+#' @details
+#' This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
+#' 
 #' @returns The ggplot2 function `scale_(x|y)_continuous()` with the appropriate transformation
+#' 
+#' @references 
+#' OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
+#' 
 #' @export
 #'
 #' @examples

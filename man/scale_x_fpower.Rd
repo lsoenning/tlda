@@ -17,6 +17,9 @@ The ggplot2 function \verb{scale_(x|y)_continuous()} with the appropriate transf
 \description{
 Position scales for Tukey's folded power transformation
 }
+\details{
+This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
+}
 \examples{
 if (require("ggplot2")) {
   ggplot(
@@ -26,4 +29,7 @@ if (require("ggplot2")) {
     geom_dotplot() +
     scale_x_fpower(lambda = .5)
 }
+}
+\references{
+OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
 }

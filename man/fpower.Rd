@@ -33,12 +33,17 @@ For \code{lambda} equal to 0, the logit transformation is implemented as a limit
 \code{lambda} = 1/3 implements folded cube roots
 \code{lambda} = 0.41 gives a close approximation to the arcsine-square-root (or angular) transformation (see Fox 2016: 74)
 \code{lambda} = 0.5 implements folded roots
+
+This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
 }
 \examples{
 fpower(
   seq(0, 1, .1),
   lambda = .14,
   scaling = "plus_minus_1")
+}
+\references{
+OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
 }
 \author{
 Lukas Soenning

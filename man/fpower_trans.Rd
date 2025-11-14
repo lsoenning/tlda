@@ -15,6 +15,12 @@ A numeric vector
 \description{
 Tukey's folded power transformation
 }
+\details{
+This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
+}
 \examples{
 plot(fpower_trans(lambda = .5), xlim = c(0, 1))
+}
+\references{
+OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
 }

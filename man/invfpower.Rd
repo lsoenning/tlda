@@ -19,9 +19,18 @@ A numeric vector
 \description{
 This function takes as input a vector of transformed scores, i.e. values that were originally in the unit interval [0, 1] but which were re-expressed using Tukey's folded power transformation. It allows back-transformation of two versions of folded powers: Those that are mapped to the [-1, +1] interval and those that aren't.
 }
+\details{
+This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
+}
 \examples{
 invfpower(
   seq(-1, 1, .1),
   lambda = .14,
   scaling = "plus_minus_1")
+}
+\references{
+OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
+}
+\author{
+Lukas Soenning
 }
