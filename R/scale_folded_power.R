@@ -366,7 +366,7 @@ fpower_trans <- function(lambda = 0) {
   )
 }
 
-#' Position scales for Tukey's folded power transformation
+#' Position scale (x-axis) for Tukey's folded power transformation
 #' 
 #' @param lambda Numeric value of the applied power transformation
 #' @param breaks Numeric values indicating where the tick marks should be placed
@@ -441,6 +441,36 @@ scale_x_fpower <- function(lambda = 0,
   )
 }
 
+
+#' Position scale (y-axis) for Tukey's folded power transformation
+#' 
+#' @param lambda Numeric value of the applied power transformation
+#' @param breaks Numeric values indicating where the tick marks should be placed
+#' @param labels Character vector giving the labels that should be drawn at the tick marks
+#' @param n_breaks Integer specifying the number of tick marks to draw
+#' @param ... Other argument passed on to `scale_(x|y)_continuous()`
+#'
+#' @details
+#' This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
+#' 
+#' @returns The ggplot2 function `scale_(x|y)_continuous()` with the appropriate transformation
+#' 
+#' @references 
+#' OpenAI. (2025). ChatGPT (GPT-5.1) Large language model. https://chat.openai.com
+#' 
+#' @export
+#'
+#' @examples
+#' if (require("ggplot2")) {
+#'   ggplot(
+#'     data = data.frame(
+#'       frequency = rnorm(101),
+#'       dispersion = seq(0, 1, .01)),
+#'     aes(x = frequency,
+#'         y = dispersion)) +
+#'     geom_point() +
+#'     scale_y_fpower(lambda = .5)
+#' }
 scale_y_fpower <- function(lambda = 0, 
                            breaks = NULL,
                            labels = NULL, 

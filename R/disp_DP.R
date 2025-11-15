@@ -120,7 +120,7 @@ disp_DP <- function(subfreq,
       
       DP_min <- calculate_DP(subfreq_min_disp, partsize, formula)
       DP_max <- calculate_DP(subfreq_max_disp, partsize, formula)
-
+      
       output <- (DP_score - DP_min) / (DP_max - DP_min)
       
       item_exceeds_limits <- FALSE
@@ -505,6 +505,7 @@ disp_DP_tdm <- function(tdm,
 #' 
 #' @inheritParams disp_DP
 #' @param n_replicates Integer value specifying the number of bootstrap replicates to draw; default: `500`
+#' @param strata Variable indicating the subgroups for stratified bootstrap sampling
 #' @param boot_ci Logical. Whether a percentile bootstrap confidence interval should be computed; default: `FALSE`
 #' @param conf_level Scalar giving the confidence level; default `0.95` for a 95% percentile CI
 #' @param partweight A numeric vector specifying the weights of the corpus parts; if not specified, function returns unweighted estimate
@@ -519,7 +520,7 @@ disp_DP_tdm <- function(tdm,
 #' @export
 #'
 #' @examples
-#' disp_DP_bw(
+#' disp_DP_boot(
 #'   subfreq = biber150_ice_gb[3,], 
 #'   partsize = biber150_ice_gb[1,], 
 #'   digits = 2,
@@ -527,22 +528,22 @@ disp_DP_tdm <- function(tdm,
 #'   directionality = "conventional",
 #'   formula = "gries_2008")
 #' 
-
-disp_DP_bw <- function(subfreq,
-                       partsize,
-                       n_replicates = 500,
-                       boot_ci = FALSE,
-                       conf_level = .95,
-                       partweight = NULL,
-                       directionality = "conventional",
-                       formula = "egbert_etal_2020",
-                       freq_adjust = FALSE,
-                       freq_adjust_method = "even",
-                       unit_interval = TRUE,
-                       digits = NULL,
-                       verbose = TRUE,
-                       print_score = TRUE,
-                       suppress_warning = FALSE){
+disp_DP_boot <- function(subfreq,
+                         partsize,
+                         n_replicates = 500,
+                         strata = NULL,
+                         boot_ci = FALSE,
+                         conf_level = .95,
+                         partweight = NULL,
+                         directionality = "conventional",
+                         formula = "egbert_etal_2020",
+                         freq_adjust = FALSE,
+                         freq_adjust_method = "even",
+                         unit_interval = TRUE,
+                         digits = NULL,
+                         verbose = TRUE,
+                         print_score = TRUE,
+                         suppress_warning = FALSE){
   if (length(subfreq) != length(partsize)){
     stop("Lengths of the variables 'subfreq', 'partsize', and 'partweight' differ.")
   }
@@ -552,46 +553,102 @@ disp_DP_bw <- function(subfreq,
       stop("Lengths of the variables 'subfreq', 'partsize', and 'partweight' differ.")
     }
   }
-    
+  
   if (sum(subfreq) == 0){
     output <- NA
     
   } else {
     
-  boot_DP <- function(data, 
-                      indices)
-  {
-    d <- data[indices,]
+    if (is.null(strata)){
+      
+      boot_DP <- function(data, 
+                          indices)
+      {
+        d <- data[indices,]
+        
+        disp_score <- disp_DP(
+          subfreq = d$subfreq, 
+          partsize = d$partsize,
+          directionality = directionality,
+          formula = formula,
+          freq_adjust = freq_adjust,
+          freq_adjust_method = freq_adjust_method,
+          unit_interval = FALSE,
+          digits = digits,
+          verbose = FALSE,
+          print_score = FALSE,
+          suppress_warning = TRUE)
+        
+        return(disp_score)
+      }
+      if (is.null(partweight)) {
+        partweight <- rep(1, length(subfreq))
+      }
+      data <- data.frame(
+        subfreq,
+        partsize,
+        partweight
+      )
+      boot_results <- boot::boot(
+        data, 
+        statistic = boot_DP,
+        R = n_replicates,
+        weights = data$partweight)
+    }
+  }
+  
+  if(!is.null(strata)){
     
-    disp_score <- disp_DP(
-      subfreq = d$subfreq, 
-      partsize = d$partsize,
-      directionality = directionality,
-      formula = formula,
-      freq_adjust = freq_adjust,
-      freq_adjust_method = freq_adjust_method,
-      unit_interval = FALSE,
-      digits = digits,
-      verbose = FALSE,
-      print_score = FALSE,
-      suppress_warning = TRUE)
+    boot_DP_strat <- function(data, 
+                              idx){
+      
+      get_partsize <- stats::aggregate(
+        partsize ~ strata, 
+        data = data,
+        subset = idx,
+        FUN = sum)
+      
+      get_subfreq <- stats::aggregate(
+        subfreq ~ strata, 
+        data = data,
+        subset = idx,
+        FUN = sum)
+      
+      disp_score <- disp_DP(
+        subfreq = get_subfreq[,2],
+        partsize = get_partsize[,2],
+        directionality = directionality,
+        formula = formula,
+        freq_adjust = freq_adjust,
+        freq_adjust_method = freq_adjust_method,
+        unit_interval = FALSE,
+        digits = digits,
+        verbose = FALSE,
+        print_score = FALSE,
+        suppress_warning = TRUE)
+      
+      return(disp_score)
+    }
+    if (is.null(partweight)) {
+      partweight <- rep(1, length(subfreq))
+    }
     
-    return(disp_score)
+    d <- data.frame(
+      subfreq = subfreq,
+      partsize = partsize,
+      strata = strata,
+      partweight = partweight
+    )
+    
+    boot_results <- boot::boot(
+      d, 
+      statistic = boot_DP_strat, 
+      strata = d$strata, 
+      R = n_replicates,
+      weights = d$partweight)
   }
-  if (is.null(partweight)) {
-    partweight <- rep(1, length(subfreq))
-  }
-  data <- data.frame(
-    subfreq,
-    partsize,
-    partweight
-  )
-  boot_results <- boot::boot(
-    data, 
-    statistic = boot_DP,
-    R = n_replicates,
-    weights = data$partweight)
-  }
+  
+  
   
   boot_output <- boot_results$t
   
@@ -623,8 +680,8 @@ disp_DP_bw <- function(subfreq,
       names(output) <- "DP"
     }
   }
-
-
+  
+  
   if (print_score != FALSE) print(output)
   
   if (sum(subfreq) == 0 & suppress_warning == FALSE){
