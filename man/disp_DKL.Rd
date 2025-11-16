@@ -69,7 +69,7 @@ The first step is to calculate the Kullback-Leibler divergence based on the prop
 
 \eqn{KLD = \sum_i^k t_i \log_2{\frac{t_i}{w_i}}}    with \eqn{\log_2(0) = 0}
 
-This KLD score is then standardized (i.e. transformed) to the conventional unit interval [0,1]. Three options are discussed in Gries (2024: 90-92). The following formulas represents Gries scaling (0 = even, 1 = uneven):
+This KLD score is then standardized (i.e. transformed) to the conventional unit interval [0,1]. Three options are discussed in Gries (2024: 90-92). The following formulas represent Gries scaling (0 = even, 1 = uneven):
 
 (1) \eqn{e^{-KLD}} (Gries 2021: 20), represented by the value \code{"base_e"}
 
