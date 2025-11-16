@@ -136,15 +136,24 @@ scale_x_dispersion <- function(directionality,
   
   if(directionality == "conventional"){
     breaks_labels[1] <- "0\n(uneven)"
+    for(i in 2:(n_breaks-1)){
+      for(i in 2:(n_breaks-1)) breaks_labels[i] <- paste0(breaks_labels[i], "\n")
+    }
     breaks_labels[n_breaks] <- "1\n(even)"
     
   } else if (directionality == "gries"){
     breaks_labels[1] <- "0\n(even)"
+    if(n_breaks >=3){
+      for(i in 2:(n_breaks-1)){
+        breaks_labels[i] <- paste0(breaks_labels[i], "\n")
+      } 
+    }
     breaks_labels[n_breaks] <- "1\n(uneven)"
   }
   
   ggplot2::scale_x_continuous(
     limits = c(0, 1), 
     breaks = breaks_positions,
-    labels = breaks_labels)	
+    labels = breaks_labels,
+    ...)
 }

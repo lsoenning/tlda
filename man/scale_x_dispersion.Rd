@@ -4,7 +4,7 @@
 \alias{scale_x_dispersion}
 \title{Add annotation to tick marks on x-axis (ggplot2) to clarify the directionality of scaling for dispersion scores}
 \usage{
-scale_x_dispersion(directionality, n_breaks = 5, leading_zero = TRUE)
+scale_x_dispersion(directionality, n_breaks = 5, leading_zero = TRUE, ...)
 }
 \arguments{
 \item{directionality}{Character string indicating the directionality of scaling. Must match the way the dispersion scores were calculated. See details below. Possible values are \code{"conventional"} and \code{"gries"}}
