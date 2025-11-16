@@ -11,6 +11,7 @@ disp_DP_boot(
   strata = NULL,
   boot_ci = FALSE,
   conf_level = 0.95,
+  return_distribution = FALSE,
   partweight = NULL,
   directionality = "conventional",
   formula = "egbert_etal_2020",
@@ -35,6 +36,8 @@ disp_DP_boot(
 \item{boot_ci}{Logical. Whether a percentile bootstrap confidence interval should be computed; default: \code{FALSE}}
 
 \item{conf_level}{Scalar giving the confidence level; default \code{0.95} for a 95\% percentile CI}
+
+\item{return_distribution}{Logical. Whether the function should return a vector of all \code{n_replicates} bootstrap statistics instead of a summary measure}
 
 \item{partweight}{A numeric vector specifying the weights of the corpus parts; if not specified, function returns unweighted estimate}
 

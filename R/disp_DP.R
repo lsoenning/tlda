@@ -508,6 +508,7 @@ disp_DP_tdm <- function(tdm,
 #' @param strata Variable indicating the subgroups for stratified bootstrap sampling
 #' @param boot_ci Logical. Whether a percentile bootstrap confidence interval should be computed; default: `FALSE`
 #' @param conf_level Scalar giving the confidence level; default `0.95` for a 95% percentile CI
+#' @param return_distribution Logical. Whether the function should return a vector of all `n_replicates` bootstrap statistics instead of a summary measure
 #' @param partweight A numeric vector specifying the weights of the corpus parts; if not specified, function returns unweighted estimate
 #'
 #' @author Lukas Soenning
@@ -534,6 +535,7 @@ disp_DP_boot <- function(subfreq,
                          strata = NULL,
                          boot_ci = FALSE,
                          conf_level = .95,
+                         return_distribution = FALSE,
                          partweight = NULL,
                          directionality = "conventional",
                          formula = "egbert_etal_2020",
@@ -681,8 +683,11 @@ disp_DP_boot <- function(subfreq,
     }
   }
   
-  
-  if (print_score != FALSE) print(output)
+  if (return_distribution == TRUE){
+    if (print_score != FALSE) print(boot_output)
+  } else {
+    if (print_score != FALSE) print(output)
+  }
   
   if (sum(subfreq) == 0 & suppress_warning == FALSE){
     warning("All subfrequencies are 0; returning NA.")
@@ -735,5 +740,9 @@ disp_DP_boot <- function(subfreq,
       }
     }
   }
-  invisible(output)
+  if (return_distribution == TRUE){
+    invisible(boot_output)
+  } else {
+    invisible(output)
+  }
 }
