@@ -141,7 +141,7 @@ scale_x_dispersion <- function(directionality,
   
   if(directionality == "conventional"){
     breaks_labels[1] <- "0\n(uneven)"
-    for(i in 2:(n_breaks-1)){
+    if(n_breaks >=3){
       for(i in 2:(n_breaks-1)) breaks_labels[i] <- paste0(breaks_labels[i], "\n")
     }
     breaks_labels[n_breaks] <- "1\n(even)"
