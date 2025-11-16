@@ -9,6 +9,7 @@ disp_DKL(
   partsize,
   directionality = "conventional",
   standardization = "o2p",
+  custom_base = NULL,
   freq_adjust = FALSE,
   freq_adjust_method = "even",
   unit_interval = TRUE,
@@ -25,7 +26,9 @@ disp_DKL(
 
 \item{directionality}{Character string indicating the directionality of scaling. See details below. Possible values are \code{"conventional"} (default) and \code{"gries"}}
 
-\item{standardization}{Character string indicating which standardization method to use. See details below. Possible values are \code{"o2p"} (default), \code{"base_e"}, and \code{"base_2"}.}
+\item{standardization}{Character string indicating which standardization method to use. See details below. Possible values are \code{"o2p"} (default), \code{"base_e"}, \code{"base_2"}, and \code{"custom"}.}
+
+\item{custom_base}{A numeric value specifying the custom base for standardization; only work with \code{standardization = "custom"}; see details below}
 
 \item{freq_adjust}{Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}}
 
@@ -76,6 +79,10 @@ This KLD score is then standardized (i.e. transformed) to the conventional unit 
 (2) \eqn{2^{-KLD}} (Gries 2024: 90), represented by the value" \code{"base_2"}
 
 (3) \eqn{\frac{KLD}{1+KLD}} (Gries 2024: 90), represented by the value \code{"o2p"} (default)
+
+A fourth option is available which allows the user to select a custom base for standardization (i.e. a value other than \eqn{e} (\code{"base_e"}) and \eqn{2} (\code{"base_2"})). If the argument \code{standardization} is set to \code{"custom"}, a numeric value must be supplied to the argument \code{custom_base}.
+
+(4) \eqn{b^{-KLD}} (with \eqn{b} representing a numeric base) represented by the value" \code{"custom"} and \code{custom_base = b}
 }
 \examples{
 disp_DKL(

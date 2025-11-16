@@ -6,7 +6,8 @@
 #' @param directionality Character string indicating the directionality of scaling. Must match the way the dispersion scores were calculated. See details below. Possible values are `"conventional"` and `"gries"`
 #' @param n_breaks Number of major scale breaks: Integer value specifying the number of tick marks to display (default: `5`)
 #' @param leading_zero Logical. Whether the tick mark labels should include a leading 0 ("0.50") or not (".50"); default is `TRUE`
-#' 
+#' @param ... Other arguments passed on to `scale_y_continuous()`
+#'
 #' @author Lukas Soenning
 #' 
 #' @details This function modifies the y-axis in a ggplot2 object. It forces the axis to extend from 0 to 1 and adds the labels "(even)" and "(uneven)" at the endpoints of the scale (0 and 1), to make clear which value (0 or 1) denotes a maximally even/dispersed/balanced distribution of subfrequencies across corpus parts. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. In the `{tlda}` package, this is the default setting for all measures. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = "gries"` to choose this option. The function implements no default, so the user must specify which directionality was used when calculating the scores.
@@ -41,7 +42,8 @@
 #' 
 scale_y_dispersion <- function(directionality, 
                                n_breaks = 5, 
-                               leading_zero = TRUE){
+                               leading_zero = TRUE,
+                               ...){
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop(
       "Package \"ggplot2\" must be installed to use this function.",
@@ -71,7 +73,8 @@ scale_y_dispersion <- function(directionality,
   ggplot2::scale_y_continuous(
     limits = c(0, 1), 
     breaks = breaks_positions,
-    labels = breaks_labels)	
+    labels = breaks_labels,
+    ...)	
 }
 
 
@@ -83,6 +86,7 @@ scale_y_dispersion <- function(directionality,
 #' @param directionality Character string indicating the directionality of scaling. Must match the way the dispersion scores were calculated. See details below. Possible values are `"conventional"` and `"gries"`
 #' @param n_breaks Number of major scale breaks: Integer value specifying the number of tick marks to display (default: `5`)
 #' @param leading_zero Logical. Whether the tick mark labels should include a leading 0 ("0.50") or not (".50"); default is `TRUE`
+#' @param ... Other arguments passed on to `scale_x_continuous()`
 #' 
 #' @author Lukas Soenning
 #' 
@@ -116,7 +120,8 @@ scale_y_dispersion <- function(directionality,
 #' 
 scale_x_dispersion <- function(directionality, 
                                n_breaks = 5, 
-                               leading_zero = TRUE){
+                               leading_zero = TRUE,
+                               ...){
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop(
       "Package \"ggplot2\" must be installed to use this function.",

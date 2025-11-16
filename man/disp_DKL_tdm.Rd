@@ -9,6 +9,7 @@ disp_DKL_tdm(
   row_partsize = "first",
   directionality = "conventional",
   standardization = "o2p",
+  custom_base = NULL,
   freq_adjust = FALSE,
   freq_adjust_method = "even",
   add_frequency = TRUE,
@@ -25,7 +26,9 @@ disp_DKL_tdm(
 
 \item{directionality}{Character string indicating the directionality of scaling. See details below. Possible values are \code{"conventional"} (default) and \code{"gries"}}
 
-\item{standardization}{Character string indicating which standardization method to use. See details below. Possible values are \code{"o2p"} (default), \code{"base_e"}, and \code{"base_2"}.}
+\item{standardization}{Character string indicating which standardization method to use. See details below. Possible values are \code{"o2p"} (default), \code{"base_e"}, \code{"base_2"}, and \code{"custom"}.}
+
+\item{custom_base}{A numeric value specifying the custom base for standardization; only work with \code{standardization = "custom"}; see details below}
 
 \item{freq_adjust}{Logical. Whether dispersion score should be adjusted for frequency (i.e. whether frequency should be 'partialed out'); default is \code{FALSE}}
 

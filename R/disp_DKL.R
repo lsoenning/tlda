@@ -4,7 +4,8 @@
 #' This function calculates the dispersion measure \eqn{D_{KL}}, which is based on the Kullback-Leibler divergence (Gries 2020, 2021, 2024). It offers three options for standardization to the unit interval \[0,1\] (see Gries 2024: 90-92) and allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also offers the option of calculating frequency-adjusted dispersion scores.
 #'
 #' @inheritParams disp
-#' @param standardization Character string indicating which standardization method to use. See details below. Possible values are `"o2p"` (default), `"base_e"`, and `"base_2"`.
+#' @param standardization Character string indicating which standardization method to use. See details below. Possible values are `"o2p"` (default), `"base_e"`, `"base_2"`, and `"custom"`.
+#' @param custom_base A numeric value specifying the custom base for standardization; only work with `standardization = "custom"`; see details below
 #'
 #' @author Lukas Soenning
 #' 
@@ -36,6 +37,9 @@
 #'
 #'    (3) \eqn{\frac{KLD}{1+KLD}} (Gries 2024: 90), represented by the value `"o2p"` (default)
 #' 
+#' A fourth option is available which allows the user to select a custom base for standardization (i.e. a value other than \eqn{e} (`"base_e"`) and \eqn{2} (`"base_2"`)). If the argument `standardization` is set to `"custom"`, a numeric value must be supplied to the argument `custom_base`.
+#' 
+#'    (4) \eqn{b^{-KLD}} (with \eqn{b} representing a numeric base) represented by the value" `"custom"` and `custom_base = b`
 #'
 #' @returns A numeric value
 #' 
@@ -66,6 +70,7 @@ disp_DKL <- function(subfreq,
                      partsize,
                      directionality = "conventional",
                      standardization = "o2p",
+                     custom_base = NULL,
                      freq_adjust = FALSE,
                      freq_adjust_method = "even",
                      unit_interval = TRUE,
@@ -78,7 +83,7 @@ disp_DKL <- function(subfreq,
     stop("Lengths of the variables 'subfreq' and 'partsize' differ.")
   }
   
-  calculate_DKL <- function(subfreq, partsize, standardization){
+  calculate_DKL <- function(subfreq, partsize, standardization, custom_base){
     w_i <- partsize / sum(partsize)
     t_i <- subfreq / sum(subfreq)
     
@@ -88,9 +93,17 @@ disp_DKL <- function(subfreq,
       DKL <- exp(-KLD)
     } else if (standardization == "base_2") {
       DKL <- 2^(-KLD)
-    } else {
+    } else if (standardization == "o2p"){
       DKL <- 1 - (KLD / (1 + KLD))
-    }    
+    } else {
+      if(is.null(custom_base)){
+        stop("A numeric base must be defined with the argument `custom_base`")
+      }
+      if(standardization != "custom"){
+        stop("If you want to apply a custom standardization, specify `standardization = 'custom'`")
+      }
+      DKL <- custom_base^(-KLD)
+    }
   }
   
   if (sum(subfreq) == 0){
@@ -98,7 +111,7 @@ disp_DKL <- function(subfreq,
     
   } else {
     
-    DKL_score <- calculate_DKL(subfreq, partsize, standardization)
+    DKL_score <- calculate_DKL(subfreq, partsize, standardization, custom_base)
     output <- DKL_score
   
     if (freq_adjust == TRUE){
@@ -113,8 +126,8 @@ disp_DKL <- function(subfreq,
         partsize,
         freq_adjust_method)
       
-      DKL_min <- calculate_DKL(subfreq_min_disp, partsize, standardization)
-      DKL_max <- calculate_DKL(subfreq_max_disp, partsize, standardization)
+      DKL_min <- calculate_DKL(subfreq_min_disp, partsize, standardization, custom_base)
+      DKL_max <- calculate_DKL(subfreq_max_disp, partsize, standardization, custom_base)
 
       output <- (DKL_score - DKL_min) / (DKL_max - DKL_min)
       
@@ -129,11 +142,11 @@ disp_DKL <- function(subfreq,
   
   if (directionality == "gries") output <- 1 - output
   
-  if (freq_adjust == TRUE){
-    names(output) <- "DKL_nofreq"
-  } else {
-    names(output) <- "DKL"
-  }
+  # if (freq_adjust == TRUE){
+  #   names(output) <- "DKL_nofreq"
+  # } else {
+  #   names(output) <- "DKL"
+  # }
   
   if (!is.null(digits)) output <- round(output, digits)
   
@@ -157,11 +170,11 @@ disp_DKL <- function(subfreq,
       if (directionality == "gries") {
         message("\nScores follow scaling used by Gries (2008):")
         message("  0 = maximally even/dispersed/balanced distribution (optimum)")
-        message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)\n")
+        message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
       } else {
         message("\nScores follow conventional scaling:")
         message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
-        message("  1 = maximally even/dispersed/balanced distribution (optimum)\n")
+        message("  1 = maximally even/dispersed/balanced distribution (optimum)")
       }
       
       if (standardization == "base_e") {
@@ -170,9 +183,11 @@ disp_DKL <- function(subfreq,
       } else if (standardization == "base_2") {
         message("\nStandardization to the unit interval [0,1] using base 2,")
         message("  see Gries (2024: 90)")
-      } else {
+      } else if (standardization == "o2p"){
         message("\nStandardization to the unit interval [0,1] using the odds-to-probability")
         message("  transformation, see Gries (2024: 90)")
+      } else {
+        message(paste0("\nStandardization to the unit interval [0,1] using custom base ", custom_base))
       }
     }
   }
@@ -250,6 +265,7 @@ disp_DKL_tdm <- function(tdm,
                          row_partsize = "first",
                          directionality = "conventional",
                          standardization = "o2p",
+                         custom_base = NULL,
                          freq_adjust = FALSE,
                          freq_adjust_method = "even",
                          add_frequency = TRUE,
@@ -287,6 +303,7 @@ disp_DKL_tdm <- function(tdm,
                  partsize = tdm[1,],
                  directionality,
                  standardization,
+                 custom_base,
                  freq_adjust = FALSE,
                  unit_interval = FALSE,
                  digits = NULL,
@@ -309,6 +326,7 @@ disp_DKL_tdm <- function(tdm,
                  partsize = tdm[nrow(tdm),],
                  directionality,
                  standardization,
+                 custom_base,
                  freq_adjust = FALSE,
                  unit_interval = FALSE,
                  digits = NULL,
@@ -341,6 +359,7 @@ disp_DKL_tdm <- function(tdm,
                    partsize = min_disp_tdm[1,],
                    directionality,
                    standardization,
+                   custom_base,
                    freq_adjust = FALSE,
                    unit_interval = FALSE,
                    digits = NULL,
@@ -357,6 +376,7 @@ disp_DKL_tdm <- function(tdm,
                    partsize = max_disp_tdm[1,],
                    directionality,
                    standardization,
+                   custom_base,
                    freq_adjust = FALSE,
                    unit_interval = FALSE,
                    digits = NULL,
@@ -375,6 +395,7 @@ disp_DKL_tdm <- function(tdm,
                    partsize = min_disp_tdm[nrow(min_disp_tdm),],
                    directionality,
                    standardization,
+                   custom_base,
                    freq_adjust = FALSE,
                    unit_interval = FALSE,
                    digits = NULL,
@@ -391,6 +412,7 @@ disp_DKL_tdm <- function(tdm,
                    partsize = max_disp_tdm[nrow(max_disp_tdm),],
                    directionality,
                    standardization,
+                   custom_base,
                    freq_adjust = FALSE,
                    unit_interval = FALSE,
                    digits = NULL,
@@ -468,9 +490,11 @@ disp_DKL_tdm <- function(tdm,
     } else if (standardization == "base_2") {
       message("\nStandardization to the unit interval [0,1] using base 2,")
       message("  see Gries (2024: 90)\n")
-    } else {
+    } else if (standardization == "o2p"){
       message("\nStandardization to the unit interval [0,1] using the odds-to-probability")
-      message("  transformation, see Gries (2024: 90)\n")
+      message("  transformation, see Gries (2024: 90)")
+    } else {
+      message(paste0("\nStandardization to the unit interval [0,1] using custom base ", custom_base))
     }
   }
   if (row_partsize == "first"){

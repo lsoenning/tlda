@@ -4,7 +4,7 @@
 \alias{scale_y_dispersion}
 \title{Add annotation to tick marks on y-axis (ggplot2) to clarify the directionality of scaling for dispersion scores}
 \usage{
-scale_y_dispersion(directionality, n_breaks = 5, leading_zero = TRUE)
+scale_y_dispersion(directionality, n_breaks = 5, leading_zero = TRUE, ...)
 }
 \arguments{
 \item{directionality}{Character string indicating the directionality of scaling. Must match the way the dispersion scores were calculated. See details below. Possible values are \code{"conventional"} and \code{"gries"}}
@@ -12,6 +12,8 @@ scale_y_dispersion(directionality, n_breaks = 5, leading_zero = TRUE)
 \item{n_breaks}{Number of major scale breaks: Integer value specifying the number of tick marks to display (default: \code{5})}
 
 \item{leading_zero}{Logical. Whether the tick mark labels should include a leading 0 ("0.50") or not (".50"); default is \code{TRUE}}
+
+\item{...}{Other arguments passed on to \code{scale_y_continuous()}}
 }
 \value{
 The ggplot2 function scale_y_continuous with the appropriate settings for the argument \code{limits}, \code{breaks}, and \code{labels}.

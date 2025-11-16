@@ -372,7 +372,7 @@ fpower_trans <- function(lambda = 0) {
 #' @param breaks Numeric values indicating where the tick marks should be placed
 #' @param labels Character vector giving the labels that should be drawn at the tick marks
 #' @param n_breaks Integer specifying the number of tick marks to draw
-#' @param ... Other argument passed on to `scale_(x|y)_continuous()`
+#' @param ... Other arguments passed on to `scale_x_continuous()`
 #'
 #' @details
 #' This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)
@@ -448,7 +448,7 @@ scale_x_fpower <- function(lambda = 0,
 #' @param breaks Numeric values indicating where the tick marks should be placed
 #' @param labels Character vector giving the labels that should be drawn at the tick marks
 #' @param n_breaks Integer specifying the number of tick marks to draw
-#' @param ... Other argument passed on to `scale_(x|y)_continuous()`
+#' @param ... Other arguments passed on to `scale_y_continuous()`
 #'
 #' @details
 #' This function was written with the help of ChatGPT (version GPT-5.1; OpenAI 2025)

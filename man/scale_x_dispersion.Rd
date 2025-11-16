@@ -12,6 +12,8 @@ scale_x_dispersion(directionality, n_breaks = 5, leading_zero = TRUE, ...)
 \item{n_breaks}{Number of major scale breaks: Integer value specifying the number of tick marks to display (default: \code{5})}
 
 \item{leading_zero}{Logical. Whether the tick mark labels should include a leading 0 ("0.50") or not (".50"); default is \code{TRUE}}
+
+\item{...}{Other arguments passed on to \code{scale_x_continuous()}}
 }
 \value{
 The ggplot2 function scale_x_continuous with the appropriate settings for the argument \code{limits}, \code{breaks}, and \code{labels}.

@@ -15,7 +15,7 @@ scale_y_fpower(lambda = 0, breaks = NULL, labels = NULL, n_breaks = 6, ...)
 
 \item{n_breaks}{Integer specifying the number of tick marks to draw}
 
-\item{...}{Other argument passed on to \verb{scale_(x|y)_continuous()}}
+\item{...}{Other arguments passed on to \code{scale_y_continuous()}}
 }
 \value{
 The ggplot2 function \verb{scale_(x|y)_continuous()} with the appropriate transformation
