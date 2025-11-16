@@ -1,7 +1,7 @@
 #' Add column with sampling weights to a data frame
 #'
 #' @description 
-#' This function adds a new column `sampling_weights` to a data frame. The purpose of sampling weights is to adjust for a mismatch between sample and target population with regard to the distribution of a particular categorical variable. The population distribution can be specified, and sampling weights are then calculated to work as adjustment factors. The default is to assume a balanced population distribution (all levels represented equally), but custom population distributions can be specified. 
+#' This function adds a new column `sampling_weights` to a data frame. The purpose of sampling weights is to adjust for a mismatch between sample and target population with regard to the distribution of one or more categorical variables. The population distribution can be specified, and sampling weights are then calculated to work as adjustment factors. The default is to assume a balanced population distribution (all levels represented equally), but custom population distributions can be specified. 
 #'
 #' @param data A data frame
 #' @param variable Character string indicating the variable for whose levels sampling weights should be calculated
@@ -24,25 +24,38 @@
 add_sampling_weights <- function(data, 
                                  variable, 
                                  population_distribution = NULL){
-  if(!(variable %in% colnames(data))){
+  
+  if(sum(!(variable %in% colnames(data))) >= 1){
     stop("No column found with the name provided to \`variable\`")
   }
-  if(!(class(data[[variable]]) %in% c("character", "factor"))){
-    stop("\`variable\` must be a factor or character vector")
-  }
-  n_lvls <- length(unique(data[[variable]]))
-  if(n_lvls <= 1){
-    stop("\`variable\` must have at least two levels")
+  
+  if(length(variable) > 1){
+    if(sum(!(apply(data[,variable],
+                   2, class) %in% c("character", "factor"))) >=1){
+      stop("\`variable\` must be a factor or character vector")
+    }
+  } else {
+    if(!(class(data[,variable]) %in% c("character", "factor"))){
+      stop("\`variable\` must be a factor or character vector")
+    }
   }
   
   data$original_order <- 1:nrow(data)
   
-  df_weights <- data.frame(prop.table(table(data[[variable]])))
-  colnames(df_weights) <- c("var_level", "sample_distr")
+  df_weights <- data.frame(prop.table(table(data[, variable])))
+  colnames(df_weights) <- c(variable, "sample_distr")
+  
+  n_lvls <- nrow(df_weights)
+  if(n_lvls <= 1){
+    stop("\`variable\` must have at least two levels")
+  }  
   
   if(is.null(population_distribution)){
     df_weights$population_distr <- 1/n_lvls
   } else {
+    if(length(variable) > 1){
+      stop("Custom population distribution for more than one variable currently not supported")
+    }
     if(isFALSE(is.list(population_distribution))){
       stop("The argument \`population_distribution\` must be a list or data frame")
     }
@@ -50,40 +63,80 @@ add_sampling_weights <- function(data,
       stop("The names in \`population_distribution\` do not match those in \`variable\`")
     }
     df_custom_weights <- data.frame(unlist(population_distribution))
-    df_custom_weights$var_level <- rownames(df_custom_weights)
+    df_custom_weights[,variable] <- rownames(df_custom_weights)
     colnames(df_custom_weights)[1] <- "population_distr"
-    df_weights <- merge(df_weights, df_custom_weights, by = "var_level")
+    df_weights <- merge(df_weights, df_custom_weights, by = variable)
   }
   df_weights$sampling_weight <- df_weights$population_distr/df_weights$sample_distr
   
-  data <- merge(data, df_weights[,c("var_level", "sampling_weight")], 
-                by.x = variable,
-                by.y = "var_level")
+  data <- merge(
+    data, 
+    df_weights[,c(variable, "sampling_weight")],
+    by = variable)
   
   data <- data[order(data$original_order),]
-  data <- subset(data, select = -data$original_order)
-  
-  print_info <- cbind(
-    substr(df_weights$var_level,1,17),
-    round(df_weights$sample_distr*100),
-    round(df_weights$population_distr*100),
-    format(round(df_weights$sampling_weight, 2), nsmall = 2)
-  )
-  
-  message(paste0("Sampling weights added for \`", variable, "\`"))
-  
-  message("\n                    Distribution in")
-  message("                  -------------------   Sampling")
-  message("Levels             Sample  Population     weight")
-  message("----------------- ------- ----------- ----------")
-  for(i in 1:n_lvls){
-    message(paste0(print_info[i,1], 
-                   strrep(" ", 17 - nchar(print_info[i,1])),
-                   strrep(" ", 7 - nchar(print_info[i,2])), print_info[i,2], "%",
-                   strrep(" ", 11 - nchar(print_info[i,3])), print_info[i,3], "%",
-                   "       ", print_info[i,4]))
+  #data <- subset(data, select = -`original_order`)
+  data <- data[, !names(data) %in% c("original_order")]
+
+
+  if (length(variable) == 1){
+    print_info <- cbind(
+      substr(df_weights[, variable],1,17),
+      round(df_weights$sample_distr*100),
+      round(df_weights$population_distr*100),
+      format(round(df_weights$sampling_weight, 2), nsmall = 2)
+    )
+
+    message(paste0("Sampling weights added for \`", variable, "\`"))
+
+    message("\n                    Distribution in")
+    message("                  -------------------   Sampling")
+    message("Levels             Sample  Population     weight")
+    message("----------------- ------- ----------- ----------")
+    for(i in 1:n_lvls){
+      message(paste0(print_info[i,1],
+                     strrep(" ", 17 - nchar(print_info[i,1])),
+                     strrep(" ", 7 - nchar(print_info[i,2])), print_info[i,2], "%",
+                     strrep(" ", 11 - nchar(print_info[i,3])), print_info[i,3], "%",
+                     "       ", print_info[i,4]))
+    }
   }
-  message("------------------------------------------------")
+
+  if (length(variable) == 2){
+    var_min_levels <- which.min(
+      apply(
+        df_weights[,variable], 
+        2, 
+        function(x){length(unique(x))}))
+
+    df_weights <- df_weights[order(df_weights[,var_min_levels]),]
+    print_info <- cbind(
+      substr(df_weights[, variable[1]],1,12),
+      substr(df_weights[, variable[2]],1,12),
+      round(df_weights$sample_distr*100),
+      round(df_weights$population_distr*100),
+      format(round(df_weights$sampling_weight, 2), nsmall = 2)
+    )
+
+    message(paste0("Sampling weights added for \`", variable, "\`"))
+
+    message("\n                             Distribution in")
+    message("                           -------------------   Sampling")
+    message("Levels                      Sample  Population     weight")
+    message("-------------------------- ------- ----------- ----------")
+    for(i in 1:n_lvls){
+      message(paste0(print_info[i,1],
+                     strrep(" ", 14 - nchar(print_info[i,1])),
+                     print_info[i,2],
+                     strrep(" ", 12 - nchar(print_info[i,2])),
+                     strrep(" ", 7 - nchar(print_info[i,3])), print_info[i,3], "%",
+                     strrep(" ", 11 - nchar(print_info[i,4])), print_info[i,4], "%",
+                     "       ", print_info[i,5]))
+    }
+  }
+  
+
+  message("---------------------------------------------------------")
   message("\nEffect of sampling weights:")
   message("  if > 1, then rows representing this level will be up-weighted")
   message("  if < 1, then rows representing this level will be down-weighted")

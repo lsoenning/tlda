@@ -53,13 +53,13 @@ par(oldpar)
 
 The min-max transformation requires two extreme distributions as reference points. The question, then, is how to find the subfrequencies that produce these hypothetical bounds. It seems that there are two broad approaches to this problem. 
 
-The first strategy is to build distributions that are maximally or minimally dispersed based on our linguistic understanding of this distributional feature. This means that we build extreme distributions based on the conceptual meaning of 'dispersion'. This method is not guaranteed to produce the lowest possible dispersion score for each dispersion measures. This is to say that there may be an alternative set of subfrequencies for one or several dispersion indices that yields an even lower dispersion score.  
+The first strategy is to build distributions that are maximally or minimally dispersed based on our linguistic understanding of this distributional feature. This means that we build extreme distributions based on the conceptual meaning of 'dispersion'. This method is not guaranteed to produce the lowest possible dispersion score for each dispersion measure. This is to say that there may be an alternative set of subfrequencies for one or several dispersion indices that yields an even lower dispersion score.  
 
-The second strategy is to find distributions that minimize the score returned by a particular dispersion measure. Dispersion extremes are then defined based on the output of a specific formula. This search for distributional extremes relies on a trial-and-error process, as many different candidate distributions must be considered. The disadvantage of this method is that it is computationally expensive; further, it will return different dispersion extremes for different dispersion measures. This may be considered unreasonable from a linguistic point of view.
+The second strategy is to find distributions that minimize the score returned by a particular dispersion measure. Dispersion extremes are then defined based on the output of a specific formula. This search for distributional extremes relies on a trial-and-error process, since many different candidate distributions must be considered. The disadvantage of this method is that it is computationally expensive; further, it will return different dispersion extremes for different dispersion measures. This may be considered unreasonable from a linguistic point of view.
 
 Gries's approach (2024) combines these two methods: The dispersion minimum is constructed conceptually, the dispersion maximum via a trial-and-error process. 
 
-The `tlda` package implements the first approach and builds extreme distributions based on the conceptual meaning of 'dispersion'. As auch, the term has two partly overlapping meanings: Dispersion can be understood as referring to the *pervasiveness* of an item, i.e. how widely it is spread across corpus parts. It can also be understood as denoting the *evenness* of an item's distribution, i.e. how evenly it is spread across corpus parts. As will be illustrated shortly, we can construct extreme distributions based on these two concepts, pervasiveness and evenness. This approach defines hypothetical extremes based on the construct of interest, and in terms of our linguistic understanding of what characterizes, in the context of a particular application, a 'dispersed' distribution. Further, the hypothetical sets of subfrequencies will be the same irrespective of the specific index we wish to use. 
+The `tlda` package implements the first approach and builds extreme distributions based on  conceptual meaning of 'dispersion'. As auch, the term has two partly overlapping meanings: Dispersion can be understood as referring to the *pervasiveness* of an item, i.e. how widely it is spread across corpus parts. It can also be understood as denoting the *evenness* of an item's distribution, i.e. how evenly it is spread across corpus parts. As will be illustrated shortly, we can construct extreme distributions based on these two concepts, pervasiveness and evenness. This approach defines hypothetical extremes based on the construct of interest, and in terms of our linguistic understanding of what characterizes, in the context of a particular application, a 'dispersed' distribution. Further, the hypothetical sets of subfrequencies will be the same irrespective of the specific index we wish to use. 
 
 In the next two sections, we provide graphical illustrations of this conceptual approach. Following this, we will point out a number of issues that arise if corpus parts differ considerably in size. It will be seen that the conceptual approach, which is used in part by Gries (2024) and in full in the `tlda` package, then runs into problems: The dispersion scores based on a set of subfrequencies may be above or below the scores yielded by the conceptually defined extremes. By default, the `tlda` package constrains frequency-adjusted scores to the unit interval. The issue is thereby only sidestepped, however, not solved. Instead, a number of recommendations will be given, depending on the dispersion measure of interest.
 
@@ -282,18 +282,22 @@ It seems that Biber et al.'s (2016) set of lexical items is particularly suitabl
 
 The built-in data set `biber150_spokenBNC1994` considers individual speakers in the Spoken BNC1994 as corpus parts. The word counts are distributed very unevenly across speakers; they range from 1 to 68,136. The extremely skewed distribution of part sizes is apparent in the following histogram:
 
-```{r fig.width=4, fig.height=2.5, warning=FALSE, message=FALSE, out.width="30%"}
+```{r echo = FALSE}
 oldpar <- par(mar = c(5.1, 4.1, 4.1, 2.1))
-
 par(mar = c(4, 4, 1, 0.3), xpd = TRUE)
+```
 
+
+```{r fig.width=4, fig.height=2.5, warning=FALSE, message=FALSE, out.width="30%"}
 hist(
   biber150_spokenBNC1994[1,],
   main = NULL, 
   xlab = "Size of corpus parts (speakers)", 
   breaks = seq(0, 70000, length=40), 
   col = "grey60")
+```
 
+```{r echo = FALSE}
 par(oldpar)
 ```
 
