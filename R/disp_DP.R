@@ -519,11 +519,10 @@ disp_DP_tdm <- function(tdm,
 #' This function offers facilities for bootstrapping and weighting Gries's dispersion measure DP (deviation of proportions). In addition to the full functionality offered by the function `disp_DP()`, it can be used to obtain weighted dispersion scores as well as bootstrap confidence intervals.
 #' 
 #' @inheritParams disp_DP
-#' @param n_replicates Integer value specifying the number of bootstrap replicates to draw; default: `500`
-#' @param strata Variable indicating the subgroups for stratified bootstrap sampling
+#' @param n_boot Integer value specifying the number of bootstrap samples to draw; default: `500`
 #' @param boot_ci Logical. Whether a percentile bootstrap confidence interval should be computed; default: `FALSE`
 #' @param conf_level Scalar giving the confidence level; default `0.95` for a 95% percentile CI
-#' @param return_distribution Logical. Whether the function should return a vector of all `n_replicates` bootstrap statistics instead of a summary measure
+#' @param return_distribution Logical. Whether the function should return a vector of all `n_boot` bootstrap statistics instead of a summary measure
 #' @param partweight A numeric vector specifying the weights of the corpus parts; if not specified, function returns unweighted estimate
 #'
 #' @author Lukas Soenning
@@ -546,8 +545,7 @@ disp_DP_tdm <- function(tdm,
 #' 
 disp_DP_boot <- function(subfreq,
                          partsize,
-                         n_replicates = 500,
-                         strata = NULL,
+                         n_boot = 500,
                          boot_ci = FALSE,
                          conf_level = .95,
                          return_distribution = FALSE,
@@ -576,64 +574,14 @@ disp_DP_boot <- function(subfreq,
     
   } else {
     
-    if (is.null(strata)){
-      
-      boot_DP <- function(data, 
-                          indices)
-      {
-        d <- data[indices,]
-        
-        disp_score <- disp_DP(
-          subfreq = d$subfreq, 
-          partsize = d$partsize,
-          directionality = directionality,
-          formula = formula,
-          freq_adjust = freq_adjust,
-          freq_adjust_method = freq_adjust_method,
-          unit_interval = FALSE,
-          digits = digits,
-          verbose = FALSE,
-          print_score = FALSE,
-          suppress_warning = TRUE)
-        
-        return(disp_score)
-      }
-      if (is.null(partweight)) {
-        partweight <- rep(1, length(subfreq))
-      }
-      data <- data.frame(
-        subfreq,
-        partsize,
-        partweight
-      )
-      boot_results <- boot::boot(
-        data, 
-        statistic = boot_DP,
-        R = n_replicates,
-        weights = data$partweight)
-    }
-  }
-  
-  if(!is.null(strata)){
-    
-    boot_DP_strat <- function(data, 
-                              idx){
-      
-      get_partsize <- stats::aggregate(
-        partsize ~ strata, 
-        data = data,
-        subset = idx,
-        FUN = sum)
-      
-      get_subfreq <- stats::aggregate(
-        subfreq ~ strata, 
-        data = data,
-        subset = idx,
-        FUN = sum)
+    boot_DP <- function(data, 
+                        indices)
+    {
+      d <- data[indices,]
       
       disp_score <- disp_DP(
-        subfreq = get_subfreq[,2],
-        partsize = get_partsize[,2],
+        subfreq = d$subfreq, 
+        partsize = d$partsize,
         directionality = directionality,
         formula = formula,
         freq_adjust = freq_adjust,
@@ -649,29 +597,25 @@ disp_DP_boot <- function(subfreq,
     if (is.null(partweight)) {
       partweight <- rep(1, length(subfreq))
     }
-    
-    d <- data.frame(
-      subfreq = subfreq,
-      partsize = partsize,
-      strata = strata,
-      partweight = partweight
+    data <- data.frame(
+      subfreq,
+      partsize,
+      partweight
     )
-    
     boot_results <- boot::boot(
-      d, 
-      statistic = boot_DP_strat, 
-      strata = d$strata, 
-      R = n_replicates,
-      weights = d$partweight)
+      data, 
+      statistic = boot_DP,
+      R = n_boot,
+      weights = data$partweight)
+    
   }
-  
   
   
   boot_output <- boot_results$t
   
   if (unit_interval){
     
-    n_replicates_exceeding_limits <- sum(
+    n_boot_exceeding_limits <- sum(
       boot_output < 0 | boot_output > 1, na.rm = TRUE) 
     
     boot_output[boot_output > 1] <- 1
@@ -714,11 +658,11 @@ disp_DP_boot <- function(subfreq,
         log_buffer <<- c(log_buffer, x)
       }
       
-      logmsg(paste0("\nBased on ", n_replicates, " bootstrap replicates"))
+      logmsg(paste0("\nBased on ", n_boot, " bootstrap samples (random sampling with replacement)"))
       if(boot_ci){
         logmsg(paste0("  Median and ", conf_level*100, "% percentile confidence interval limits"))
       } else {
-        logmsg(paste0("  Dispersion score is the median over the ", n_replicates, " replicates"))
+        logmsg(paste0("  Dispersion score is the median over the ", n_boot, " bootstrap samples"))
       }
       if (!is.null(partweight) | length(unique(partweight)) == 1) {
         logmsg("  Unweighted estimate (all corpus parts weighted equally)")
@@ -731,16 +675,242 @@ disp_DP_boot <- function(subfreq,
         logmsg("  method implemented here does not work well if corpus parts differ")
         logmsg("  considerably in size; see vignette('frequency-adjustment')")
         
-        if (unit_interval & n_replicates_exceeding_limits > 0){
+        if (unit_interval & n_boot_exceeding_limits > 0){
           logmsg("\nThe frequency-adjusted score exceeds the limits of the unit")
           logmsg("  interval [0,1] and was replaced by 0 or 1")
         }
       }
       if (unit_interval){
         logmsg(paste0(
-          "\nFor ", n_replicates_exceeding_limits, " replicates, the frequency-adjusted score exceeds the limits of the"
+          "\nFor ", n_boot_exceeding_limits, " bootstrap samples, the frequency-adjusted score exceeds the limits"
         ))
-        logmsg("  unit interval [0,1]; these scores were replaced by 0 or 1")
+        logmsg("  of the unit interval [0,1]; these scores were replaced by 0 or 1")
+      }
+      if (directionality == "gries") {
+        logmsg("\nScores follow scaling used by Gries (2008):")
+        logmsg("  0 = maximally even/dispersed/balanced distribution (optimum)")
+        logmsg("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
+      } else {
+        logmsg("\nScores follow conventional scaling:")
+        logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
+      }
+      
+      if (formula == "gries_2008") {
+        logmsg("\nComputed using the original version proposed by Gries (2008)")
+      } else if (formula == "lijffit_gries_2012") {
+        logmsg("\nComputed using the modification suggested by Lijffit & Gries (2012)")
+      } else {
+        logmsg("\nComputed using the modification suggested by Egbert et al. (2020)")
+      }
+      cat(paste(log_buffer, collapse = "\n"))
+      
+    }
+  }
+  if (return_distribution == TRUE){
+    invisible(boot_output)
+  } else {
+    invisible(output)
+  }
+}
+
+
+
+#' Stratified bootstrapping for Gries's *deviation of proportions*
+#'
+#' @description
+#' This function implements stratified bootstrapping (and weighting) for Gries's dispersion measure DP (deviation of proportions). In addition to the full functionality offered by the function `disp_DP()`, it can be used to obtain weighted dispersion scores as well as bootstrap confidence intervals.
+#' 
+#' @inheritParams disp_DP
+#' @param text_freq Integer value giving the frequency of the item in the text
+#' @param text_size Interger value giving the size (or length) of the text
+#' @param corpus_parts The corpus parts that form the basis of dispersion analysis; must be higher-level categories, above the text files
+#' @param n_boot Integer value specifying the number of bootstrap samples to draw; default: `500`
+#' @param boot_ci Logical. Whether a percentile bootstrap confidence interval should be computed; default: `FALSE`
+#' @param conf_level Scalar giving the confidence level; default `0.95` for a 95% percentile CI
+#' @param return_distribution Logical. Whether the function should return a vector of all `n_boot` bootstrap statistics instead of a summary measure
+#' @param partweight A numeric vector specifying the weights of the corpus parts; if not specified, function returns unweighted estimate
+#'
+#' @author Lukas Soenning
+#' 
+#' @details 
+#' This function performs stratified bootstrapping on dispersion measures. Stratified bootstrapping is used when the corpus parts represent text categories (e.g. genres, registers) that in turn consists of texts or text files. Since the resampling scheme implemented in bootstrapping should be as closely aligned with the data layout (and data-generation procedure) as closely as possible, resampling should not take place at the level of the text categories. Instead, it is the sampling units in corpus compilation -- texts, text files, or speakers -- that should be resampled. Stratified bootstrapping therefore respects the structure of the corpus and data. 
+#' 
+#' @seealso [disp_DP()] for finer control over the calculation of DP
+#' 
+#' @export
+#'
+#' @examples
+#' disp_DP_sboot(
+#'   text_freq = biber150_brown[87,], 
+#'   text_size = biber150_brown[1,], 
+#'   corpus_parts = as.character(metadata_brown$genre),
+#'   digits = 2,
+#'   freq_adjust = TRUE,
+#'   directionality = "conventional",
+#'   formula = "gries_2008")
+#' 
+disp_DP_sboot <- function(text_freq,
+                          text_size,
+                          corpus_parts = NULL,
+                          n_boot = 500,
+                          boot_ci = FALSE,
+                          conf_level = .95,
+                          return_distribution = FALSE,
+                          partweight = NULL,
+                          directionality = "conventional",
+                          formula = "egbert_etal_2020",
+                          freq_adjust = FALSE,
+                          freq_adjust_method = "even",
+                          unit_interval = TRUE,
+                          digits = NULL,
+                          verbose = TRUE,
+                          print_score = TRUE,
+                          suppress_warning = FALSE){
+  if (length(text_freq) != length(text_size)){
+    stop("Lengths of the variables 'text_freq', 'text_size', and 'partweight' differ.")
+  }
+  
+  if (!is.null(partweight)) {
+    if(length(text_freq) != length(partweight)){
+      stop("Lengths of the variables 'text_freq', 'text_size', and 'partweight' differ.")
+    }
+  }
+  
+  if (sum(text_freq) == 0){
+    output <- NA
+    
+  } else {
+    
+    if(!is.null(corpus_parts)){
+      
+      boot_DP_strat <- function(data, 
+                                idx){
+        
+        get_partsize <- stats::aggregate(
+          text_size ~ corpus_parts, 
+          data = data,
+          subset = idx,
+          FUN = sum)
+        
+        get_subfreq <- stats::aggregate(
+          text_freq ~ corpus_parts, 
+          data = data,
+          subset = idx,
+          FUN = sum)
+        
+        disp_score <- disp_DP(
+          subfreq = get_subfreq[,2],
+          partsize = get_partsize[,2],
+          directionality = directionality,
+          formula = formula,
+          freq_adjust = freq_adjust,
+          freq_adjust_method = freq_adjust_method,
+          unit_interval = FALSE,
+          digits = digits,
+          verbose = FALSE,
+          print_score = FALSE,
+          suppress_warning = TRUE)
+        
+        return(disp_score)
+      }
+      if (is.null(partweight)) {
+        partweight <- rep(1, length(text_freq))
+      }
+      
+      d <- data.frame(
+        text_freq = text_freq,
+        text_size = text_size,
+        corpus_parts = corpus_parts,
+        partweight = partweight
+      )
+      
+      boot_results <- boot::boot(
+        d, 
+        statistic = boot_DP_strat, 
+        strata = d$corpus_parts, 
+        R = n_boot,
+        weights = d$partweight)
+    } else {
+      stop("Argument `corpus_parts` needs to tbe specified.")
+    }
+
+  }
+  
+  boot_output <- boot_results$t
+  
+  if (unit_interval){
+    
+    n_boot_exceeding_limits <- sum(
+      boot_output < 0 | boot_output > 1, na.rm = TRUE) 
+    
+    boot_output[boot_output > 1] <- 1
+    boot_output[boot_output < 0] <- 0
+  }
+  
+  if(boot_ci){
+    output <- stats::quantile(
+      boot_output, 
+      probs = c(.5, (1 - conf_level)/2, 1 - (1 - conf_level)/2))
+    
+    if (freq_adjust == TRUE){
+      names(output) <- c("DP_nofreq", "conf.low", "conf.high")
+    } else {
+      names(output) <- c("DP", "conf.low", "conf.high")
+    }
+  } else {
+    output <- stats::median(boot_output)
+    
+    if (freq_adjust == TRUE){
+      names(output) <- "DP_nofreq"
+    } else {
+      names(output) <- "DP"
+    }
+  }
+  
+  if (return_distribution == TRUE){
+    if (print_score != FALSE) print(boot_output)
+  } else {
+    if (print_score != FALSE) print(output)
+  }
+  
+  if (sum(text_freq) == 0 & suppress_warning == FALSE){
+    warning("All subfrequencies are 0; returning NA.")
+  } else {
+    if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
+      
+      logmsg(paste0("\nBased on ", n_boot, " stratified bootstrap samples (sampled with replacement)"))
+      if(boot_ci){
+        logmsg(paste0("  Median and ", conf_level*100, "% percentile confidence interval limits"))
+      } else {
+        logmsg(paste0("  Dispersion score is the median over the ", n_boot, " bootstrap samples"))
+      }
+      if (!is.null(partweight) | length(unique(partweight)) == 1) {
+        logmsg("  Unweighted estimate (all corpus parts weighted equally)")
+      } else {
+        logmsg("  Weighted estimate (corpus parts weighted differently)")
+      }
+      if (freq_adjust == TRUE){
+        logmsg("\nThe dispersion score is adjusted for frequency using the min-max")
+        logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+        logmsg("  method implemented here does not work well if corpus parts differ")
+        logmsg("  considerably in size; see vignette('frequency-adjustment')")
+        
+        if (unit_interval & n_boot_exceeding_limits > 0){
+          logmsg("\nThe frequency-adjusted score exceeds the limits of the unit")
+          logmsg("  interval [0,1] and was replaced by 0 or 1")
+        }
+      }
+      if (unit_interval){
+        logmsg(paste0(
+          "\nFor ", n_boot_exceeding_limits, " bootstrap samples, the frequency-adjusted score exceeds the limits"
+        ))
+        logmsg("  of the unit interval [0,1]; these scores were replaced by 0 or 1")
       }
       if (directionality == "gries") {
         logmsg("\nScores follow scaling used by Gries (2008):")
