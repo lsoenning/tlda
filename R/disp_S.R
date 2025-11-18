@@ -122,6 +122,11 @@ disp_S <- function(subfreq,
     warning("All subfrequencies are 0; returning NA.")
   } else {
     if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
       if (freq_adjust == TRUE){
         message("\nThe dispersion score is adjusted for frequency using the min-max")
         message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -142,6 +147,8 @@ disp_S <- function(subfreq,
         message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
         message("  1 = maximally even/dispersed/balanced distribution (optimum)\n")
       }
+      cat(paste(log_buffer, collapse = "\n"))
+      
     }
   }
   invisible(output)
@@ -390,6 +397,11 @@ disp_S_tdm <- function(tdm,
   if (print_scores != FALSE) print(output)
   
   if (verbose) {
+    log_buffer <- character()
+    
+    logmsg <- function(x) {
+      log_buffer <<- c(log_buffer, x)
+    }
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
       message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -412,6 +424,8 @@ disp_S_tdm <- function(tdm,
       message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
       message("  1 = maximally even/dispersed/balanced distribution (optimum)")
     }
+    cat(paste(log_buffer, collapse = "\n"))
+    
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){

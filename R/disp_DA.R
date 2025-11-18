@@ -160,6 +160,11 @@ disp_DA <- function(subfreq,
     warning("All subfrequencies are 0; returning NA.")
   } else {
     if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
       if (freq_adjust == TRUE){
         message("\nThe dispersion score is adjusted for frequency using the min-max")
         message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -183,15 +188,17 @@ disp_DA <- function(subfreq,
       
       if (procedure == "shortcut") {
         message("\nComputed using the computational shortcut suggested by")
-        message("  Wilcox (1967: 343, 'MDA', column 4)")
+        message("  Wilcox (1973: 343, 'MDA', column 4)")
       } else if (procedure == "shortcut_mod") {
         message("\nComputed using the computational shortcut suggested by")
-        message("  Wilcox (1967: 343, 'MDA', column 4) with a minor")
+        message("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
         message("  correction to ensure DA does not exceed 1 (conventional)")
       } else {
         message("\nComputed using the basic formula for DA, see:")
-        message("  Wilcox (1967: 343, 'MDA', column 2), Burch et al. (2017: 194-196)")
+        message("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)")
       }
+      cat(paste(log_buffer, collapse = "\n"))
+      
     }
   }
   invisible(output)
@@ -477,6 +484,11 @@ disp_DA_tdm <- function(tdm,
   if (print_scores != FALSE) print(output)
   
   if (verbose) {
+    log_buffer <- character()
+    
+    logmsg <- function(x) {
+      log_buffer <<- c(log_buffer, x)
+    }
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
       message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -502,15 +514,17 @@ disp_DA_tdm <- function(tdm,
     
     if (procedure == "basic") {
       message("\nComputed using the basic formula for DA, see:")
-      message("  Wilcox (1967: 343, 'MDA', column 2), Burch et al. (2017: 194-196)\n")
+      message("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)\n")
     } else if (procedure == "shortcut") {
       message("\nComputed using the computational shortcut suggested by")
-      message("  Wilcox (1967: 343, 'MDA', column 4)\n")
+      message("  Wilcox (1973: 343, 'MDA', column 4)\n")
     } else if (procedure == "shortcut_mod") {
       message("\nComputed using the computational shortcut suggested by")
-      message("  Wilcox (1967: 343, 'MDA', column 4) with a minor")
+      message("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
       message("  correction to ensure DA does not exceed 1 (conventional)\n")
     }
+    cat(paste(log_buffer, collapse = "\n"))
+    
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){

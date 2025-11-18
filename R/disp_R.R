@@ -119,6 +119,11 @@ disp_R <- function(subfreq,
     warning("All subfrequencies are 0; returning NA.")
   } else {
     if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
       if (freq_adjust == TRUE){
         message("\nThe dispersion score is adjusted for frequency using the min-max")
         message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -142,7 +147,9 @@ disp_R <- function(subfreq,
         message("\nScores represent relative range, i.e. the proportion of corpus parts")
         message("  containing at least one occurrence of the item. The size of the")
         message("  corpus parts is not taken into account.\n")
-      } 
+      }
+      cat(paste(log_buffer, collapse = "\n"))
+      
     }
   }
   invisible(output)
@@ -390,6 +397,11 @@ disp_R_tdm <- function(tdm,
   if (print_scores != FALSE) print(output)
   
   if (verbose) {
+    log_buffer <- character()
+    
+    logmsg <- function(x) {
+      log_buffer <<- c(log_buffer, x)
+    }
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
       message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -416,6 +428,8 @@ disp_R_tdm <- function(tdm,
       message("  corpus parts is taken into account, see Gries (2022: 179-180),")
       message("  Gries (2024: 27-28)\n")
     }
+    cat(paste(log_buffer, collapse = "\n"))
+    
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){

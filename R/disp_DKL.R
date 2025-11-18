@@ -142,11 +142,11 @@ disp_DKL <- function(subfreq,
   
   if (directionality == "gries") output <- 1 - output
   
-  # if (freq_adjust == TRUE){
-  #   names(output) <- "DKL_nofreq"
-  # } else {
-  #   names(output) <- "DKL"
-  # }
+  if (freq_adjust == TRUE){
+    names(output) <- "DKL_nofreq"
+  } else {
+    names(output) <- "DKL"
+  }
   
   if (!is.null(digits)) output <- round(output, digits)
   
@@ -156,6 +156,11 @@ disp_DKL <- function(subfreq,
     warning("All subfrequencies are 0; returning NA.")
   } else {
     if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
       if (freq_adjust == TRUE){
         message("\nThe dispersion score is adjusted for frequency using the min-max")
         message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -189,6 +194,8 @@ disp_DKL <- function(subfreq,
       } else {
         message(paste0("\nStandardization to the unit interval [0,1] using custom base ", custom_base))
       }
+      cat(paste(log_buffer, collapse = "\n"))
+      
     }
   }
   invisible(output)
@@ -461,6 +468,11 @@ disp_DKL_tdm <- function(tdm,
   if (print_scores != FALSE) print(output)
   
   if (verbose) {
+    log_buffer <- character()
+    
+    logmsg <- function(x) {
+      log_buffer <<- c(log_buffer, x)
+    }
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
       message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -496,6 +508,8 @@ disp_DKL_tdm <- function(tdm,
     } else {
       message(paste0("\nStandardization to the unit interval [0,1] using custom base ", custom_base))
     }
+    cat(paste(log_buffer, collapse = "\n"))
+    
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){

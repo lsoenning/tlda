@@ -147,34 +147,41 @@ disp_DP <- function(subfreq,
     warning("All subfrequencies are 0; returning NA.")
   } else {
     if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
+      
       if (freq_adjust == TRUE){
-        message("\nThe dispersion score is adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208); please note that the")
-        message("  method implemented here does not work well if corpus parts differ")
-        message("  considerably in size; see vignette('frequency-adjustment')")
+        logmsg("\nThe dispersion score is adjusted for frequency using the min-max")
+        logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+        logmsg("  method implemented here does not work well if corpus parts differ")
+        logmsg("  considerably in size; see vignette('frequency-adjustment')")
         
         if (unit_interval & item_exceeds_limits){
-          message("\nThe frequency-adjusted score exceeds the limits of the unit")
-          message("  interval [0,1] and was replaced by 0 or 1")
+          logmsg("\nThe frequency-adjusted score exceeds the limits of the unit")
+          logmsg("  interval [0,1] and was replaced by 0 or 1")
         }
       }
       if (directionality == "gries") {
-        message("\nScores follow scaling used by Gries (2008):")
-        message("  0 = maximally even/dispersed/balanced distribution (optimum)")
-        message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        logmsg("\nScores follow scaling used by Gries (2008):")
+        logmsg("  0 = maximally even/dispersed/balanced distribution (optimum)")
+        logmsg("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
       } else {
-        message("\nScores follow conventional scaling:")
-        message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
-        message("  1 = maximally even/dispersed/balanced distribution (optimum)")
+        logmsg("\nScores follow conventional scaling:")
+        logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
       }
       
       if (formula == "gries_2008") {
-        message("\nComputed using the original version proposed by Gries (2008)")
+        logmsg("\nComputed using the original version proposed by Gries (2008)")
       } else if (formula == "lijffit_gries_2012") {
-        message("\nComputed using the modification suggested by Lijffit & Gries (2012)")
+        logmsg("\nComputed using the modification suggested by Lijffijt & Gries (2012)")
       } else {
-        message("\nComputed using the modification suggested by Egbert et al. (2020)")
+        logmsg("\nComputed using the modification suggested by Egbert et al. (2020)")
       }
+      cat(paste(log_buffer, collapse = "\n"))
     }
   }
   invisible(output)
@@ -448,6 +455,12 @@ disp_DP_tdm <- function(tdm,
   if (print_scores != FALSE) print(output)
   
   if (verbose) {
+    log_buffer <- character()
+    
+    logmsg <- function(x) {
+      log_buffer <<- c(log_buffer, x)
+    }
+    
     if (freq_adjust == TRUE){
       message("\nDispersion scores are adjusted for frequency using the min-max")
       message("  transformation (see Gries 2024: 196-208); please note that the")
@@ -478,6 +491,8 @@ disp_DP_tdm <- function(tdm,
     } else {
       message("\nComputed using the modification suggested by Egbert et al. (2020)\n")
     }
+    cat(paste(log_buffer, collapse = "\n"))
+    
   }
   if (row_partsize == "first"){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){
@@ -693,6 +708,12 @@ disp_DP_boot <- function(subfreq,
     warning("All subfrequencies are 0; returning NA.")
   } else {
     if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
+      
       message(paste0("\nBased on ", n_replicates, " bootstrap replicates"))
       if(boot_ci){
         message(paste0("  Median and ", conf_level*100, "% percentile confidence interval limits"))
@@ -738,6 +759,8 @@ disp_DP_boot <- function(subfreq,
       } else {
         message("\nComputed using the modification suggested by Egbert et al. (2020)")
       }
+      cat(paste(log_buffer, collapse = "\n"))
+      
     }
   }
   if (return_distribution == TRUE){
