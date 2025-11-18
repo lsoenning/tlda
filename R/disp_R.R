@@ -125,28 +125,28 @@ disp_R <- function(subfreq,
         log_buffer <<- c(log_buffer, x)
       }
       if (freq_adjust == TRUE){
-        message("\nThe dispersion score is adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208); please note that the")
-        message("  method implemented here does not work well if corpus parts differ")
-        message("  considerably in size; see vignette('frequency-adjustment')")
+        logmsg("\nThe dispersion score is adjusted for frequency using the min-max")
+        logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+        logmsg("  method implemented here does not work well if corpus parts differ")
+        logmsg("  considerably in size; see vignette('frequency-adjustment')")
         
         if (unit_interval & item_exceeds_limits){
-          message("\nThe frequency-adjusted score exceeds the limits of the unit")
-          message("  interval [0,1] and was replaced by 0 or 1")
+          logmsg("\nThe frequency-adjusted score exceeds the limits of the unit")
+          logmsg("  interval [0,1] and was replaced by 0 or 1")
         }
       }
       if (type == "absolute") {
-        message("\nScores represent absolute range, i.e. the number of corpus parts")
-        message("  containing at least one occurrence of the item.\n")
+        logmsg("\nScores represent absolute range, i.e. the number of corpus parts")
+        logmsg("  containing at least one occurrence of the item.\n")
       } else if (type == "relative_withsize") {
-        message("\nScores represent relative range, i.e. the proportion of corpus parts")
-        message("  containing at least one occurrence of the item. The size of the")
-        message("  corpus parts is taken into account, see Gries (2022: 179-180),")
-        message("  Gries (2024: 27-28)\n")
+        logmsg("\nScores represent relative range, i.e. the proportion of corpus parts")
+        logmsg("  containing at least one occurrence of the item. The size of the")
+        logmsg("  corpus parts is taken into account, see Gries (2022: 179-180),")
+        logmsg("  Gries (2024: 27-28)\n")
       } else {
-        message("\nScores represent relative range, i.e. the proportion of corpus parts")
-        message("  containing at least one occurrence of the item. The size of the")
-        message("  corpus parts is not taken into account.\n")
+        logmsg("\nScores represent relative range, i.e. the proportion of corpus parts")
+        logmsg("  containing at least one occurrence of the item. The size of the")
+        logmsg("  corpus parts is not taken into account.\n")
       }
       cat(paste(log_buffer, collapse = "\n"))
       
@@ -403,30 +403,30 @@ disp_R_tdm <- function(tdm,
       log_buffer <<- c(log_buffer, x)
     }
     if (freq_adjust == TRUE){
-      message("\nDispersion scores are adjusted for frequency using the min-max")
-      message("  transformation (see Gries 2024: 196-208); please note that the")
-      message("  method implemented here does not work well if corpus parts differ")
-      message("  considerably in size; see vignette('frequency-adjustment')")
+      logmsg("\nDispersion scores are adjusted for frequency using the min-max")
+      logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+      logmsg("  method implemented here does not work well if corpus parts differ")
+      logmsg("  considerably in size; see vignette('frequency-adjustment')")
       
       if (unit_interval){
-        message(paste0(
+        logmsg(paste0(
           "\nFor ", n_items_exceeding_limits, " items, the frequency-adjusted score exceeds the limits of the"
         ))
-        message("  unit interval [0,1]; these scores were replaced by 0 or 1")
+        logmsg("  unit interval [0,1]; these scores were replaced by 0 or 1")
       }
     }
     if (type == "absolute") {
-      message("\nScores represent absolute range, i.e. the number of corpus parts")
-      message("  containing at least one occurrence of the item.\n")
+      logmsg("\nScores represent absolute range, i.e. the number of corpus parts")
+      logmsg("  containing at least one occurrence of the item.\n")
     } else if (type == "relative") {
-      message("\nScores represent relative range, i.e. the proportion of corpus parts")
-      message("  containing at least one occurrence of the item. The size of the")
-      message("  corpus parts is not taken into account.\n")
+      logmsg("\nScores represent relative range, i.e. the proportion of corpus parts")
+      logmsg("  containing at least one occurrence of the item. The size of the")
+      logmsg("  corpus parts is not taken into account.\n")
     } else if (type == "relative_withsize") {
-      message("\nScores represent relative range, i.e. the proportion of corpus parts")
-      message("  containing at least one occurrence of the item. The size of the")
-      message("  corpus parts is taken into account, see Gries (2022: 179-180),")
-      message("  Gries (2024: 27-28)\n")
+      logmsg("\nScores represent relative range, i.e. the proportion of corpus parts")
+      logmsg("  containing at least one occurrence of the item. The size of the")
+      logmsg("  corpus parts is taken into account, see Gries (2022: 179-180),")
+      logmsg("  Gries (2024: 27-28)\n")
     }
     cat(paste(log_buffer, collapse = "\n"))
     

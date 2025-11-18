@@ -166,36 +166,36 @@ disp_DA <- function(subfreq,
         log_buffer <<- c(log_buffer, x)
       }
       if (freq_adjust == TRUE){
-        message("\nThe dispersion score is adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208); please note that the")
-        message("  method implemented here does not work well if corpus parts differ")
-        message("  considerably in size; see vignette('frequency-adjustment')")
+        logmsg("\nThe dispersion score is adjusted for frequency using the min-max")
+        logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+        logmsg("  method implemented here does not work well if corpus parts differ")
+        logmsg("  considerably in size; see vignette('frequency-adjustment')")
         
         if (unit_interval & item_exceeds_limits){
-          message("\nThe frequency-adjusted score exceeds the limits of the unit")
-          message("  interval [0,1] and was replaced by 0 or 1")
+          logmsg("\nThe frequency-adjusted score exceeds the limits of the unit")
+          logmsg("  interval [0,1] and was replaced by 0 or 1")
         }
       }
       if (directionality == "gries") {
-        message("\nScores follow scaling used by Gries (2008):")
-        message("  0 = maximally even/dispersed/balanced distribution (optimum)")
-        message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        logmsg("\nScores follow scaling used by Gries (2008):")
+        logmsg("  0 = maximally even/dispersed/balanced distribution (optimum)")
+        logmsg("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
       } else {
-        message("\nScores follow conventional scaling:")
-        message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
-        message("  1 = maximally even/dispersed/balanced distribution (optimum)")
+        logmsg("\nScores follow conventional scaling:")
+        logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
       }
       
       if (procedure == "shortcut") {
-        message("\nComputed using the computational shortcut suggested by")
-        message("  Wilcox (1973: 343, 'MDA', column 4)")
+        logmsg("\nComputed using the computational shortcut suggested by")
+        logmsg("  Wilcox (1973: 343, 'MDA', column 4)")
       } else if (procedure == "shortcut_mod") {
-        message("\nComputed using the computational shortcut suggested by")
-        message("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
-        message("  correction to ensure DA does not exceed 1 (conventional)")
+        logmsg("\nComputed using the computational shortcut suggested by")
+        logmsg("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
+        logmsg("  correction to ensure DA does not exceed 1 (conventional)")
       } else {
-        message("\nComputed using the basic formula for DA, see:")
-        message("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)")
+        logmsg("\nComputed using the basic formula for DA, see:")
+        logmsg("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)")
       }
       cat(paste(log_buffer, collapse = "\n"))
       
@@ -490,38 +490,38 @@ disp_DA_tdm <- function(tdm,
       log_buffer <<- c(log_buffer, x)
     }
     if (freq_adjust == TRUE){
-      message("\nDispersion scores are adjusted for frequency using the min-max")
-      message("  transformation (see Gries 2024: 196-208); please note that the")
-      message("  method implemented here does not work well if corpus parts differ")
-      message("  considerably in size; see vignette('frequency-adjustment')")
+      logmsg("\nDispersion scores are adjusted for frequency using the min-max")
+      logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+      logmsg("  method implemented here does not work well if corpus parts differ")
+      logmsg("  considerably in size; see vignette('frequency-adjustment')")
       
       if (unit_interval){
-        message(paste0(
+        logmsg(paste0(
           "\nFor ", n_items_exceeding_limits, " items, the frequency-adjusted score exceeds the limits of the"
         ))
-        message("  unit interval [0,1]; these scores were replaced by 0 or 1")
+        logmsg("  unit interval [0,1]; these scores were replaced by 0 or 1")
       }
     }
     if (directionality == "gries") {
-      message("\nScores follow scaling used by Gries (2008):")
-      message("  0 = maximally even/dispersed/balanced distribution (optimum)")
-      message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
+      logmsg("\nScores follow scaling used by Gries (2008):")
+      logmsg("  0 = maximally even/dispersed/balanced distribution (optimum)")
+      logmsg("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
     } else {
-      message("\nScores follow conventional scaling:")
-      message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
-      message("  1 = maximally even/dispersed/balanced distribution (optimum)")
+      logmsg("\nScores follow conventional scaling:")
+      logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
+      logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
     }
     
     if (procedure == "basic") {
-      message("\nComputed using the basic formula for DA, see:")
-      message("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)\n")
+      logmsg("\nComputed using the basic formula for DA, see:")
+      logmsg("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)\n")
     } else if (procedure == "shortcut") {
-      message("\nComputed using the computational shortcut suggested by")
-      message("  Wilcox (1973: 343, 'MDA', column 4)\n")
+      logmsg("\nComputed using the computational shortcut suggested by")
+      logmsg("  Wilcox (1973: 343, 'MDA', column 4)\n")
     } else if (procedure == "shortcut_mod") {
-      message("\nComputed using the computational shortcut suggested by")
-      message("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
-      message("  correction to ensure DA does not exceed 1 (conventional)\n")
+      logmsg("\nComputed using the computational shortcut suggested by")
+      logmsg("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
+      logmsg("  correction to ensure DA does not exceed 1 (conventional)\n")
     }
     cat(paste(log_buffer, collapse = "\n"))
     

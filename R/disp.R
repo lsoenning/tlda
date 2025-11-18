@@ -232,31 +232,38 @@ disp <- function(subfreq,
     warning("All subfrequencies are 0; returning NA.")
   } else {
     if (verbose) {
+      log_buffer <- character()
+      
+      logmsg <- function(x) {
+        log_buffer <<- c(log_buffer, x)
+      }
       if (freq_adjust == TRUE){
-        message("\nDispersion scores are adjusted for frequency using the min-max")
-        message("  transformation (see Gries 2024: 196-208); please note that the")
-        message("  method implemented here does not work well if corpus parts differ")
-        message("  considerably in size; see vignette('frequency-adjustment')")
+        logmsg("\nDispersion scores are adjusted for frequency using the min-max")
+        logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+        logmsg("  method implemented here does not work well if corpus parts differ")
+        logmsg("  considerably in size; see vignette('frequency-adjustment')")
         
         if (unit_interval & item_exceeds_limits){
-          message("\nSome frequency-adjusted score(s) exceed(s) the limits of the")
-          message("  unit interval [0,1], and was/were replaced by 0 or 1")
+          logmsg("\nSome frequency-adjusted score(s) exceed(s) the limits of the")
+          logmsg("  unit interval [0,1], and was/were replaced by 0 or 1")
         }
       }
       if (directionality == "gries") {
-        message("\nScores follow scaling used by Gries (2008):")
-        message("  0 = maximally even/dispersed/balanced distribution (optimum)")
-        message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        logmsg("\nScores follow scaling used by Gries (2008):")
+        logmsg("  0 = maximally even/dispersed/balanced distribution (optimum)")
+        logmsg("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
       } else {
-        message("\nScores follow conventional scaling:")
-        message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
-        message("  1 = maximally even/dispersed/balanced distribution (optimum)")
+        logmsg("\nScores follow conventional scaling:")
+        logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
+        logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
       }
-      message("\nFor Gries's DP, the function uses the modified version suggested by")
-      message("  Egbert et al. (2020)")
-      message("\nFor DKL, standardization to the unit interval [0,1] is based on the")
-      message("  odds-to-probability transformation, see Gries (2024: 90)")
+      logmsg("\nFor Gries's DP, the function uses the modified version suggested by")
+      logmsg("  Egbert et al. (2020)")
+      logmsg("\nFor DKL, standardization to the unit interval [0,1] is based on the")
+      logmsg("  odds-to-probability transformation, see Gries (2024: 90)")
     }
+    cat(paste(log_buffer, collapse = "\n"))
+    
   }
   invisible(output)
 }
@@ -586,42 +593,49 @@ disp_tdm <- function(tdm,
   if (print_scores != FALSE) print(output)
   
   if (verbose) {
+    log_buffer <- character()
     
+    logmsg <- function(x) {
+      log_buffer <<- c(log_buffer, x)
+    }
     if (freq_adjust == TRUE){
-      message("\nDispersion scores are adjusted for frequency using the min-max")
-      message("  transformation (see Gries 2024: 196-208); please note that the")
-      message("  method implemented here does not work well if corpus parts differ")
-      message("  considerably in size; see vignette('frequency-adjustment')")
+      logmsg("\nDispersion scores are adjusted for frequency using the min-max")
+      logmsg("  transformation (see Gries 2024: 196-208); please note that the")
+      logmsg("  method implemented here does not work well if corpus parts differ")
+      logmsg("  considerably in size; see vignette('frequency-adjustment')")
       
       if (unit_interval){
-        message(paste0(
+        logmsg(paste0(
           "\nFrequency-adjusted scores that exceed the limits of the unit interval [0,1]"
         ))
-        message("  were replaced by 0 or 1; number of items affected, by measure:")
-        message(paste0("  - Rrel: ", n_items_exceeding_limits_measure[1]))
-        message(paste0("  - D   : ", n_items_exceeding_limits_measure[2]))
-        message(paste0("  - D2  : ", n_items_exceeding_limits_measure[3]))
-        message(paste0("  - S   : ", n_items_exceeding_limits_measure[4]))
-        message(paste0("  - DP  : ", n_items_exceeding_limits_measure[5]))
-        message(paste0("  - DA  : ", n_items_exceeding_limits_measure[6]))
-        message(paste0("  - DKL : ", n_items_exceeding_limits_measure[7]))
+        logmsg("  were replaced by 0 or 1; number of items affected, by measure:")
+        logmsg(paste0("  - Rrel: ", n_items_exceeding_limits_measure[1]))
+        logmsg(paste0("  - D   : ", n_items_exceeding_limits_measure[2]))
+        logmsg(paste0("  - D2  : ", n_items_exceeding_limits_measure[3]))
+        logmsg(paste0("  - S   : ", n_items_exceeding_limits_measure[4]))
+        logmsg(paste0("  - DP  : ", n_items_exceeding_limits_measure[5]))
+        logmsg(paste0("  - DA  : ", n_items_exceeding_limits_measure[6]))
+        logmsg(paste0("  - DKL : ", n_items_exceeding_limits_measure[7]))
       }
     }
     
     if (directionality == "gries") {
-      message("\nScores follow scaling used by Gries (2008):")
-      message("  0 = maximally even/dispersed/balanced distribution (optimum)")
-      message("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
+      logmsg("\nScores follow scaling used by Gries (2008):")
+      logmsg("  0 = maximally even/dispersed/balanced distribution (optimum)")
+      logmsg("  1 = maximally uneven/bursty/concentrated distribution (pessimum)")
     } else {
-      message("\nScores follow conventional scaling:")
-      message("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
-      message("  1 = maximally even/dispersed/balanced distribution (optimum)")
+      logmsg("\nScores follow conventional scaling:")
+      logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
+      logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
     }
-    message("\nFor Gries's DP, the function uses the modified version suggested by")
-    message("  Egbert et al. (2020)")
-    message("\nFor DKL, standardization to the unit interval [0,1] is based on the")
-    message("  odds-to-probability transformation, see Gries (2024: 90)")
+    logmsg("\nFor Gries's DP, the function uses the modified version suggested by")
+    logmsg("  Egbert et al. (2020)")
+    logmsg("\nFor DKL, standardization to the unit interval [0,1] is based on the")
+    logmsg("  odds-to-probability transformation, see Gries (2024: 90)")
+    
+    cat(paste(log_buffer, collapse = "\n"))
   }
+  
   
   if (row_partsize == "first" & suppress_warning != TRUE){
     if (sum(rowSums(tdm[-1,]) == 0) > 0){
