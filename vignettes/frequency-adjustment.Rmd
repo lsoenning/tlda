@@ -59,7 +59,7 @@ The second strategy is to find distributions that minimize the score returned by
 
 Gries's approach (2024) combines these two methods: The dispersion minimum is constructed conceptually, the dispersion maximum via a trial-and-error process. 
 
-The `tlda` package implements the first approach and builds extreme distributions based on  conceptual meaning of 'dispersion'. As auch, the term has two partly overlapping meanings: Dispersion can be understood as referring to the *pervasiveness* of an item, i.e. how widely it is spread across corpus parts. It can also be understood as denoting the *evenness* of an item's distribution, i.e. how evenly it is spread across corpus parts. As will be illustrated shortly, we can construct extreme distributions based on these two concepts, pervasiveness and evenness. This approach defines hypothetical extremes based on the construct of interest, and in terms of our linguistic understanding of what characterizes, in the context of a particular application, a 'dispersed' distribution. Further, the hypothetical sets of subfrequencies will be the same irrespective of the specific index we wish to use. 
+The `tlda` package implements the first approach and builds extreme distributions based on the conceptual meaning of 'dispersion'. As auch, the term has two partly overlapping senses (Egbert & Burch 2023): Dispersion can be understood as referring to the *pervasiveness* of an item, i.e. how widely it is spread across corpus parts. It can also be understood as denoting the *evenness* of an item's distribution, i.e. how evenly it is spread across corpus parts. As will be illustrated shortly, we can construct extreme distributions based on these two concepts, pervasiveness and evenness. This approach defines hypothetical extremes based on the construct of interest, and in terms of our linguistic understanding of what characterizes, in the context of a particular application, a 'dispersed' distribution. Further, the hypothetical sets of subfrequencies will be the same irrespective of the specific index we wish to use. 
 
 In the next two sections, we provide graphical illustrations of this conceptual approach. Following this, we will point out a number of issues that arise if corpus parts differ considerably in size. It will be seen that the conceptual approach, which is used in part by Gries (2024) and in full in the `tlda` package, then runs into problems: The dispersion scores based on a set of subfrequencies may be above or below the scores yielded by the conceptually defined extremes. By default, the `tlda` package constrains frequency-adjusted scores to the unit interval. The issue is thereby only sidestepped, however, not solved. Instead, a number of recommendations will be given, depending on the dispersion measure of interest.
 
@@ -261,7 +261,7 @@ Another issue arises when we are dealing with corpus parts of (very) different l
 - For *Range*, which is a pervasiveness measure, dispersion extremes that are defined based on **pervasiveness** work well.
 - Frequency adjustment for *D*, *D~2~*, and *D~A~*, on the other hand, may yield dispersion scores outside the [0,1] interval for both methods, i.e. when dispersion extremes are defined based on evenness or pervasiveness. 
 
-This translated into the following preliminary recommendations:
+This translates into the following preliminary recommendations:
 
 - If corpus parts are fairly similar in size, no problems should arise. It should also matter little whether frequency adjustment is based on pervasiveness or evenness extremes, as both schemes then produce very similar distributions.
 - If corpus parts vary considerably in size, meaning that there are some very long parts, and several very short ones, frequency adjustment should proceed with caution. Unfortunately, specific criteria cannot be given at the moment. In such situations, the safest strategy seems to be the following:
@@ -373,6 +373,8 @@ apply(
 ### References
 
 Biber, Douglas, Randi Reppen, Erin Schnur & Romy Ghanem. 2016. On the (non)utility of Juilland’s *D* to measure lexical dispersion in large corpora. *International Journal of Corpus Linguistics* 21(4). 439–464. doi: [10.1075/ijcl.21.4.01bib](https://doi.org/10.1075/ijcl.21.4.01bib) 
+
+Egbert, Jesse & Brent Burch. 2023. Which words matter most? Operationalizing lexical prevalence for rank-ordered word lists. *Applied Linguistics* 44(1). 103–126. doi: [10.1093/applin/amac030](https://doi.org/10.1093/applin/amac030)
 
 Gries, Stefan Th. 2008. Dispersions and adjusted frequencies in corpora. *International Journal of Corpus Linguistics* 13(4). 403–437. doi: [10.1075/ijcl.13.4.02gri](https://doi.org/10.1075/ijcl.13.4.02gri)
 

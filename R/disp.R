@@ -237,6 +237,7 @@ disp <- function(subfreq,
       logmsg <- function(x) {
         log_buffer <<- c(log_buffer, x)
       }
+      
       if (freq_adjust == TRUE){
         logmsg("\nDispersion scores are adjusted for frequency using the min-max")
         logmsg("  transformation (see Gries 2024: 196-208); please note that the")
@@ -261,9 +262,9 @@ disp <- function(subfreq,
       logmsg("  Egbert et al. (2020)")
       logmsg("\nFor DKL, standardization to the unit interval [0,1] is based on the")
       logmsg("  odds-to-probability transformation, see Gries (2024: 90)")
+      
+      cat(paste(log_buffer, collapse = "\n"))
     }
-    cat(paste(log_buffer, collapse = "\n"))
-    
   }
   invisible(output)
 }
