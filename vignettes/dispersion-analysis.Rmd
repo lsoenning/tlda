@@ -78,11 +78,10 @@ The functions `disp()` and `disp_tdm()` calculate seven dispersion measures:
 - *D~A~*  (Burch et al. 2017)
 - *D~KL~*  (based on the Kullback-Leibler divergence)
 
-However, these functions do not provide finer control over the way in which a specific dispersion measure is calculated. This limitation concerns indices for which multiple formulas (or versions, or computational procedures) exist in the literature:
+However, these functions do not provide finer control over the way in which a specific dispersion measure is calculated. This limitation concerns indices for which multiple formulas (or versions) exist in the literature:
 
 - *Range*: Different versions exist (absolute range, relative range, relative range with size)
 - *D~P~*: Different formulas in found in the literature
-- *D~A~*: There is a basic and a computationally more efficient (approximate) procedure
 - *D~KL~*: Various methods exist for standardizing the Kullback-Leibler divergence to the unit interval [0,1]
 
 By default, `disp()` and `disp_tdm()` print information that tells you which version of these measures it uses. This printout also reminds you of the directionality of scaling that has been applied. The following code returns dispersion scores for the item *a* in ICE-GB (Nelson et al. 2002): 
@@ -94,7 +93,7 @@ disp(
 )
 ```
 
-While `disp()` and `disp_tdm()` use sensible default settings, you may want to have more control over the way in which these four indices are calculated. You can then turn to the following functions:
+While `disp()` and `disp_tdm()` use sensible default settings, you may want to have more control over the way in which these three indices are calculated. You can then turn to the following functions:
 
 - `disp_R()` / `disp_R_tdm()`: This function allows you to use different versions of *range*: 
   - absolute range (the number of corpus parts containing the item)
@@ -104,9 +103,6 @@ While `disp()` and `disp_tdm()` use sensible default settings, you may want to h
   - original version in Gries (2008)
   - modification described in Lijffijt & Gries (2012)
   - modification described in Egbert et al. (2020)
-- `disp_DA()` / `disp_DA_tdm()`: You can select the computational procedure:
-  - basic, which implements the formula
-  - shortcut, which is quicker and yields a close approximation to the basic version
 - `disp_DKL()` / `disp_DKL_tdm()`: Allows for the choice between different methods for standardizing KLD scores (see Gries 2024: 90)
 - `disp_S()` / `disp_S_tdm()`: For Rosengren's *S*, uses sensible defaults for frequency adjustment
 
@@ -219,43 +215,6 @@ rownames(compare_DPs) <- c(
 )
 compare_DPs
 ```
-
-For *D~A~*, three computational procedures are available, The `basic` version is a direct implementation of the actual formula for this measure, which is computationally expensive if the number of corpus parts is large. Wilcox (1973: 343) gives a `shortcut` version, which is much quicker (see this [blog post](https://lsoenning.github.io/posts/2023-12-11_computation_DA/)). Finally, `shortcut_mod` is a slightly adapted form of the shortcut (EXPERIMENTAL), which ensures that scores do not exceed 1 (conventional scaling). The following code uses Wilcox's (1973) quicker approximate procedure:
-
-```{r}
-disp_DA(
-  subfreq = subfreq_actually,
-  partsize = speaker_word_count,
-  procedure = "shortcut"
-  )
-```
-
-Again, we can compare the scores produced by the different computational procedures, again suppressing the printing of the score and background information:
-
-```{r}
-compare_DAs <- rbind(
-  disp_DA(subfreq = subfreq_actually,
-          partsize = speaker_word_count,
-          procedure = "basic",
-          verbose = FALSE, print_score = FALSE),
-  disp_DA(subfreq = subfreq_actually,
-          partsize = speaker_word_count,
-          procedure = "shortcut",
-          verbose = FALSE, print_score = FALSE),
-  disp_DA(subfreq = subfreq_actually,
-          partsize = speaker_word_count,
-          procedure = "shortcut_mod",
-          verbose = FALSE, print_score = FALSE
-  ))
-
-rownames(compare_DAs) <- c(
-  "Basic procedure",
-  "Shortcut",
-  "Shortcut (modified)"
-)
-compare_DAs
-```
-
 
 For *D~KL~*, we may opt for a specific standardization method, which refers to the transformation that maps the Kullback-Leibler divergence to the unit interval [0,1]. The method used in Gries (2021: 20) can be implemented using `standardization = "base_e"`:
 

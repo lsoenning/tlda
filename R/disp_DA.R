@@ -1,18 +1,15 @@
 #' Calculate the dispersion measure \eqn{D_{A}}
 #'
 #' @description
-#' This function calculates the dispersion measure \eqn{D_{A}}. It offers two computational procedures, the basic version as well as a computational shortcut. It allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also provides the option of calculating frequency-adjusted dispersion scores.
+#' This function calculates the dispersion measure \eqn{D_{A}}. It allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also provides the option of calculating frequency-adjusted dispersion scores.
 #'
 #' @inheritParams disp
-#' @param procedure Character string indicating which procedure to use for the calculation of \eqn{D_{A}}. See details below. Possible values are `'basic'` (default), `'shortcut'`.
 #' 
 #' @author Lukas Soenning
 #' 
-#' @details The function calculates the dispersion measure \eqn{D_{A}} based on a set of subfrequencies (number of occurrences of the item in each corpus part) and a matching set of part sizes (the size of the corpus parts, i.e. number of word tokens).
+#' @details The function calculates the dispersion measure \eqn{D_{A}} based on a set of subfrequencies (number of occurrences of the item in each corpus part) and a matching set of part sizes (the size of the corpus parts, i.e. number of word tokens). The function uses the shortcut formula ("computational" procedure) given in Wilcox (1973: 343), where \eqn{D_{A}} is referred to as MDA.
 #' 
 #' - Directionality: \eqn{D_{A}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = "gries"` to choose this option.
-#' 
-#' - Procedure: Irrespective of the directionality of scaling, two computational procedures for \eqn{D_{A}} exist (see below for details). Both appear in Wilcox (1973), where the measure is referred to as MDA. The basic version (represented by the value `"basic"`) carries out the full set of computations required by the composition of the formula. As the number of corpus parts grows, this can become computationally very expensive. Wilcox (1973) also gives a "computational" procedure, which is a shortcut that is much quicker and closely approximates the scores produced by the basic formula. This version is represented by the value `"shortcut"`.
 #' 
 #' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022: 184-191; 2024: 196-208). The frequency-adjusted score for an item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`"pervasive"`) or evenness (`"even"`). You can choose between these with the argument `freq_adjust_method`; the default is `even`. For details and explanations, see `vignette("frequency-adjustment")`. 
 #' 
@@ -26,25 +23,19 @@
 #' - \eqn{R_i} the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
 #' - \eqn{r_i} a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
 #' 
-#' The value `"basic"` implements the basic computational procedure (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98). The basic version can be applied to absolute frequencies and normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents conventional scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument `directionality`.
+#' The basic formula for \eqn{D_{A}} (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98) can be applied to absolute frequencies or normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents conventional scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}} (Egbert et al. 2020: 98)
 #' 
-#' The function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields the identical result; the \eqn{r_i} quantities are also the key to using the computational shortcut given in Wilcox (1973: 343). This is the basic formula for \eqn{D_{A}} using \eqn{r_i} instead of \eqn{R_i} values: 
+#' The function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields identical results; the \eqn{r_i} quantities are also the key to using the computational shortcut given in Wilcox (1973: 343), on which the calculations in the `{tlda}` package rely. This is the basic formula for \eqn{D_{A}} using \eqn{r_i} instead of \eqn{R_i} values: 
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}} (Wilcox 1973: 343; see also Soenning 2022)
 #' 
-#' The value `"shortcut"` implements the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut version be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
+#' Functions for \eqn{D_{A}} in the `{tlda}` package use the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut version be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
 #' 
-#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343)
-#'
-#' The value `"shortcut_mod"` adds a minor modification to the computational shortcut to ensure \eqn{D_{A}} does not exceed 1 (on the conventional dispersion scale):
-#' 
-#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1} \times \frac{k - 1}{k}}
-#' 
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343) 
 #' 
 #' @returns A numeric value
-#' 
 #' 
 #' @references 
 #' 
@@ -66,7 +57,7 @@
 #' 
 #' Soenning, Lukas. 2022. Evaluation of text-level measures of lexical dispersion: Robustness and consistency. \emph{PsyArXiv preprint}. \url{https://osf.io/preprints/psyarxiv/h9mvs/}
 #' 
-#' Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. The Western Political Quarterly 26 (2). 325--343. \doi{doi:10.2307/446831}
+#' Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. \emph{The Western Political Quarterly} 26 (2). 325--343. \doi{doi:10.2307/446831}
 #' 
 #' @export
 #'
@@ -74,13 +65,11 @@
 #' disp_DA(
 #'   subfreq = c(0,0,1,2,5), 
 #'   partsize = rep(1000, 5),
-#'   procedure = "basic",
 #'   directionality = "conventional",
 #'   freq_adjust = FALSE)
 #' 
 disp_DA <- function(subfreq,
                     partsize,
-                    procedure = "basic",
                     directionality = "conventional",
                     freq_adjust = FALSE,
                     freq_adjust_method = "even",
@@ -94,21 +83,12 @@ disp_DA <- function(subfreq,
     stop("Lengths of the variables 'subfreq' and 'partsize' differ.")
   }
   
-  calculate_DA <- function(subfreq, partsize, procedure){
+  calculate_DA <- function(subfreq, partsize){
     R_i <- subfreq / partsize
     r_i <- R_i / sum(R_i)
     k <- length(partsize)
     
-    if (procedure == "shortcut") {
-      DA <- (2 * sum(sort(r_i, decreasing = TRUE) * 1:k) - 1) / (k - 1)
-      
-    } else if (procedure == "shortcut_mod") {
-      DA <- ((2 * sum(sort(r_i, decreasing = TRUE) * 1:k) - 1) / (k - 1)) * ((k-1)/k)
-      
-    } else {
-      dist_r <- as.matrix(stats::dist(r_i, method = "manhattan"))
-      DA <- 1 - (mean(dist_r[lower.tri(dist_r)]) / (2 / k))
-    }
+    DA <-  (2 * (sum(sort(r_i, decreasing = TRUE) * 1:k) - 1)) / (k - 1)
   }
   
   if (sum(subfreq) == 0){
@@ -116,7 +96,7 @@ disp_DA <- function(subfreq,
     
   } else {
     
-    DA_score <- calculate_DA(subfreq, partsize, procedure)
+    DA_score <- calculate_DA(subfreq, partsize)
     output <- DA_score
     
     if (freq_adjust == TRUE){
@@ -131,8 +111,8 @@ disp_DA <- function(subfreq,
         partsize,
         freq_adjust_method)
       
-      DA_min <- calculate_DA(subfreq_min_disp, partsize, procedure)
-      DA_max <- calculate_DA(subfreq_max_disp, partsize, procedure)
+      DA_min <- calculate_DA(subfreq_min_disp, partsize)
+      DA_max <- calculate_DA(subfreq_max_disp, partsize)
       
       output <- (DA_score - DA_min) / (DA_max - DA_min)
       
@@ -185,18 +165,9 @@ disp_DA <- function(subfreq,
         logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
         logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
       }
-      
-      if (procedure == "shortcut") {
-        logmsg("\nComputed using the computational shortcut suggested by")
-        logmsg("  Wilcox (1973: 343, 'MDA', column 4)")
-      } else if (procedure == "shortcut_mod") {
-        logmsg("\nComputed using the computational shortcut suggested by")
-        logmsg("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
-        logmsg("  correction to ensure DA does not exceed 1 (conventional)")
-      } else {
-        logmsg("\nComputed using the basic formula for DA, see:")
-        logmsg("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)")
-      }
+      logmsg("\nComputed using the computational shortcut suggested by")
+      logmsg("  Wilcox (1973: 343, 'MDA', column 4)")
+
       cat(paste(log_buffer, collapse = "\n"))
       
     }
@@ -208,7 +179,7 @@ disp_DA <- function(subfreq,
 #' Calculate the dispersion measure \eqn{D_{A}} for a term-document matrix
 #'
 #' @description
-#' This function calculates the dispersion measure \eqn{D_{A}}. It offers two different computational procedures, the basic version as well as a computational shortcut. It also allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also provides the option of calculating frequency-adjusted dispersion scores.
+#' This function calculates the dispersion measure \eqn{D_{A}}. It allows the user to choose the directionality of scaling, i.e. whether higher values denote a more even or a less even distribution. It also provides the option of calculating frequency-adjusted dispersion scores.
 #'
 #' @inheritParams disp_tdm
 #' @inheritParams disp_DA
@@ -216,11 +187,9 @@ disp_DA <- function(subfreq,
 #' @author Lukas Soenning
 #' 
 #' @details 
-#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{A}}. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row.
+#' This function takes as input a term-document matrix and returns, for each item (i.e. each row) the dispersion measure \eqn{D_{A}}. The rows in the input matrix represent the items, and the columns the corpus parts. Importantly, the term-document matrix must include an additional row that records the size of the corpus parts. For a proper term-document matrix, which includes all items that appear in the corpus, this can be added as a column margin, which sums the frequencies in each column. If the matrix only includes a selection of items drawn from the corpus, this information cannot be derived from the matrix and must be provided as a separate row. The function uses the shortcut formula ("computational" procedure) given in Wilcox (1973: 343), where \eqn{D_{A}} is referred to as MDA.
 #' 
 #' - Directionality: \eqn{D_{A}} ranges from 0 to 1. The conventional scaling of dispersion measures (see Juilland & Chang-Rodriguez 1964; Carroll 1970; Rosengren 1971) assigns higher values to more even/dispersed/balanced distributions of subfrequencies across corpus parts. This is the default. Gries (2008) uses the reverse scaling, with higher values denoting a more uneven/bursty/concentrated distribution; use `directionality = 'gries'` to choose this option.
-#' 
-#' - Procedure: Irrespective of the directionality of scaling, two computational procedures for \eqn{D_{A}} exist (see below for details). Both appear in Wilcox (1973), where the measure is referred to as "MDA". The basic version (represented by the value `basic`) carries out the full set of computations required by the composition of the formula. As the number of corpus parts grows, this can become computationally very expensive. Wilcox (1973) also gives a "computational" procedure, which is a shortcut that is much quicker and closely approximates the scores produced by the basic formula. This version is represented by the value `shortcut`.
 #' 
 #' - Frequency adjustment: Dispersion scores can be adjusted for frequency using the min-max transformation proposed by Gries (2022, 2024). The frequency-adjusted score for an  item considers the lowest and highest possible level of dispersion it can obtain given its overall corpus frequency as well as the number (and size) of corpus parts. The unadjusted score is then expressed relative to these endpoints, where the dispersion minimum is set to 0, and the dispersion maximum to 1 (expressed in terms of conventional scaling). The frequency-adjusted score falls between these bounds and expresses how close the observed distribution is to the theoretical maximum and minimum. This adjustment therefore requires a maximally and a minimally dispersed distribution of the item across the parts. These hypothetical extremes can be built in different ways. The method used by Gries (2022, 2024) uses a computationally expensive procedure that finds the distribution that produces the highest value on the dispersion measure of interest. The current function constructs extreme distributions in a different way, based on the distributional features pervasiveness (`pervasive`) or evenness (`even`). You can choose between these with the argument `freq_adjust_method`; the default is `even`. For details and explanations, see `vignette("frequency-adjustment")`. 
 #' 
@@ -234,21 +203,17 @@ disp_DA <- function(subfreq,
 #' - \eqn{R_i} the normalized subfrequency in part \eqn{i}, i.e. the number of occurrences of the item divided by the size of the part
 #' - \eqn{r_i} a proportional quantity; the normalized subfrequency in part \eqn{i} (\eqn{R_i}) divided by the sum of all normalized subfrequencies
 #' 
-#' The value `basic` implements the basic computational procedure (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98). The basic version can be applied to absolute frequencies and normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents conventional scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument `directionality`.
+#' The basic formula for \eqn{D_{A}} (see Wilcox 1973: 329, 343; Burch et al. 2017: 194; Egbert et al. 2020: 98) can be applied to absolute frequencies or normalized frequencies. For dispersion analysis, absolute frequencies only make sense if the corpus parts are identical in size. Wilcox (1973: 343, 'MDA', column 1 and 2) gives both variants of the basic version. The first use of \eqn{D_{A}} for corpus-linguistic dispersion analysis appears in Burch et al. (2017: 194), a paper that deals with equal-sized parts and therefore uses the variant for absolute frequencies. Egbert et al. (2020: 98) rely on the variant using normalized frequencies. Since this variant of the basic version of \eqn{D_{A}} works irrespective of the length of the corpus parts (equal or variable), we will only give this version of the formula. Note that while the formula represents conventional scaling (0 = uneven, 1 = even), in the current function the directionality is controlled separately using the argument `directionality`.
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}} (Egbert et al. 2020: 98)
 #' 
-#' The function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields the identical result; the \eqn{r_i} quantities are also the key to using the computational shortcut given in Wilcox (1973: 343). This is the basic formula for \eqn{D_{A}} using \eqn{r_i} instead of \eqn{R_i} values: 
+#' The function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields identical results; the \eqn{r_i} quantities are also the key to using the computational shortcut given in Wilcox (1973: 343), on which the calculations in the `{tlda}` package rely. This is the basic formula for \eqn{D_{A}} using \eqn{r_i} instead of \eqn{R_i} values: 
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}} (Wilcox 1973: 343; see also Soenning 2022)
 #' 
-#' The value `shortcut` implements the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut procedure be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
+#' Functions for \eqn{D_{A}} in the `{tlda}` package use the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut version be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
 #' 
-#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343)
-#'
-#' The value `shortcut_mod` adds a minor modification to the computational shortcut to ensure \eqn{D_{A}} does not exceed 1 (on the conventional dispersion scale):
-#' 
-#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1} \times \frac{k}{k - 1}}
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343) 
 #'
 #' 
 #' @returns A data frame with one row per item
@@ -273,7 +238,7 @@ disp_DA <- function(subfreq,
 #' 
 #' Soenning, Lukas. 2022. Evaluation of text-level measures of lexical dispersion: Robustness and consistency. \emph{PsyArXiv preprint}. \url{https://osf.io/preprints/psyarxiv/h9mvs/}
 #' 
-#' Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. The Western Political Quarterly 26 (2). 325--343. \doi{doi:10.2307/446831}
+#' Wilcox, Allen R. 1973. Indices of qualitative variation and political measurement. \emph{The Western Political Quarterly} 26 (2). 325--343. \doi{doi:10.2307/446831}
 #' 
 #' @export
 #'
@@ -281,14 +246,12 @@ disp_DA <- function(subfreq,
 #' disp_DA_tdm(
 #'   tdm = biber150_spokenBNC2014[1:20,],
 #'   row_partsize = "first",
-#'   procedure = "basic",
 #'   directionality = "conventional",
 #'   freq_adjust = FALSE)
 #' 
 disp_DA_tdm <- function(tdm,
                         row_partsize = "first",
                         directionality = "conventional",
-                        procedure = "basic",
                         freq_adjust = FALSE,
                         freq_adjust_method = "even",
                         add_frequency = TRUE,
@@ -327,7 +290,6 @@ disp_DA_tdm <- function(tdm,
         disp_DA(subfreq = x, 
                 partsize = tdm[1,],
                 directionality,
-                procedure,
                 freq_adjust = FALSE,
                 unit_interval = FALSE,
                 digits = NULL,
@@ -349,7 +311,6 @@ disp_DA_tdm <- function(tdm,
         disp_DA(subfreq = x, 
                 partsize = tdm[nrow(tdm),],
                 directionality,
-                procedure,
                 freq_adjust = FALSE,
                 unit_interval = FALSE,
                 digits = NULL,
@@ -381,7 +342,6 @@ disp_DA_tdm <- function(tdm,
           disp_DA(subfreq = x, 
                   partsize = min_disp_tdm[1,],
                   directionality,
-                  procedure,
                   freq_adjust = FALSE,
                   #freq_adjust_method,
                   unit_interval = FALSE,
@@ -398,7 +358,6 @@ disp_DA_tdm <- function(tdm,
           disp_DA(subfreq = x, 
                   partsize = max_disp_tdm[1,],
                   directionality,
-                  procedure,
                   freq_adjust = FALSE,
                   #freq_adjust_method,
                   unit_interval = FALSE,
@@ -417,7 +376,6 @@ disp_DA_tdm <- function(tdm,
           disp_DA(subfreq = x, 
                   partsize = min_disp_tdm[nrow(min_disp_tdm),],
                   directionality,
-                  procedure,
                   freq_adjust = FALSE,
                   #freq_adjust_method,
                   unit_interval = FALSE,
@@ -433,7 +391,6 @@ disp_DA_tdm <- function(tdm,
         function(x){
           disp_DA(subfreq = x, 
                   partsize = max_disp_tdm[nrow(max_disp_tdm),],
-                  procedure,
                   directionality,
                   freq_adjust = FALSE,
                   #freq_adjust_method,
@@ -511,18 +468,9 @@ disp_DA_tdm <- function(tdm,
       logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
       logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
     }
-    
-    if (procedure == "basic") {
-      logmsg("\nComputed using the basic formula for DA, see:")
-      logmsg("  Wilcox (1973: 343, 'MDA', column 2), Burch et al. (2017: 194-196)\n")
-    } else if (procedure == "shortcut") {
-      logmsg("\nComputed using the computational shortcut suggested by")
-      logmsg("  Wilcox (1973: 343, 'MDA', column 4)\n")
-    } else if (procedure == "shortcut_mod") {
-      logmsg("\nComputed using the computational shortcut suggested by")
-      logmsg("  Wilcox (1973: 343, 'MDA', column 4) with a minor")
-      logmsg("  correction to ensure DA does not exceed 1 (conventional)\n")
-    }
+    logmsg("\nComputed using the computational shortcut suggested by")
+    logmsg("  Wilcox (1973: 343, 'MDA', column 4)")
+
     cat(paste(log_buffer, collapse = "\n"))
     
   }

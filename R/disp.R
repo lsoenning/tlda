@@ -71,9 +71,13 @@
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}}
 #' 
-#' The current function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields the identical result: 
+#' The current function uses a formula that may be found in Wilcox (1973: 343). It relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}: 
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}}
+#' 
+#' Since this formula is computationally expensive, the function actually uses the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut version be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
+#' 
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343) 
 #' 
 #' \eqn{D_{KL}} refers to a measure proposed by Gries (2020, 2021); for standardization, it uses the odds-to-probability transformation (Gries 2024: 90) and represents Gries scaling (0 = even, 1 = uneven):
 #' 
@@ -150,8 +154,6 @@ disp <- function(subfreq,
     r_i <- R_i / sum(R_i)
     k <- length(T_i)
     
-    dist_r <- as.matrix(stats::dist(r_i, method = "manhattan"))
-    
     Rrel <- sum(T_i != 0) / length(T_i)
     
     D    <- 1 - (sqrt(sum((R_i - mean(R_i))^2) / k) / (mean(R_i) * sqrt(k - 1)))
@@ -162,7 +164,7 @@ disp <- function(subfreq,
     
     DP   <- 1 - ((sum(abs(t_i - w_i)) * (sum(W_i) / (sum(W_i) - min(W_i[T_i > 0], fill = 0)))) / 2)
     
-    DA   <- 1 - (mean(dist_r[lower.tri(dist_r)]) / (2 / k))
+    DA <-  (2 * (sum(sort(r_i, decreasing = TRUE) * 1:k) - 1)) / (k - 1)
     
     KLD  <- sum(t_i * ifelse(t_i == 0, 0, log2(t_i / w_i)))
     DKL  <- 1 - (KLD / (1 + KLD))
@@ -258,11 +260,16 @@ disp <- function(subfreq,
         logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
         logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
       }
+      
       logmsg("\nFor Gries's DP, the function uses the modified version suggested by")
       logmsg("  Egbert et al. (2020)")
+      
+      logmsg("\nDA is calculated using the computational shortcut suggested by")
+      logmsg("  Wilcox (1973: 343, 'MDA', column 4)")         
+      
       logmsg("\nFor DKL, standardization to the unit interval [0,1] is based on the")
       logmsg("  odds-to-probability transformation, see Gries (2024: 90)")
-      
+
       cat(paste(log_buffer, collapse = "\n"))
     }
   }
@@ -333,13 +340,17 @@ disp <- function(subfreq,
 #' 
 #'    \eqn{1 - \frac{\sum_i^k |t_i - w_i|}{2} \times \frac{1}{1 - min\{w_i: t_i > 0\}}}
 #' 
-#' \eqn{D_A} refers is a measure introduced into dispersion analysis by Burch et al. (2017). The following formula is the one used by Egbert et al. (2020: 98); it relies on normalized frequencies and therefore works with corpus parts of different size. The formula represents conventional scaling (0 = uneven, 1 = even):
+#' \eqn{D_A} is a measure introduced into dispersion analysis by Burch et al. (2017). The following formula is the one used by Egbert et al. (2020: 98); it relies on normalized frequencies and therefore works with corpus parts of different size. The formula represents conventional scaling (0 = uneven, 1 = even):
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |R_i - R_j|}{\frac{k(k-1)}{2}} \times \frac{1}{2\frac{\sum_i^k R_i}{k}}}
 #' 
-#' The current function uses a different version of the same formula, which relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}. This version yields the identical result: 
+#' The current function uses a formula that may be found in Wilcox (1973: 343). It relies on the proportional \eqn{r_i} values instead of the normalized subfrequencies \eqn{R_i}: 
 #' 
 #'    \eqn{1 - \frac{\sum_{i = 1}^{k-1} \sum_{j = i+1}^{k} |r_i - r_j|}{k-1}}
+#' 
+#' Since this formula is computationally expensive, the function actually uses the computational shortcut given in Wilcox (1973: 343). Critically, the proportional quantities \eqn{r_i} must first be sorted in decreasing order. Only after this rearrangement can the shortcut version be applied. We will refer to this rearranged version of \eqn{r_i} as \eqn{r_i^{sorted}}:
+#' 
+#'    \eqn{\frac{2\left(\sum_{i = 1}^{k} (i \times r_i^{sorted}) - 1\right)}{k-1}} (Wilcox 1973: 343) 
 #' 
 #' \eqn{D_{KL}} denotes a measure proposed by Gries (2020, 2021); for standardization, it uses the odds-to-probability transformation (Gries 2024: 90) and represents Gries scaling (0 = even, 1 = uneven):
 #' 
@@ -428,8 +439,6 @@ disp_tdm <- function(tdm,
     r_i <- R_i / sum(R_i)
     k <- length(T_i)
     
-    dist_r <- as.matrix(stats::dist(r_i, method = "manhattan"))
-    
     Rrel <- sum(T_i != 0) / length(T_i)
     
     D    <- 1 - (sqrt(sum((R_i - mean(R_i))^2) / k) / (mean(R_i) * sqrt(k - 1)))
@@ -440,7 +449,7 @@ disp_tdm <- function(tdm,
     
     DP   <- 1 - ((sum(abs(t_i - w_i)) * (sum(W_i) / (sum(W_i) - min(W_i[T_i > 0], fill = 0)))) / 2)
     
-    DA   <- 1 - (mean(dist_r[lower.tri(dist_r)]) / (2 / k))
+    DA <-  (2 * (sum(sort(r_i, decreasing = TRUE) * 1:k) - 1)) / (k - 1)
     
     KLD  <- sum(t_i * ifelse(t_i == 0, 0, log2(t_i / w_i)))
     DKL  <- 1 - (KLD / (1 + KLD))
@@ -629,11 +638,16 @@ disp_tdm <- function(tdm,
       logmsg("  0 = maximally uneven/bursty/concentrated distribution (pessimum)")
       logmsg("  1 = maximally even/dispersed/balanced distribution (optimum)")
     }
+    
     logmsg("\nFor Gries's DP, the function uses the modified version suggested by")
     logmsg("  Egbert et al. (2020)")
+    
+    logmsg("\nDA is calculated using the computational shortcut suggested by")
+    logmsg("  Wilcox (1973: 343, 'MDA', column 4)")  
+    
     logmsg("\nFor DKL, standardization to the unit interval [0,1] is based on the")
     logmsg("  odds-to-probability transformation, see Gries (2024: 90)")
-    
+  
     cat(paste(log_buffer, collapse = "\n"))
   }
   
